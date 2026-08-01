@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Sat, 01 Aug 2026 14:14:29 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 01 Aug 2026 16:32:31 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,21 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>理想高管全面复盘：从谷底的 MEGA，到翻盘的 MEGA Home</title>
+      <link>https://www.bilibili.com/video/BV1DMMuz7EDs/</link>
+      <description>在理想的北京总部，我和第一产品线总裁汤靖、产品部高级副总裁范皓宇，聊了聊谷底的 MEGA，以及翻盘的 MEGA Home。#理想MEGA
+
+作者：flypig的小号
+原始来源：https://www.bilibili.com/video/BV1DMMuz7EDs/</description>
+      <guid isPermaLink="false">personal-podcast:bilibili-bv1dmmuz7eds</guid>
+      <pubDate>Sat, 01 Aug 2026 16:32:31 +0000</pubDate>
+      <enclosure url="https://github.com/readguide/personal-podcast/releases/download/episode-bilibili-bv1dmmuz7eds/bilibili-bv1dmmuz7eds.m4a" length="72936562" type="audio/mp4" />
+      <itunes:author>flypig的小号</itunes:author>
+      <itunes:duration>0:59:10</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/bilibili-bv1dmmuz7eds.jpg" />
+    </item>
     <item>
       <title>AI巨头们之间的资本混战，到底是个什么情况？</title>
       <link>https://www.youtube.com/watch?v=OcKl98ZQbMQ</link>
