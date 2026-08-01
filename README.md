@@ -2,7 +2,7 @@
 
 把一个公开视频链接转换为个人播客的 macOS 工具。
 
-第一版以单链接流程为核心：Downie 4 优先下载，失败时使用 `yt-dlp`；`ffmpeg` 按平衡模式生成音频；GitHub Releases 保存音频，GitHub Pages 发布 `feed.xml`、封面和订阅页。
+第一版以单链接流程为核心：Downie 4 优先下载，失败时使用 `yt-dlp`；`ffmpeg` 按平衡模式生成音频；GitHub Releases 永久保存音频，GitHub Pages 发布 `feed.xml`、封面、订阅页和供播客客户端直接读取的音频副本。
 
 ## 已实现
 
@@ -18,6 +18,7 @@
 - GitHub Actions 使用 whisper.cpp 生成中文 TXT/SRT/VTT 转写稿。
 - TXT 转写稿永久保存在本地，RSS 简介自动附带全文。
 - RSS 2.0 + Apple Podcasts 标签、稳定 GUID、封面和文件长度。
+- Pages 部署时从 Releases 提取当前 RSS 可见的音频，提供无跳转的直接下载地址并核对文件长度。
 - SQLite 节目记录、轮转日志、中文错误提示和基础测试。
 
 ## 环境
@@ -96,7 +97,7 @@ personal-podcast add-latest --publish --sync-site
 personal-podcast add "https://example.com/video"
 ```
 
-发布音频到 GitHub Releases，但暂不推送 RSS：
+发布音频到 GitHub Releases 并生成 Pages 直接音频地址，但暂不推送 RSS：
 
 ```bash
 personal-podcast add "https://example.com/video" --publish
@@ -185,7 +186,7 @@ $PODCAST_ROOT/
 RSS：https://YOUR_GITHUB_ACCOUNT.github.io/personal-podcast/feed.xml
 ```
 
-仓库和 Releases 都是公开的，因此订阅源与已发布音频也是公开链接。请只处理你有权下载和发布的内容。
+仓库、Releases 和 Pages 都是公开的，因此订阅源与已发布音频也是公开链接。请只处理你有权下载和发布的内容。
 
 ## 自动转写
 

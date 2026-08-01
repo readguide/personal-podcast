@@ -68,7 +68,7 @@ class ReleasePublisherTests(unittest.TestCase):
             self.assertEqual(tag, "episode-example-123")
             self.assertEqual(
                 url,
-                "https://github.com/readguide/personal-podcast/releases/download/episode-example-123/"
+                "https://readguide.github.io/personal-podcast/audio/"
                 f"example-123.m4a?v={hashlib.sha256(b'audio').hexdigest()[:16]}",
             )
             self.assertEqual(run.call_args.args[0][1:3], ["release", "create"])
