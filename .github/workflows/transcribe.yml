@@ -3,6 +3,8 @@ name: Transcribe podcast audio
 on:
   release:
     types: [published]
+  repository_dispatch:
+    types: [transcribe]
   workflow_dispatch:
     inputs:
       release_tag:
@@ -27,8 +29,8 @@ jobs:
     timeout-minutes: 90
     env:
       GH_TOKEN: ${{ github.token }}
-      RELEASE_TAG: ${{ inputs.release_tag || github.event.release.tag_name }}
-      WHISPER_MODEL: ${{ inputs.model || 'small' }}
+      RELEASE_TAG: ${{ inputs.release_tag || github.event.client_payload.release_tag || github.event.release.tag_name }}
+      WHISPER_MODEL: ${{ inputs.model || github.event.client_payload.model || 'small' }}
     steps:
       - name: Download release audio
         run: |
