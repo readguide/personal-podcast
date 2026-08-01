@@ -36,6 +36,15 @@ brew install ffmpeg gh yt-dlp
 gh auth login
 ```
 
+发布时程序优先使用 `GH_TOKEN` 或 `GITHUB_TOKEN`。如果 GitHub CLI 的浏览器登录不可用，macOS 也可以把令牌存入本程序专用的钥匙串项；令牌不会写入配置、日志或仓库：
+
+```bash
+read -s GITHUB_PODCAST_TOKEN
+security add-generic-password -U \
+  -s personal-podcast-github-token -a "$USER" -w "$GITHUB_PODCAST_TOKEN"
+unset GITHUB_PODCAST_TOKEN
+```
+
 本程序不读取 macOS 音乐资料库。Downie 只通过其公开的 `downie://XUOpenURL` 自动化接口接收链接、目标目录和“仅音频”选项。
 
 程序不会修改 Downie 的默认下载目录。每个链接都会请求写入独立的 `Source Media` 节目目录；如果 Downie 忽略单次目录，程序只会识别本次新增的一个顶层媒体文件，并从 `downie_fallback_directory` 移入对应节目目录，已有下载不会被移动。
@@ -54,9 +63,12 @@ cd "$PODCAST_ROOT/Repository/personal-podcast"
 
 python3 -m venv .venv
 .venv/bin/pip install -e .
-.venv/bin/personal-podcast init
-.venv/bin/personal-podcast doctor
+source .venv/bin/activate
+personal-podcast init
+personal-podcast doctor
 ```
+
+新开终端后需再次运行 `source .venv/bin/activate`，再使用 `personal-podcast`。也可以由用户自行把虚拟环境中的命令入口加入已有的 `PATH` 目录。
 
 `init` 会创建配置文件。默认位置可在配置或环境中调整，例如：
 

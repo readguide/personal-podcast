@@ -7,7 +7,11 @@ from unittest.mock import patch
 
 from personal_podcast.config import GitHubConfig
 from personal_podcast.models import Episode
-from personal_podcast.publisher import GitHubReleasePublisher, GitSitePublisher
+from personal_podcast.publisher import (
+    GitHubReleasePublisher,
+    GitSitePublisher,
+    github_cli_environment,
+)
 
 
 def run_git(arguments, directory: Path) -> subprocess.CompletedProcess:
@@ -21,6 +25,23 @@ def run_git(arguments, directory: Path) -> subprocess.CompletedProcess:
 
 
 class ReleasePublisherTests(unittest.TestCase):
+    def test_github_environment_reads_dedicated_keychain_item(self) -> None:
+        keychain_result = subprocess.CompletedProcess([], 0, stdout="secret-token\n")
+        with patch.dict("os.environ", {"USER": "example"}, clear=True), patch(
+            "personal_podcast.publisher.subprocess.run", return_value=keychain_result
+        ) as run:
+            environment = github_cli_environment()
+        self.assertEqual(environment["GH_TOKEN"], "secret-token")
+        self.assertIn("personal-podcast-github-token", run.call_args.args[0])
+
+    def test_github_environment_keeps_existing_token(self) -> None:
+        with patch.dict("os.environ", {"GH_TOKEN": "existing"}, clear=True), patch(
+            "personal_podcast.publisher.subprocess.run"
+        ) as run:
+            environment = github_cli_environment()
+        self.assertEqual(environment["GH_TOKEN"], "existing")
+        run.assert_not_called()
+
     def test_release_url_is_stable(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             audio = Path(temporary) / "example-123.m4a"

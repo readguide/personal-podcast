@@ -1,12 +1,45 @@
+import getpass
+import os
 import subprocess
 from pathlib import Path
-from typing import Tuple
+from typing import Dict, Tuple
 from urllib.parse import quote
 
 from personal_podcast.commands import executable_exists, run_checked
 from personal_podcast.config import GitHubConfig
 from personal_podcast.errors import DependencyError, PublishError
 from personal_podcast.models import Episode
+
+
+KEYCHAIN_TOKEN_SERVICE = "personal-podcast-github-token"
+
+
+def github_cli_environment() -> Dict[str, str]:
+    environment = os.environ.copy()
+    if environment.get("GH_TOKEN") or environment.get("GITHUB_TOKEN"):
+        return environment
+    try:
+        result = subprocess.run(
+            [
+                "security",
+                "find-generic-password",
+                "-s",
+                KEYCHAIN_TOKEN_SERVICE,
+                "-a",
+                environment.get("USER") or getpass.getuser(),
+                "-w",
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return environment
+    token = result.stdout.strip()
+    if result.returncode == 0 and token:
+        environment["GH_TOKEN"] = token
+    return environment
 
 
 class GitHubReleasePublisher:
@@ -19,6 +52,7 @@ class GitHubReleasePublisher:
         if not episode.audio_path.exists():
             raise PublishError(f"成品音频不存在: {episode.audio_path}")
         tag = episode.release_tag or f"episode-{episode.episode_id}"
+        environment = github_cli_environment()
         if self._release_exists(tag):
             run_checked(
                 [
@@ -31,6 +65,7 @@ class GitHubReleasePublisher:
                     "--repo",
                     self.config.repository,
                 ],
+                env=environment,
                 error_type=PublishError,
             )
         else:
@@ -49,6 +84,7 @@ class GitHubReleasePublisher:
                     "--notes",
                     notes,
                 ],
+                env=environment,
                 error_type=PublishError,
             )
         filename = quote(episode.audio_path.name)
@@ -71,6 +107,7 @@ class GitHubReleasePublisher:
                 "--cleanup-tag",
                 "--yes",
             ],
+            env=github_cli_environment(),
             error_type=PublishError,
         )
 
@@ -95,6 +132,7 @@ class GitHubReleasePublisher:
                 str(destination),
                 "--clobber",
             ],
+            env=github_cli_environment(),
             error_type=PublishError,
         )
         if not transcript_path.exists() or transcript_path.stat().st_size == 0:
@@ -116,6 +154,7 @@ class GitHubReleasePublisher:
                 capture_output=True,
                 text=True,
                 timeout=30,
+                env=github_cli_environment(),
             )
         except FileNotFoundError as error:
             raise DependencyError(f"未找到 GitHub 工具: {self.config.gh_command}") from error

@@ -1,7 +1,7 @@
 import logging
 import shutil
 import subprocess
-from typing import List, Optional
+from typing import List, Mapping, Optional
 from urllib.parse import urlsplit, urlunsplit
 
 from personal_podcast.errors import DependencyError, PersonalPodcastError
@@ -25,6 +25,7 @@ def run_checked(
     arguments: List[str],
     *,
     timeout: Optional[float] = None,
+    env: Optional[Mapping[str, str]] = None,
     error_type: type = PersonalPodcastError,
 ) -> subprocess.CompletedProcess:
     LOGGER.debug("运行外部程序: %s", " ".join(_redact(item) for item in arguments))
@@ -35,6 +36,7 @@ def run_checked(
             capture_output=True,
             text=True,
             timeout=timeout,
+            env=dict(env) if env is not None else None,
         )
     except FileNotFoundError as error:
         raise DependencyError(f"未找到外部程序: {arguments[0]}") from error
