@@ -109,6 +109,8 @@ personal-podcast audio-host cloudflare \
   --cloudflare-url https://YOUR_WORKER.workers.dev \
   --sync-site
 
+personal-podcast audio-host github-pages --sync-site
+
 personal-podcast audio-host github --sync-site
 ```
 

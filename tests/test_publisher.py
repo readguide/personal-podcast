@@ -101,6 +101,31 @@ class ReleasePublisherTests(unittest.TestCase):
                 f"example-123.m4a?v={hashlib.sha256(b'audio').hexdigest()[:16]}",
             )
 
+    def test_github_pages_url_uses_direct_audio_path(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            audio = Path(temporary) / "example-123.m4a"
+            audio.write_bytes(b"audio")
+            episode = Episode(
+                episode_id="example-123",
+                source_url="https://example.com/123",
+                title="Episode",
+                description="Description",
+                author="Author",
+                imported_at=datetime.now(timezone.utc),
+                duration_seconds=10,
+                audio_path=audio,
+                audio_bytes=5,
+                audio_mime="audio/mp4",
+            )
+            publisher = GitHubReleasePublisher(
+                GitHubConfig(audio_host="github-pages")
+            )
+            self.assertEqual(
+                publisher.public_url(episode, "episode-example-123"),
+                "https://readguide.github.io/personal-podcast/audio/"
+                f"example-123.m4a?v={hashlib.sha256(b'audio').hexdigest()[:16]}",
+            )
+
     def test_download_transcript_uses_stable_episode_filename(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             destination = Path(temporary)

@@ -242,8 +242,10 @@ def validate_config(config: AppConfig) -> None:
         raise ConfigError(f"未知下载器: {', '.join(sorted(unsupported))}")
     if "/" not in config.github.repository:
         raise ConfigError("github.repository 应为 owner/repository 格式")
-    if config.github.audio_host not in {"github", "cloudflare"}:
-        raise ConfigError("github.audio_host 必须是 github 或 cloudflare")
+    if config.github.audio_host not in {"github", "github-pages", "cloudflare"}:
+        raise ConfigError(
+            "github.audio_host 必须是 github、github-pages 或 cloudflare"
+        )
     if (
         config.github.audio_host == "cloudflare"
         and not config.github.cloudflare_audio_base_url.startswith("https://")

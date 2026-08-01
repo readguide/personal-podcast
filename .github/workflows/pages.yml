@@ -26,6 +26,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Build direct audio files from releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY' > "$RUNNER_TEMP/audio-assets.tsv"
+          from pathlib import Path
+          from urllib.parse import unquote, urlparse
+          from xml.etree import ElementTree
+
+          root = ElementTree.parse("site/feed.xml").getroot()
+          for enclosure in root.findall("./channel/item/enclosure"):
+              url = enclosure.attrib["url"]
+              filename = unquote(Path(urlparse(url).path).name)
+              if not filename or Path(filename).name != filename:
+                  raise SystemExit(f"Unsafe enclosure filename: {filename!r}")
+              episode_id = Path(filename).stem
+              print(f"episode-{episode_id}\t{filename}\t{enclosure.attrib['length']}")
+          PY
+
+          mkdir -p site/audio
+          while IFS=$'\t' read -r tag filename expected_size; do
+            [ -n "$tag" ] || continue
+            gh release download "$tag" \
+              --repo "$GITHUB_REPOSITORY" \
+              --pattern "$filename" \
+              --dir site/audio \
+              --clobber
+            actual_size="$(stat -c %s "site/audio/$filename")"
+            if [ "$actual_size" != "$expected_size" ]; then
+              echo "$filename size mismatch: expected $expected_size, got $actual_size" >&2
+              exit 1
+            fi
+          done < "$RUNNER_TEMP/audio-assets.tsv"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

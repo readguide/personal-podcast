@@ -94,6 +94,8 @@ class GitHubReleasePublisher:
         filename = quote(episode.audio_path.name)
         if self.config.audio_host == "cloudflare":
             base_url = f"{self.config.cloudflare_audio_base_url}/audio/{filename}"
+        elif self.config.audio_host == "github-pages":
+            base_url = f"{self.config.pages_base_url}/audio/{filename}"
         else:
             base_url = (
                 f"https://github.com/{self.config.repository}/releases/download/"

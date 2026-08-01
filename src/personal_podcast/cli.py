@@ -82,7 +82,9 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("validate-feed", help="解析并校验生成的 feed.xml")
 
     host_parser = subparsers.add_parser("audio-host", help="切换 RSS 音频地址")
-    host_parser.add_argument("provider", choices=["github", "cloudflare"])
+    host_parser.add_argument(
+        "provider", choices=["github", "github-pages", "cloudflare"]
+    )
     host_parser.add_argument("--cloudflare-url", help="Cloudflare Worker 根地址")
     host_parser.add_argument(
         "--sync-site", action="store_true", help="同时提交并推送更新后的 RSS"
