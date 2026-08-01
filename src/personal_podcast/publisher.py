@@ -89,7 +89,9 @@ class GitHubReleasePublisher:
                 error_type=PublishError,
             )
         filename = quote(episode.audio_path.name)
-        base_url = f"{self.config.pages_base_url}/audio/{filename}"
+        base_url = (
+            f"https://github.com/{self.config.repository}/releases/download/{quote(tag)}/{filename}"
+        )
         return tag, f"{base_url}?v={_asset_version(episode.audio_path)}"
 
     def delete(self, tag: str) -> None:
