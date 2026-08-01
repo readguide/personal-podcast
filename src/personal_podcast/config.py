@@ -68,6 +68,9 @@ class DownloadConfig:
     downie_app: str = "Downie 4"
     downie_timeout_seconds: int = 3600
     downie_poll_seconds: float = 2.0
+    downie_fallback_directory: Path = field(
+        default_factory=lambda: Path.home() / "Downloads"
+    )
     yt_dlp_command: str = "yt-dlp"
 
 
@@ -187,6 +190,9 @@ def config_from_mapping(data: Mapping[str, Mapping[str, Any]]) -> AppConfig:
             downie_app=str(download.get("downie_app", "Downie 4")),
             downie_timeout_seconds=int(download.get("downie_timeout_seconds", 3600)),
             downie_poll_seconds=float(download.get("downie_poll_seconds", 2.0)),
+            downie_fallback_directory=_path(
+                download.get("downie_fallback_directory"), Path.home() / "Downloads"
+            ),
             yt_dlp_command=str(download.get("yt_dlp_command", "yt-dlp")),
         ),
         audio=AudioConfig(
@@ -259,6 +265,7 @@ order = [{order}]
 downie_app = {_quoted(config.download.downie_app)}
 downie_timeout_seconds = {config.download.downie_timeout_seconds}
 downie_poll_seconds = {config.download.downie_poll_seconds}
+downie_fallback_directory = {_quoted(str(config.download.downie_fallback_directory))}
 yt_dlp_command = {_quoted(config.download.yt_dlp_command)}
 
 [audio]

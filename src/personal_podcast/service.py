@@ -60,8 +60,8 @@ class PersonalPodcastService:
         download = self.downloads.download(url, source_directory, episode_id)
         source_info = self.media.probe(download.path)
 
-        fallback_title = source_info.tags.get("title") or download.path.stem
-        title = metadata.title if metadata else fallback_title
+        fallback_title = download.path.stem or source_info.tags.get("title") or episode_id
+        title = (metadata.title if metadata else "") or fallback_title
         author = (metadata.author if metadata else "") or self.config.podcast.author
         description = (metadata.description if metadata else "") or f"原始来源：{url}"
         artwork = download_artwork(

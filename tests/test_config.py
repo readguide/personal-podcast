@@ -31,6 +31,7 @@ class ConfigTests(unittest.TestCase):
         )
         self.assertEqual(config.storage.source_retention_days, 90)
         self.assertEqual(config.download.order, ["downie", "yt-dlp"])
+        self.assertEqual(config.download.downie_fallback_directory, Path.home() / "Downloads")
 
     def test_rendered_config_round_trips(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

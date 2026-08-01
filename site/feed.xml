@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Sat, 01 Aug 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 01 Aug 2026 14:14:29 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,5 +16,17 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>AI巨头们之间的资本混战，到底是个什么情况？</title>
+      <link>https://www.youtube.com/watch?v=OcKl98ZQbMQ</link>
+      <description>原始来源：https://www.youtube.com/watch?v=OcKl98ZQbMQ</description>
+      <guid isPermaLink="false">personal-podcast:youtube-com-f6ba40decc41a0c2</guid>
+      <pubDate>Sat, 01 Aug 2026 14:14:29 +0000</pubDate>
+      <enclosure url="https://github.com/readguide/personal-podcast/releases/download/episode-youtube-com-f6ba40decc41a0c2/youtube-com-f6ba40decc41a0c2.m4a" length="18911367" type="audio/mp4" />
+      <itunes:author>小Lin说</itunes:author>
+      <itunes:duration>0:19:28</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/youtube-com-f6ba40decc41a0c2.jpg" />
+    </item>
   </channel>
 </rss>

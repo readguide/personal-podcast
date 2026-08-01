@@ -1,5 +1,6 @@
 import json
 import logging
+import shutil
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -9,6 +10,7 @@ from urllib.parse import quote, urlencode
 from personal_podcast.commands import executable_exists, run_checked
 from personal_podcast.config import DownloadConfig
 from personal_podcast.errors import DownloadError
+from personal_podcast.identifiers import inferred_metadata_for_url
 from personal_podcast.models import EpisodeMetadata, metadata_from_mapping
 
 
@@ -67,6 +69,28 @@ def _snapshot(destination: Path) -> Dict[Path, Tuple[int, int]]:
     }
 
 
+def _top_level_snapshot(destination: Path) -> Dict[Path, Tuple[int, int]]:
+    if not destination.exists():
+        return {}
+    return {
+        path.resolve(): (path.stat().st_size, path.stat().st_mtime_ns)
+        for path in destination.iterdir()
+        if path.is_file()
+        and path.suffix.lower() in MEDIA_EXTENSIONS
+        and not path.name.startswith(".")
+    }
+
+
+def _changed_paths(
+    current: Dict[Path, Tuple[int, int]], before: Dict[Path, Tuple[int, int]]
+) -> Set[Path]:
+    return {
+        path
+        for path, signature in current.items()
+        if path not in before or signature != before[path]
+    }
+
+
 def _newest(paths: Iterable[Path]) -> Optional[Path]:
     candidates = list(paths)
     return max(candidates, key=lambda item: item.stat().st_mtime) if candidates else None
@@ -91,42 +115,82 @@ class DownieDownloader:
             raise DownloadError(f"未找到 {self.config.downie_app}")
         destination.mkdir(parents=True, exist_ok=True)
         before = _snapshot(destination)
+        fallback = self.config.downie_fallback_directory.expanduser().resolve()
+        fallback_before = (
+            _top_level_snapshot(fallback)
+            if fallback != destination.resolve()
+            else {}
+        )
         custom_url = build_downie_url(source_url, destination, title)
         run_checked(
             ["open", "-a", self.config.downie_app, custom_url],
             timeout=30,
             error_type=DownloadError,
         )
-        path = self._wait_for_download(destination, before)
+        path = self._wait_for_download(destination, before, fallback, fallback_before)
         return DownloadResult(path=path, downloader="downie")
 
     def _wait_for_download(
-        self, destination: Path, before: Dict[Path, Tuple[int, int]]
+        self,
+        destination: Path,
+        before: Dict[Path, Tuple[int, int]],
+        fallback: Optional[Path] = None,
+        fallback_before: Optional[Dict[Path, Tuple[int, int]]] = None,
     ) -> Path:
         deadline = time.monotonic() + self.config.downie_timeout_seconds
         stability: Dict[Path, Tuple[int, int]] = {}
         while time.monotonic() < deadline:
-            candidates = {
-                path
-                for path in _media_files(destination)
-                if path not in before
-                or (path.stat().st_size, path.stat().st_mtime_ns) != before[path]
-            }
+            candidates = _changed_paths(_snapshot(destination), before)
             partials = [
                 path
                 for path in destination.rglob("*")
-                if path.is_file() and path.suffix.lower() in PARTIAL_EXTENSIONS
+                if path.suffix.lower() in PARTIAL_EXTENSIONS
             ]
-            for path in candidates:
-                size = path.stat().st_size
-                previous_size, stable_count = stability.get(path, (-1, 0))
-                stability[path] = (size, stable_count + 1 if size == previous_size else 0)
-                if size > 0 and stability[path][1] >= 2 and not partials:
-                    return path
+            ready = self._stable_candidate(candidates, partials, stability)
+            if ready:
+                return ready
+
+            if fallback and fallback != destination.resolve():
+                fallback_candidates = _changed_paths(
+                    _top_level_snapshot(fallback), fallback_before or {}
+                )
+                fallback_partials = [
+                    path
+                    for path in fallback.iterdir()
+                    if path.suffix.lower() in PARTIAL_EXTENSIONS
+                ] if fallback.exists() else []
+                ready = self._stable_candidate(
+                    fallback_candidates, fallback_partials, stability
+                )
+                if ready:
+                    target = destination / ready.name
+                    if target.exists():
+                        raise DownloadError(f"指定目录已有同名文件: {target}")
+                    shutil.move(str(ready), str(target))
+                    LOGGER.warning(
+                        "%s 忽略了单次目标目录，已将本次下载移入 %s",
+                        self.config.downie_app,
+                        destination,
+                    )
+                    return target.resolve()
             time.sleep(self.config.downie_poll_seconds)
         raise DownloadError(
             f"{self.config.downie_app} 在 {self.config.downie_timeout_seconds} 秒内未产生完整音频"
         )
+
+    @staticmethod
+    def _stable_candidate(
+        candidates: Set[Path],
+        partials: List[Path],
+        stability: Dict[Path, Tuple[int, int]],
+    ) -> Optional[Path]:
+        if len(candidates) != 1 or partials:
+            return None
+        path = next(iter(candidates))
+        size = path.stat().st_size
+        previous_size, stable_count = stability.get(path, (-1, 0))
+        stability[path] = (size, stable_count + 1 if size == previous_size else 0)
+        return path if size > 0 and stability[path][1] >= 2 else None
 
 
 class YtDlpDownloader:
@@ -175,7 +239,7 @@ class MetadataReader:
 
     def read(self, source_url: str) -> Optional[EpisodeMetadata]:
         if not executable_exists(self.config.yt_dlp_command):
-            return None
+            return inferred_metadata_for_url(source_url)
         try:
             result = run_checked(
                 [
@@ -192,7 +256,7 @@ class MetadataReader:
             return metadata_from_mapping(payload, fallback_title="未命名节目")
         except (DownloadError, json.JSONDecodeError, TypeError) as error:
             LOGGER.warning("无法读取链接元数据，将使用下载文件信息: %s", error)
-            return None
+            return inferred_metadata_for_url(source_url)
 
 
 class DownloadManager:

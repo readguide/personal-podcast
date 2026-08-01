@@ -17,6 +17,7 @@ order = ["downie", "yt-dlp"]
 downie_app = "Downie 4"
 downie_timeout_seconds = 3600
 downie_poll_seconds = 2.0
+downie_fallback_directory = "/Users/en/Downloads"
 yt_dlp_command = "yt-dlp"
 
 [audio]

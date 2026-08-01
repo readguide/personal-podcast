@@ -58,6 +58,21 @@ class FakeReleasePublisher:
 
 
 class ServiceTests(unittest.TestCase):
+    def test_download_filename_wins_over_generic_container_title(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            config = AppConfig(
+                storage=StorageConfig(root=root, app_dir=root / "Application Data"),
+                github=GitHubConfig(site_dir=root / "Repository/personal-podcast/site"),
+            )
+            service = PersonalPodcastService(config)
+            service.metadata = type("NoMetadata", (), {"read": lambda self, url: None})()
+            service.downloads = FakeDownloadManager()
+            service.media = FakeMediaProcessor()
+            service.initialize()
+            episode = service.add("https://example.com/video")
+            self.assertEqual(episode.title, "source")
+
     def test_single_link_publish_archive_and_restore(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

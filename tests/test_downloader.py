@@ -1,8 +1,9 @@
+import tempfile
 import unittest
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from personal_podcast.downloader import build_downie_url
+from personal_podcast.downloader import DownieDownloader, build_downie_url
 from personal_podcast.config import DownloadConfig
 from personal_podcast.downloader import DownloadManager, DownloadResult
 from personal_podcast.errors import DownloadError
@@ -33,6 +34,38 @@ class DownloaderTests(unittest.TestCase):
             episode_id_for("https://youtube.com/watch?v=abc_123", metadata),
             "youtube-abc-123",
         )
+
+    def test_youtube_identifier_does_not_require_remote_metadata(self) -> None:
+        self.assertEqual(
+            episode_id_for("https://www.youtube.com/watch?v=OcKl98ZQbMQ"),
+            "youtube-ockl98zqbmq",
+        )
+
+    def test_downie_moves_only_new_fallback_file_to_destination(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            destination = root / "source"
+            fallback = root / "downloads"
+            destination.mkdir()
+            fallback.mkdir()
+            existing = fallback / "existing.m4a"
+            existing.write_bytes(b"existing")
+            before = {existing.resolve(): (existing.stat().st_size, existing.stat().st_mtime_ns)}
+            downloaded = fallback / "episode.mkv"
+            downloaded.write_bytes(b"download")
+            downloader = DownieDownloader(
+                DownloadConfig(
+                    downie_timeout_seconds=1,
+                    downie_poll_seconds=0.01,
+                    downie_fallback_directory=fallback,
+                )
+            )
+            result = downloader._wait_for_download(
+                destination, {}, fallback, before
+            )
+            self.assertEqual(result, (destination / downloaded.name).resolve())
+            self.assertTrue(existing.exists())
+            self.assertFalse(downloaded.exists())
 
     def test_canonical_url_removes_fragment(self) -> None:
         self.assertEqual(
