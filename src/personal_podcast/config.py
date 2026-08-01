@@ -54,6 +54,14 @@ class StorageConfig:
         return self.root / "Artwork"
 
     @property
+    def transcripts_dir(self) -> Path:
+        return self.root / "Transcripts"
+
+    @property
+    def link_inbox_path(self) -> Path:
+        return self.root / "Inbox" / "links.txt"
+
+    @property
     def temp_dir(self) -> Path:
         return self.root / "Temp"
 

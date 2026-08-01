@@ -34,6 +34,18 @@ def _duration(value: float) -> str:
     return f"{hours}:{minutes:02d}:{seconds:02d}"
 
 
+def _description(episode: Episode) -> str:
+    description = episode.description.strip()
+    if not episode.transcript_path or not episode.transcript_path.exists():
+        return description
+    transcript = episode.transcript_path.read_text(encoding="utf-8").strip()
+    if not transcript:
+        return description
+    return (
+        f"{description}\n\n自动转写全文（可能存在识别错误）：\n{transcript}"
+    )
+
+
 def build_feed(
     config: AppConfig,
     episodes: Iterable[Episode],
@@ -79,7 +91,7 @@ def build_feed(
         item = ET.SubElement(channel, "item")
         ET.SubElement(item, "title").text = episode.title
         ET.SubElement(item, "link").text = episode.source_url
-        ET.SubElement(item, "description").text = episode.description or f"原始来源：{episode.source_url}"
+        ET.SubElement(item, "description").text = _description(episode)
         guid = ET.SubElement(item, "guid", {"isPermaLink": "false"})
         guid.text = f"personal-podcast:{episode.episode_id}"
         ET.SubElement(item, "pubDate").text = _rfc2822(episode.imported_at)

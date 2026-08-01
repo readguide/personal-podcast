@@ -36,6 +36,10 @@ class StoreTests(unittest.TestCase):
             )
             store.set_published("episode-one", "https://example.com/audio.m4a", "tag-one")
             self.assertEqual(len(store.list_visible()), 1)
+            transcript = root / "episode-one.txt"
+            transcript.write_text("Transcript", encoding="utf-8")
+            updated = store.set_transcript_path("episode-one", transcript)
+            self.assertEqual(updated.transcript_path, transcript)
             store.set_archived("episode-one", now)
             self.assertEqual(store.list_visible(), [])
             store.set_archived("episode-one", None)

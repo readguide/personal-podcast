@@ -42,6 +42,7 @@ class EpisodeStore:
                     source_path TEXT,
                     source_cleanup_after TEXT,
                     artwork_path TEXT,
+                    transcript_path TEXT,
                     public_audio_url TEXT,
                     release_tag TEXT,
                     archived_at TEXT,
@@ -50,6 +51,11 @@ class EpisodeStore:
                 )
                 """
             )
+            columns = {
+                row["name"] for row in connection.execute("PRAGMA table_info(episodes)")
+            }
+            if "transcript_path" not in columns:
+                connection.execute("ALTER TABLE episodes ADD COLUMN transcript_path TEXT")
             connection.execute(
                 "CREATE INDEX IF NOT EXISTS episodes_imported_at ON episodes(imported_at DESC)"
             )
@@ -74,6 +80,7 @@ class EpisodeStore:
             _path_to_text(episode.source_path),
             _datetime_to_text(episode.source_cleanup_after),
             _path_to_text(episode.artwork_path),
+            _path_to_text(episode.transcript_path),
             episode.public_audio_url,
             episode.release_tag,
             _datetime_to_text(episode.archived_at),
@@ -86,9 +93,9 @@ class EpisodeStore:
                 INSERT INTO episodes (
                     episode_id, source_url, title, description, author, imported_at,
                     duration_seconds, audio_path, audio_bytes, audio_mime, source_path,
-                    source_cleanup_after, artwork_path, public_audio_url, release_tag,
+                    source_cleanup_after, artwork_path, transcript_path, public_audio_url, release_tag,
                     archived_at, deleted_at, source_cleaned_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(episode_id) DO UPDATE SET
                     source_url=excluded.source_url,
                     title=excluded.title,
@@ -102,6 +109,7 @@ class EpisodeStore:
                     source_path=excluded.source_path,
                     source_cleanup_after=excluded.source_cleanup_after,
                     artwork_path=excluded.artwork_path,
+                    transcript_path=excluded.transcript_path,
                     public_audio_url=excluded.public_audio_url,
                     release_tag=excluded.release_tag,
                     archived_at=excluded.archived_at,
@@ -219,6 +227,15 @@ class EpisodeStore:
             )
         return self.get(episode_id)
 
+    def set_transcript_path(self, episode_id: str, transcript_path: Path) -> Episode:
+        self.get(episode_id)
+        with self._connect() as connection:
+            connection.execute(
+                "UPDATE episodes SET transcript_path = ? WHERE episode_id = ?",
+                (str(transcript_path), episode_id),
+            )
+        return self.get(episode_id)
+
     @staticmethod
     def _episode_from_row(row: sqlite3.Row) -> Episode:
         return Episode(
@@ -235,6 +252,9 @@ class EpisodeStore:
             source_path=Path(row["source_path"]) if row["source_path"] else None,
             source_cleanup_after=_text_to_datetime(row["source_cleanup_after"]),
             artwork_path=Path(row["artwork_path"]) if row["artwork_path"] else None,
+            transcript_path=(
+                Path(row["transcript_path"]) if row["transcript_path"] else None
+            ),
             public_audio_url=row["public_audio_url"],
             release_tag=row["release_tag"],
             archived_at=_text_to_datetime(row["archived_at"]),

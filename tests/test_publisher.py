@@ -50,6 +50,23 @@ class ReleasePublisherTests(unittest.TestCase):
             )
             self.assertEqual(run.call_args.args[0][1:3], ["release", "create"])
 
+    def test_download_transcript_uses_stable_episode_filename(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            destination = Path(temporary)
+            publisher = GitHubReleasePublisher(GitHubConfig())
+
+            def download(arguments, **kwargs):
+                (destination / "example-123.txt").write_text("Transcript", encoding="utf-8")
+
+            with patch("personal_podcast.publisher.executable_exists", return_value=True), patch(
+                "personal_podcast.publisher.run_checked", side_effect=download
+            ) as run:
+                path = publisher.download_transcript(
+                    "episode-example-123", "example-123", destination
+                )
+            self.assertEqual(path, destination / "example-123.txt")
+            self.assertIn("example-123.txt", run.call_args.args[0])
+
 
 class SitePublisherTests(unittest.TestCase):
     def test_sync_commits_only_site_and_pushes(self) -> None:

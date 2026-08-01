@@ -58,6 +58,23 @@ class FeedTests(unittest.TestCase):
             self.assertEqual(titles, ["标题 newer", "标题 older"])
             self.assertIn("&amp;", feed_path.read_text(encoding="utf-8"))
 
+    def test_feed_appends_local_transcript_to_description(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            config = AppConfig(
+                storage=StorageConfig(root=root, app_dir=root / "data"),
+                github=GitHubConfig(site_dir=root / "site"),
+            )
+            item = episode("with-transcript", datetime(2026, 1, 2, tzinfo=timezone.utc))
+            transcript = root / "transcript.txt"
+            transcript.write_text("这是自动转写全文。", encoding="utf-8")
+            item.transcript_path = transcript
+            feed_path = root / "site/feed.xml"
+            write_feed(feed_path, config, [item])
+            description = ET.parse(feed_path).findtext("./channel/item/description") or ""
+            self.assertIn("自动转写全文（可能存在识别错误）", description)
+            self.assertIn("这是自动转写全文。", description)
+
     def test_empty_feed_is_valid(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

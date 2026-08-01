@@ -15,6 +15,8 @@
 - 非重复源音频及源视频保留 90 天，到期后仅标记为可清理。
 - 手动归档、恢复、删除和源文件清理。
 - GitHub Release 发布、删除，以及显式站点同步。
+- GitHub Actions 使用 whisper.cpp 生成中文 TXT/SRT/VTT 转写稿。
+- TXT 转写稿永久保存在本地，RSS 简介自动附带全文。
 - RSS 2.0 + Apple Podcasts 标签、稳定 GUID、封面和文件长度。
 - SQLite 节目记录、轮转日志、中文错误提示和基础测试。
 
@@ -66,6 +68,16 @@ $PODCAST_ROOT/Application Data/config.toml
 
 ## 单链接使用
 
+最简单的输入方式是把链接追加到 `$PODCAST_ROOT/Inbox/links.txt`，每行一个。程序只读取文件中最后出现的链接，不会清空或改写文件：
+
+```bash
+personal-podcast add-latest --publish --sync-site
+```
+
+明确的视频链接会进入下载和播客流程。其他链接会先用 `yt-dlp` 检查是否存在可下载媒体；只有文章而没有视频或音频流时，会提示跳过。
+
+也可以直接在命令中输入链接。
+
 只导入到本地：
 
 ```bash
@@ -109,6 +121,9 @@ personal-podcast cleanup
 
 # 确认后实际清理；最终音频不受影响
 personal-podcast cleanup --delete
+
+# GitHub 转写完成后，下载 TXT 到本地并把全文写入 RSS 简介
+personal-podcast transcript EPISODE_ID --sync-site
 ```
 
 归档、恢复或删除后，可运行：
@@ -134,6 +149,10 @@ $PODCAST_ROOT/
 ├── Artwork/
 │   ├── podcast-cover.png
 │   └── Episodes/
+├── Transcripts/
+│   └── YYYY/episode-id.txt
+├── Inbox/
+│   └── links.txt
 ├── Repository/
 │   └── personal-podcast/
 │       └── site/
@@ -155,6 +174,18 @@ RSS：https://YOUR_GITHUB_ACCOUNT.github.io/personal-podcast/feed.xml
 ```
 
 仓库和 Releases 都是公开的，因此订阅源与已发布音频也是公开链接。请只处理你有权下载和发布的内容。
+
+## 自动转写
+
+发布 Release 后，[转写工作流](.github/workflows/transcribe.yml) 会在 GitHub Actions 的 Linux 运行器上使用 whisper.cpp 多语言 `small` 模型生成 TXT、SRT 和 VTT，并上传回同一个 Release。也可以在 Actions 页面手动运行，填写 Release 标签并选择 `small` 或 `medium` 模型。
+
+工作流完成后运行：
+
+```bash
+personal-podcast transcript EPISODE_ID --sync-site
+```
+
+TXT 会保存到 `$PODCAST_ROOT/Transcripts/YYYY/`。节目原简介继续单独保留，生成 RSS 时在其后附加带有误差提示的自动转写全文，因此重复生成站点不会重复追加文本。
 
 ## 音频规则
 

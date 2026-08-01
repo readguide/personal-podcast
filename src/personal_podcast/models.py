@@ -49,6 +49,7 @@ class Episode:
     source_path: Optional[Path] = None
     source_cleanup_after: Optional[datetime] = None
     artwork_path: Optional[Path] = None
+    transcript_path: Optional[Path] = None
     public_audio_url: Optional[str] = None
     release_tag: Optional[str] = None
     archived_at: Optional[datetime] = None

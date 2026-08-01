@@ -49,8 +49,26 @@ def build_parser() -> argparse.ArgumentParser:
         help="发布后提交并推送 RSS 站点",
     )
 
+    latest_parser = subparsers.add_parser(
+        "add-latest", help="读取链接收件箱中的最新链接，仅导入视频"
+    )
+    latest_parser.add_argument(
+        "--publish", action="store_true", help="导入后立即发布到 GitHub Releases"
+    )
+    latest_parser.add_argument(
+        "--sync-site", action="store_true", help="发布后提交并推送 RSS 站点"
+    )
+
     publish_parser = subparsers.add_parser("publish", help="发布一个节目到 GitHub Releases")
     publish_parser.add_argument("episode_id", help="节目编号")
+
+    transcript_parser = subparsers.add_parser(
+        "transcript", help="从 GitHub Release 下载转写稿并写入 RSS 简介"
+    )
+    transcript_parser.add_argument("episode_id", help="节目编号")
+    transcript_parser.add_argument(
+        "--sync-site", action="store_true", help="同时提交并推送更新后的 RSS"
+    )
 
     subparsers.add_parser("generate", help="重新生成站点与 feed.xml")
     subparsers.add_parser("sync-site", help="提交并推送 RSS 站点")
@@ -83,7 +101,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Optional[List[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command == "add" and args.sync_site and not args.publish:
+    if args.command in {"add", "add-latest"} and args.sync_site and not args.publish:
         parser.error("--sync-site 需要同时使用 --publish")
     try:
         if args.command not in {"init", "doctor"} and not args.config.exists():
@@ -116,9 +134,26 @@ def main(argv: Optional[List[str]] = None) -> int:
             print(f"节目编号：{episode.episode_id}")
             print(f"最终音频：{episode.audio_path}")
             print("发布状态：已发布" if episode.public_audio_url else "发布状态：仅本地")
+        elif args.command == "add-latest":
+            url, episode = service.add_latest(publish=args.publish)
+            if episode is None:
+                print(f"已跳过非视频链接：{url}")
+            else:
+                if args.sync_site:
+                    service.sync_site(f"Publish podcast episode {episode.episode_id}")
+                print(f"已导入：{episode.title}")
+                print(f"节目编号：{episode.episode_id}")
+                print(f"最终音频：{episode.audio_path}")
+                print("发布状态：已发布" if episode.public_audio_url else "发布状态：仅本地")
         elif args.command == "publish":
             episode = service.publish(args.episode_id)
             print(f"已发布：{episode.public_audio_url}")
+        elif args.command == "transcript":
+            episode = service.import_transcript(args.episode_id)
+            if args.sync_site:
+                service.sync_site(f"Publish transcript for {episode.episode_id}")
+            print(f"转写稿已保存：{episode.transcript_path}")
+            print("RSS 简介已加入自动转写全文。")
         elif args.command == "generate":
             count = service.generate_site()
             print(f"已生成 RSS：{config.github.site_dir / 'feed.xml'}（{count} 期）")

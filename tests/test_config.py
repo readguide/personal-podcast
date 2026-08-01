@@ -30,6 +30,10 @@ class ConfigTests(unittest.TestCase):
             Path("/Users/en/Downloads/en/Personal Podcast/Application Data"),
         )
         self.assertEqual(config.storage.source_retention_days, 90)
+        self.assertEqual(
+            config.storage.transcripts_dir,
+            Path("/Users/en/Downloads/en/Personal Podcast/Transcripts"),
+        )
         self.assertEqual(config.download.order, ["downie", "yt-dlp"])
         self.assertEqual(config.download.downie_fallback_directory, Path.home() / "Downloads")
 

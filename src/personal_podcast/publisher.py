@@ -74,6 +74,33 @@ class GitHubReleasePublisher:
             error_type=PublishError,
         )
 
+    def download_transcript(
+        self, tag: str, episode_id: str, destination: Path
+    ) -> Path:
+        if not executable_exists(self.config.gh_command):
+            raise DependencyError(f"未找到 GitHub 工具: {self.config.gh_command}")
+        destination.mkdir(parents=True, exist_ok=True)
+        transcript_path = destination / f"{episode_id}.txt"
+        run_checked(
+            [
+                self.config.gh_command,
+                "release",
+                "download",
+                tag,
+                "--repo",
+                self.config.repository,
+                "--pattern",
+                transcript_path.name,
+                "--dir",
+                str(destination),
+                "--clobber",
+            ],
+            error_type=PublishError,
+        )
+        if not transcript_path.exists() or transcript_path.stat().st_size == 0:
+            raise PublishError(f"Release 中没有可用转写稿: {transcript_path.name}")
+        return transcript_path
+
     def _release_exists(self, tag: str) -> bool:
         try:
             result = subprocess.run(
