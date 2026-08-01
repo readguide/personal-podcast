@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.venv/
+build/
+dist/
+*.egg-info/
+.DS_Store
+
+# Runtime data belongs under /Users/en/Downloads/en/Personal Podcast.
+Application Data/
+Final Audio/
+Source Media/
+Temp/
+Exports/

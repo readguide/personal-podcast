@@ -1,0 +1,32 @@
+[podcast]
+name = "收听库"
+author = "en"
+description = "将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。"
+language = "zh-CN"
+explicit = false
+
+[storage]
+root = "/Users/en/Downloads/en/Personal Podcast"
+app_dir = "/Users/en/Downloads/en/Personal Podcast/Application Data"
+source_retention_days = 90
+keep_final_audio = true
+keep_redundant_source_audio = false
+
+[download]
+order = ["downie", "yt-dlp"]
+downie_app = "Downie 4"
+downie_timeout_seconds = 3600
+downie_poll_seconds = 2.0
+yt_dlp_command = "yt-dlp"
+
+[audio]
+mode = "balanced"
+aac_bitrate_kbps = 128
+ffmpeg_command = "ffmpeg"
+ffprobe_command = "ffprobe"
+
+[github]
+repository = "readguide/personal-podcast"
+pages_base_url = "https://readguide.github.io/personal-podcast"
+site_dir = "/Users/en/Downloads/en/Personal Podcast/Repository/personal-podcast/site"
+gh_command = "gh"

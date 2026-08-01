@@ -1,0 +1,139 @@
+import subprocess
+from pathlib import Path
+from typing import Tuple
+from urllib.parse import quote
+
+from personal_podcast.commands import executable_exists, run_checked
+from personal_podcast.config import GitHubConfig
+from personal_podcast.errors import DependencyError, PublishError
+from personal_podcast.models import Episode
+
+
+class GitHubReleasePublisher:
+    def __init__(self, config: GitHubConfig):
+        self.config = config
+
+    def publish(self, episode: Episode) -> Tuple[str, str]:
+        if not executable_exists(self.config.gh_command):
+            raise DependencyError(f"未找到 GitHub 工具: {self.config.gh_command}")
+        if not episode.audio_path.exists():
+            raise PublishError(f"成品音频不存在: {episode.audio_path}")
+        tag = episode.release_tag or f"episode-{episode.episode_id}"
+        if self._release_exists(tag):
+            run_checked(
+                [
+                    self.config.gh_command,
+                    "release",
+                    "upload",
+                    tag,
+                    str(episode.audio_path),
+                    "--clobber",
+                    "--repo",
+                    self.config.repository,
+                ],
+                error_type=PublishError,
+            )
+        else:
+            notes = episode.description or f"原始来源：{episode.source_url}"
+            run_checked(
+                [
+                    self.config.gh_command,
+                    "release",
+                    "create",
+                    tag,
+                    str(episode.audio_path),
+                    "--repo",
+                    self.config.repository,
+                    "--title",
+                    episode.title,
+                    "--notes",
+                    notes,
+                ],
+                error_type=PublishError,
+            )
+        filename = quote(episode.audio_path.name)
+        url = (
+            f"https://github.com/{self.config.repository}/releases/download/{quote(tag)}/{filename}"
+        )
+        return tag, url
+
+    def delete(self, tag: str) -> None:
+        if not self._release_exists(tag):
+            return
+        run_checked(
+            [
+                self.config.gh_command,
+                "release",
+                "delete",
+                tag,
+                "--repo",
+                self.config.repository,
+                "--cleanup-tag",
+                "--yes",
+            ],
+            error_type=PublishError,
+        )
+
+    def _release_exists(self, tag: str) -> bool:
+        try:
+            result = subprocess.run(
+                [
+                    self.config.gh_command,
+                    "release",
+                    "view",
+                    tag,
+                    "--repo",
+                    self.config.repository,
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        except FileNotFoundError as error:
+            raise DependencyError(f"未找到 GitHub 工具: {self.config.gh_command}") from error
+        except subprocess.TimeoutExpired as error:
+            raise PublishError("检查 GitHub Release 时超时") from error
+        return result.returncode == 0
+
+
+class GitSitePublisher:
+    def __init__(self, config: GitHubConfig):
+        self.config = config
+
+    def sync(self, message: str) -> bool:
+        repository_dir = self.config.site_dir.parent
+        if not (repository_dir / ".git").exists():
+            raise PublishError(f"站点目录不在 Git 仓库中: {repository_dir}")
+        run_checked(
+            ["git", "-C", str(repository_dir), "add", "--", "site"],
+            error_type=PublishError,
+        )
+        diff = subprocess.run(
+            ["git", "-C", str(repository_dir), "diff", "--cached", "--quiet", "--", "site"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if diff.returncode == 0:
+            return False
+        if diff.returncode != 1:
+            raise PublishError((diff.stderr or "无法检查站点改动").strip())
+        run_checked(
+            [
+                "git",
+                "-C",
+                str(repository_dir),
+                "commit",
+                "-m",
+                message,
+                "--",
+                "site",
+            ],
+            error_type=PublishError,
+        )
+        run_checked(
+            ["git", "-C", str(repository_dir), "push", "origin", "HEAD"],
+            error_type=PublishError,
+        )
+        return True

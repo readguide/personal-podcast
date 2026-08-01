@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
+  <channel>
+    <title>收听库</title>
+    <link>https://readguide.github.io/personal-podcast</link>
+    <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 01 Aug 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
+    <itunes:author>en</itunes:author>
+    <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
+    <itunes:explicit>false</itunes:explicit>
+    <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+    <image>
+      <url>https://readguide.github.io/personal-podcast/artwork/podcast-cover.png</url>
+      <title>收听库</title>
+      <link>https://readguide.github.io/personal-podcast</link>
+    </image>
+  </channel>
+</rss>

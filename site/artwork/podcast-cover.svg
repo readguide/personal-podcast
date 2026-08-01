@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1400" viewBox="0 0 1400 1400">
+  <rect width="1400" height="1400" fill="#f0f2ed"/>
+  <rect x="110" y="110" width="1180" height="1180" rx="18" fill="#173f35"/>
+  <circle cx="1090" cy="330" r="128" fill="#dfb73f"/>
+  <path d="M285 400h540v34H285zm0 82h710v34H285zm0 82h610v34H285z" fill="#b9d9c9"/>
+  <path d="M285 835h830v8H285z" fill="#6f9888"/>
+  <text x="285" y="760" fill="#ffffff" font-family="PingFang SC, Helvetica Neue, sans-serif" font-size="176" font-weight="700" letter-spacing="0">收听库</text>
+  <text x="292" y="940" fill="#d7e3dd" font-family="Helvetica Neue, sans-serif" font-size="56" font-weight="600" letter-spacing="0">PERSONAL PODCAST</text>
+  <text x="292" y="1050" fill="#9fbbb0" font-family="Helvetica Neue, sans-serif" font-size="36" letter-spacing="0">CURATED BY EN</text>
+</svg>
