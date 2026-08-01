@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Sat, 01 Aug 2026 16:32:31 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 01 Aug 2026 23:51:13 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,22 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>「现代高能物理学之认识」杨振宁教授1964年香港中文大学演讲</title>
+      <link>https://www.bilibili.com/video/BV11fyiB9EwB/</link>
+      <description>https://cnyangarchive.cuhk.edu.hk/LectureVideo.aspx
+1964年12月30日下午，杨振宁教授应中文大学之邀，在香港大会堂音乐厅作题为“现代高能物理学之认识”的演讲，讲座盛况空前。杨振宁教授时年42岁。
+
+作者：MintChocoChips
+原始来源：https://www.bilibili.com/video/BV11fyiB9EwB/</description>
+      <guid isPermaLink="false">personal-podcast:bilibili-bv11fyib9ewb</guid>
+      <pubDate>Sat, 01 Aug 2026 23:51:13 +0000</pubDate>
+      <enclosure url="https://readguide.github.io/personal-podcast/audio/bilibili-bv11fyib9ewb.m4a?v=f2eba1a9f21fe3a9" length="59473282" type="audio/mp4" />
+      <itunes:author>MintChocoChips</itunes:author>
+      <itunes:duration>0:59:38</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/bilibili-bv11fyib9ewb.jpg" />
+    </item>
     <item>
       <title>理想高管全面复盘：从谷底的 MEGA，到翻盘的 MEGA Home</title>
       <link>https://www.bilibili.com/video/BV1DMMuz7EDs/</link>
