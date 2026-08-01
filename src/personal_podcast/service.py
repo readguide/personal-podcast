@@ -14,6 +14,7 @@ from personal_podcast.models import Episode
 from personal_podcast.publisher import GitHubReleasePublisher, GitSitePublisher
 from personal_podcast.site import SiteGenerator
 from personal_podcast.store import EpisodeStore
+from personal_podcast.transcript import format_transcript, transcript_filename
 
 
 LOGGER = logging.getLogger(__name__)
@@ -212,10 +213,28 @@ class PersonalPodcastService:
         if not episode.release_tag:
             raise PersonalPodcastError("节目尚未发布，无法从 GitHub 下载转写稿")
         destination = self.config.storage.transcripts_dir / str(episode.imported_at.year)
-        transcript_path = self.publisher.download_transcript(
-            episode.release_tag, episode.episode_id, destination
+        download_directory = (
+            self.config.storage.temp_dir / "Transcripts" / episode.episode_id
+        )
+        raw_path = self.publisher.download_transcript(
+            episode.release_tag, episode.episode_id, download_directory
+        )
+        destination.mkdir(parents=True, exist_ok=True)
+        transcript_path = destination / transcript_filename(episode)
+        raw_text = raw_path.read_text(encoding="utf-8")
+        transcript_path.write_text(
+            format_transcript(episode, raw_text), encoding="utf-8"
         )
         updated = self.store.set_transcript_path(episode_id, transcript_path)
+        raw_path.unlink(missing_ok=True)
+        self._remove_empty_parent(download_directory)
+        previous_path = episode.transcript_path
+        if (
+            previous_path
+            and previous_path != transcript_path
+            and previous_path.parent == destination
+        ):
+            previous_path.unlink(missing_ok=True)
         self.generate_site()
         return updated
 

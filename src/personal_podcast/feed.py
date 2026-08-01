@@ -6,6 +6,7 @@ from xml.etree import ElementTree as ET
 
 from personal_podcast.config import AppConfig
 from personal_podcast.models import Episode
+from personal_podcast.transcript import transcript_audio_text
 
 
 ITUNES = "http://www.itunes.com/dtds/podcast-1.0.dtd"
@@ -38,7 +39,9 @@ def _description(episode: Episode) -> str:
     description = episode.description.strip()
     if not episode.transcript_path or not episode.transcript_path.exists():
         return description
-    transcript = episode.transcript_path.read_text(encoding="utf-8").strip()
+    transcript = transcript_audio_text(
+        episode.transcript_path.read_text(encoding="utf-8")
+    )
     if not transcript:
         return description
     return (

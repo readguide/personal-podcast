@@ -150,7 +150,7 @@ $PODCAST_ROOT/
 │   ├── podcast-cover.png
 │   └── Episodes/
 ├── Transcripts/
-│   └── YYYY/episode-id.txt
+│   └── YYYY/episode-id - 视频名称.txt
 ├── Inbox/
 │   └── links.txt
 ├── Repository/
@@ -185,7 +185,7 @@ RSS：https://YOUR_GITHUB_ACCOUNT.github.io/personal-podcast/feed.xml
 personal-podcast transcript EPISODE_ID --sync-site
 ```
 
-TXT 会保存到 `$PODCAST_ROOT/Transcripts/YYYY/`。节目原简介继续单独保留，生成 RSS 时在其后附加带有误差提示的自动转写全文，因此重复生成站点不会重复追加文本。
+TXT 会以 `episode-id - 视频名称.txt` 保存到 `$PODCAST_ROOT/Transcripts/YYYY/`。文件开头依次记录视频名称、作者、原链接和导入时间，再写入音频文本。节目原简介继续单独保留，生成 RSS 时只取 TXT 中的音频文本并附加误差提示，因此重复生成站点不会重复元数据或全文。
 
 ## 音频规则
 
