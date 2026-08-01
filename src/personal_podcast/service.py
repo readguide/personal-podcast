@@ -160,6 +160,17 @@ class PersonalPodcastService:
         self.generate_site()
         return published
 
+    def refresh_audio_urls(self) -> int:
+        updated = 0
+        for episode in self.store.list(include_deleted=True):
+            if not episode.public_audio_url or not episode.release_tag:
+                continue
+            url = self.publisher.public_url(episode, episode.release_tag)
+            self.store.set_published(episode.episode_id, url, episode.release_tag)
+            updated += 1
+        self.generate_site()
+        return updated
+
     def add_latest(self, publish: bool = False) -> Tuple[str, Optional[Episode]]:
         url = latest_link(self.config.storage.link_inbox_path)
         if not self.link_classifier.is_video(url):

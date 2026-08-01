@@ -7,6 +7,7 @@ build/
 dist/
 *.egg-info/
 .DS_Store
+.wrangler/
 
 # Runtime data belongs under /Users/en/Downloads/en/Personal Podcast.
 Application Data/

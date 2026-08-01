@@ -52,9 +52,15 @@ class FakeMediaProcessor:
 
 
 class FakeReleasePublisher:
+    def __init__(self) -> None:
+        self.host = "github.example"
+
     def publish(self, episode: Episode):
         tag = f"episode-{episode.episode_id}"
-        return tag, f"https://github.com/readguide/personal-podcast/releases/download/{tag}/{episode.audio_path.name}"
+        return tag, self.public_url(episode, tag)
+
+    def public_url(self, episode: Episode, tag: str) -> str:
+        return f"https://{self.host}/{tag}/{episode.audio_path.name}"
 
 
 class ServiceTests(unittest.TestCase):
@@ -115,6 +121,14 @@ class ServiceTests(unittest.TestCase):
             self.assertTrue(episode.source_path and episode.source_path.exists())
             feed_path = config.github.site_dir / "feed.xml"
             self.assertEqual(validate_feed(feed_path), 1)
+
+            service.publisher.host = "cloudflare.example"
+            self.assertEqual(service.refresh_audio_urls(), 1)
+            episode = service.store.get(episode.episode_id)
+            self.assertTrue(
+                episode.public_audio_url
+                and episode.public_audio_url.startswith("https://cloudflare.example/")
+            )
 
             episode.audio_path.write_bytes(b"updated final audio")
             episode = service.publish(episode.episode_id)

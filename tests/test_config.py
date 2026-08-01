@@ -45,7 +45,11 @@ class ConfigTests(unittest.TestCase):
                 storage=StorageConfig(root=root, app_dir=root / "data"),
                 download=DownloadConfig(downie_poll_seconds=0.25),
                 audio=AudioConfig(),
-                github=GitHubConfig(site_dir=root / "repo/site"),
+                github=GitHubConfig(
+                    site_dir=root / "repo/site",
+                    audio_host="cloudflare",
+                    cloudflare_audio_base_url="https://audio.example.workers.dev",
+                ),
             )
             loaded = config_from_mapping(parse_toml(render_config(original)))
         self.assertEqual(loaded, original)

@@ -102,6 +102,16 @@ personal-podcast add "https://example.com/video"
 personal-podcast add "https://example.com/video" --publish
 ```
 
+GitHub Releases 始终保存音频。配置 Cloudflare Worker 后，可以只切换 RSS 下载地址，不重复上传音频：
+
+```bash
+personal-podcast audio-host cloudflare \
+  --cloudflare-url https://YOUR_WORKER.workers.dev \
+  --sync-site
+
+personal-podcast audio-host github --sync-site
+```
+
 一条命令完成下载、处理、Release 发布和站点推送：
 
 ```bash

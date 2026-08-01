@@ -96,6 +96,8 @@ class GitHubConfig:
     pages_base_url: str = "https://readguide.github.io/personal-podcast"
     site_dir: Path = DEFAULT_ROOT / "Repository/personal-podcast/site"
     gh_command: str = "gh"
+    audio_host: str = "github"
+    cloudflare_audio_base_url: str = ""
 
 
 @dataclass(frozen=True)
@@ -216,6 +218,10 @@ def config_from_mapping(data: Mapping[str, Mapping[str, Any]]) -> AppConfig:
             ).rstrip("/"),
             site_dir=_path(github.get("site_dir"), default_site),
             gh_command=str(github.get("gh_command", "gh")),
+            audio_host=str(github.get("audio_host", "github")),
+            cloudflare_audio_base_url=str(
+                github.get("cloudflare_audio_base_url", "")
+            ).rstrip("/"),
         ),
     )
     validate_config(config)
@@ -236,6 +242,13 @@ def validate_config(config: AppConfig) -> None:
         raise ConfigError(f"未知下载器: {', '.join(sorted(unsupported))}")
     if "/" not in config.github.repository:
         raise ConfigError("github.repository 应为 owner/repository 格式")
+    if config.github.audio_host not in {"github", "cloudflare"}:
+        raise ConfigError("github.audio_host 必须是 github 或 cloudflare")
+    if (
+        config.github.audio_host == "cloudflare"
+        and not config.github.cloudflare_audio_base_url.startswith("https://")
+    ):
+        raise ConfigError("Cloudflare 音频地址必须使用 https://")
 
 
 def load_config(path: Optional[Path] = None) -> AppConfig:
@@ -287,6 +300,8 @@ repository = {_quoted(config.github.repository)}
 pages_base_url = {_quoted(config.github.pages_base_url)}
 site_dir = {_quoted(str(config.github.site_dir))}
 gh_command = {_quoted(config.github.gh_command)}
+audio_host = {_quoted(config.github.audio_host)}
+cloudflare_audio_base_url = {_quoted(config.github.cloudflare_audio_base_url)}
 '''
 
 

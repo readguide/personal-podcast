@@ -4,10 +4,17 @@ import os
 import shutil
 import sqlite3
 import sys
+from dataclasses import replace
 from pathlib import Path
 from typing import List, Optional
 
-from personal_podcast.config import AppConfig, DEFAULT_CONFIG_PATH, load_config, write_config
+from personal_podcast.config import (
+    AppConfig,
+    DEFAULT_CONFIG_PATH,
+    load_config,
+    validate_config,
+    write_config,
+)
 from personal_podcast.downloader import DownieDownloader
 from personal_podcast.errors import ConfigError, PersonalPodcastError
 from personal_podcast.feed import validate_feed
@@ -74,6 +81,13 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("sync-site", help="提交并推送 RSS 站点")
     subparsers.add_parser("validate-feed", help="解析并校验生成的 feed.xml")
 
+    host_parser = subparsers.add_parser("audio-host", help="切换 RSS 音频地址")
+    host_parser.add_argument("provider", choices=["github", "cloudflare"])
+    host_parser.add_argument("--cloudflare-url", help="Cloudflare Worker 根地址")
+    host_parser.add_argument(
+        "--sync-site", action="store_true", help="同时提交并推送更新后的 RSS"
+    )
+
     list_parser = subparsers.add_parser("list", help="列出节目")
     list_parser.add_argument("--all", action="store_true", help="包含已删除节目")
 
@@ -107,6 +121,20 @@ def main(argv: Optional[List[str]] = None) -> int:
         if args.command not in {"init", "doctor"} and not args.config.exists():
             raise ConfigError(f"配置文件不存在，请先运行 init：{args.config}")
         config = load_config(args.config)
+        if args.command == "audio-host":
+            cloudflare_url = (
+                args.cloudflare_url or config.github.cloudflare_audio_base_url
+            ).rstrip("/")
+            config = replace(
+                config,
+                github=replace(
+                    config.github,
+                    audio_host=args.provider,
+                    cloudflare_audio_base_url=cloudflare_url,
+                ),
+            )
+            validate_config(config)
+            write_config(args.config, config, overwrite=True)
         if args.command == "doctor":
             return _doctor(config)
         if args.command == "validate-feed":
@@ -160,6 +188,11 @@ def main(argv: Optional[List[str]] = None) -> int:
         elif args.command == "sync-site":
             changed = service.sync_site()
             print("站点已推送到 GitHub。" if changed else "站点没有需要推送的变化。")
+        elif args.command == "audio-host":
+            count = service.refresh_audio_urls()
+            if args.sync_site:
+                service.sync_site(f"Switch podcast audio host to {args.provider}")
+            print(f"RSS 音频地址已切换到 {args.provider}（{count} 期）。")
         elif args.command == "list":
             _print_episodes(service.list_episodes(include_deleted=args.all))
         elif args.command == "archive":
