@@ -1,4 +1,5 @@
 import getpass
+import hashlib
 import os
 import subprocess
 from pathlib import Path
@@ -88,10 +89,10 @@ class GitHubReleasePublisher:
                 error_type=PublishError,
             )
         filename = quote(episode.audio_path.name)
-        url = (
+        base_url = (
             f"https://github.com/{self.config.repository}/releases/download/{quote(tag)}/{filename}"
         )
-        return tag, url
+        return tag, f"{base_url}?v={_asset_version(episode.audio_path)}"
 
     def delete(self, tag: str) -> None:
         if not self._release_exists(tag):
@@ -161,6 +162,14 @@ class GitHubReleasePublisher:
         except subprocess.TimeoutExpired as error:
             raise PublishError("检查 GitHub Release 时超时") from error
         return result.returncode == 0
+
+
+def _asset_version(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()[:16]
 
 
 class GitSitePublisher:

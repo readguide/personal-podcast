@@ -1,3 +1,4 @@
+import json
 import shutil
 import subprocess
 import tempfile
@@ -71,6 +72,23 @@ class MediaIntegrationTests(unittest.TestCase):
             self.assertEqual(info.codec_name, "aac")
             self.assertFalse(info.has_video)
             self.assertGreater(result.path.stat().st_size, 0)
+            probe = subprocess.run(
+                [
+                    "ffprobe",
+                    "-v",
+                    "error",
+                    "-show_entries",
+                    "stream=codec_type,codec_name",
+                    "-of",
+                    "json",
+                    str(result.path),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            streams = json.loads(probe.stdout)["streams"]
+            self.assertEqual(streams, [{"codec_name": "aac", "codec_type": "audio"}])
 
 
 if __name__ == "__main__":

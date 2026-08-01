@@ -92,10 +92,22 @@ class MediaProcessor:
         output_path = output_directory / f"{episode_id}.{plan.extension}"
         arguments: List[str] = [self.config.ffmpeg_command, "-y", "-i", str(source_path)]
         has_artwork = bool(artwork_path and artwork_path.exists())
-        if has_artwork:
+        embed_artwork = has_artwork and plan.extension == "mp3"
+        if embed_artwork:
             arguments.extend(["-i", str(artwork_path)])
-        arguments.extend(["-map", "0:a:0"])
-        if has_artwork:
+        arguments.extend(
+            [
+                "-map",
+                "0:a:0",
+                "-sn",
+                "-dn",
+                "-map_metadata",
+                "-1",
+                "-map_chapters",
+                "-1",
+            ]
+        )
+        if embed_artwork:
             arguments.extend(
                 ["-map", "1:v:0", "-c:v", "mjpeg", "-disposition:v:0", "attached_pic"]
             )

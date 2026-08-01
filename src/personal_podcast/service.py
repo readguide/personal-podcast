@@ -154,6 +154,8 @@ class PersonalPodcastService:
     def publish(self, episode_id: str) -> Episode:
         episode = self.store.get(episode_id)
         tag, url = self.publisher.publish(episode)
+        episode.audio_bytes = episode.audio_path.stat().st_size
+        self.store.save(episode)
         published = self.store.set_published(episode_id, url, tag)
         self.generate_site()
         return published

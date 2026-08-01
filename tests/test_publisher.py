@@ -1,3 +1,4 @@
+import hashlib
 import subprocess
 import tempfile
 import unittest
@@ -42,7 +43,7 @@ class ReleasePublisherTests(unittest.TestCase):
         self.assertEqual(environment["GH_TOKEN"], "existing")
         run.assert_not_called()
 
-    def test_release_url_is_stable(self) -> None:
+    def test_release_url_is_versioned_with_audio_content(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             audio = Path(temporary) / "example-123.m4a"
             audio.write_bytes(b"audio")
@@ -67,7 +68,8 @@ class ReleasePublisherTests(unittest.TestCase):
             self.assertEqual(tag, "episode-example-123")
             self.assertEqual(
                 url,
-                "https://github.com/readguide/personal-podcast/releases/download/episode-example-123/example-123.m4a",
+                "https://github.com/readguide/personal-podcast/releases/download/episode-example-123/"
+                f"example-123.m4a?v={hashlib.sha256(b'audio').hexdigest()[:16]}",
             )
             self.assertEqual(run.call_args.args[0][1:3], ["release", "create"])
 

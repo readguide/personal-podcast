@@ -116,6 +116,10 @@ class ServiceTests(unittest.TestCase):
             feed_path = config.github.site_dir / "feed.xml"
             self.assertEqual(validate_feed(feed_path), 1)
 
+            episode.audio_path.write_bytes(b"updated final audio")
+            episode = service.publish(episode.episode_id)
+            self.assertEqual(episode.audio_bytes, len(b"updated final audio"))
+
             service.archive(episode.episode_id)
             self.assertEqual(validate_feed(feed_path), 0)
             service.restore(episode.episode_id)
