@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Sat, 01 Aug 2026 23:51:13 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 01 Aug 2026 23:59:15 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,22 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>【油管5000w播放】乔布斯在斯坦福大学毕业典礼上的演讲！</title>
+      <link>https://www.bilibili.com/video/BV1T2YLeYE3g/</link>
+      <description>TED
+【油管5000w播放】乔布斯在斯坦福大学毕业典礼上的演讲！
+
+作者：TED口语官方
+原始来源：https://www.bilibili.com/video/BV1T2YLeYE3g/</description>
+      <guid isPermaLink="false">personal-podcast:bilibili-bv1t2yleye3g</guid>
+      <pubDate>Sat, 01 Aug 2026 23:59:15 +0000</pubDate>
+      <enclosure url="https://readguide.github.io/personal-podcast/audio/bilibili-bv1t2yleye3g.m4a?v=23fc78bea3707274" length="14891490" type="audio/mp4" />
+      <itunes:author>TED口语官方</itunes:author>
+      <itunes:duration>0:14:25</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/bilibili-bv1t2yleye3g.jpg" />
+    </item>
     <item>
       <title>「现代高能物理学之认识」杨振宁教授1964年香港中文大学演讲</title>
       <link>https://www.bilibili.com/video/BV11fyiB9EwB/</link>
