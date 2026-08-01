@@ -1,6 +1,6 @@
 # Personal Podcast Generator
 
-把一个公开视频链接转换为个人播客“收听库”的 macOS 工具。
+把一个公开视频链接转换为个人播客的 macOS 工具。
 
 第一版以单链接流程为核心：Downie 4 优先下载，失败时使用 `yt-dlp`；`ffmpeg` 按平衡模式生成音频；GitHub Releases 保存音频，GitHub Pages 发布 `feed.xml`、封面和订阅页。
 
@@ -29,6 +29,117 @@
 
 缺少命令行工具时可用 Homebrew 安装：
 
+```bash
+brew install ffmpeg gh yt-dlp
+gh auth login
+```
+
+本程序不读取 macOS 音乐资料库。Downie 只通过其公开的 `downie://XUOpenURL` 自动化接口接收链接、目标目录和“仅音频”选项。
+
+程序不会修改 Downie 的默认下载目录。每个链接都会请求写入独立的 `Source Media` 节目目录；如果 Downie 忽略单次目录，程序只会识别本次新增的一个顶层媒体文件，并从 `downie_fallback_directory` 移入对应节目目录，已有下载不会被移动。
+
+## 安装
+
+仓库建议位于播客存储根目录内。以下账号和路径仅为占位符：
+
+```bash
+PODCAST_ROOT="$HOME/Personal Podcast"
+GITHUB_ACCOUNT="YOUR_GITHUB_ACCOUNT"
+mkdir -p "$PODCAST_ROOT/Repository"
+git clone "https://github.com/$GITHUB_ACCOUNT/personal-podcast.git" \
+  "$PODCAST_ROOT/Repository/personal-podcast"
+cd "$PODCAST_ROOT/Repository/personal-podcast"
+
+python3 -m venv .venv
+.venv/bin/pip install -e .
+.venv/bin/personal-podcast init
+.venv/bin/personal-podcast doctor
+```
+
+`init` 会创建配置文件。默认位置可在配置或环境中调整，例如：
+
+```text
+$PODCAST_ROOT/Application Data/config.toml
+```
+
+也可以使用仓库中的 [`config.example.toml`](config.example.toml) 作为参考。
+
+## 单链接使用
+
+只导入到本地：
+
+```bash
+personal-podcast add "https://example.com/video"
+```
+
+发布音频到 GitHub Releases，但暂不推送 RSS：
+
+```bash
+personal-podcast add "https://example.com/video" --publish
+```
+
+一条命令完成下载、处理、Release 发布和站点推送：
+
+```bash
+personal-podcast add "https://example.com/video" --publish --sync-site
+```
+
+`--sync-site` 是显式开关。省略时程序不会提交或推送 GitHub Pages 内容。
+
+## 节目管理
+
+```bash
+# 查看节目
+personal-podcast list
+
+# 从 RSS 隐藏，但保留所有文件
+personal-podcast archive EPISODE_ID
+
+# 恢复到 RSS
+personal-podcast restore EPISODE_ID
+
+# 标记删除，但保留本地文件与 Release
+personal-podcast delete EPISODE_ID
+
+# 明确删除源文件、最终音频和 Release
+personal-podcast delete EPISODE_ID --source --final --release
+
+# 先预览已满 90 天的源文件
+personal-podcast cleanup
+
+# 确认后实际清理；最终音频不受影响
+personal-podcast cleanup --delete
+```
+
+归档、恢复或删除后，可运行：
+
+```bash
+personal-podcast sync-site
+```
+
+## 本地目录
+
+所有运行数据都集中在指定目录：
+
+```text
+$PODCAST_ROOT/
+├── Application Data/
+│   ├── config.toml
+│   ├── podcast.db
+│   └── logs/
+├── Final Audio/
+│   └── YYYY/
+├── Source Media/
+│   └── YYYY/episode-id/
+├── Artwork/
+│   ├── podcast-cover.png
+│   └── Episodes/
+├── Repository/
+│   └── personal-podcast/
+│       └── site/
+├── Temp/
+└── Exports/
+```
 
 若下载源音频与最终音频内容等价，默认不会再保留重复源文件。需要转码的源音频或包含视频的源文件会保留 90 天。
 
@@ -39,8 +150,8 @@
 预期地址：
 
 ```text
-订阅页：https://readguide.github.io/personal-podcast/
-RSS：https://readguide.github.io/personal-podcast/feed.xml
+订阅页：https://YOUR_GITHUB_ACCOUNT.github.io/personal-podcast/
+RSS：https://YOUR_GITHUB_ACCOUNT.github.io/personal-podcast/feed.xml
 ```
 
 仓库和 Releases 都是公开的，因此订阅源与已发布音频也是公开链接。请只处理你有权下载和发布的内容。
