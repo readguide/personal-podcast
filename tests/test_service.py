@@ -7,7 +7,7 @@ from personal_podcast.config import AppConfig, GitHubConfig, StorageConfig
 from personal_podcast.downloader import DownloadResult
 from personal_podcast.feed import validate_feed
 from personal_podcast.models import AudioResult, Episode, EpisodeMetadata, MediaInfo
-from personal_podcast.service import PersonalPodcastService
+from personal_podcast.service import PersonalPodcastService, build_episode_description
 
 
 class FakeMetadataReader:
@@ -58,6 +58,28 @@ class FakeReleasePublisher:
 
 
 class ServiceTests(unittest.TestCase):
+    def test_description_adds_author_and_source_to_original_summary(self) -> None:
+        self.assertEqual(
+            build_episode_description(
+                "原始简介",
+                title="测试单集",
+                author="原作者",
+                source_url="https://example.com/video",
+            ),
+            "原始简介\n\n作者：原作者\n原始来源：https://example.com/video",
+        )
+
+    def test_description_has_readable_fallback_when_metadata_is_missing(self) -> None:
+        description = build_episode_description(
+            "",
+            title="测试单集",
+            author="原作者",
+            source_url="https://example.com/video",
+        )
+        self.assertIn("《测试单集》的音频收听版", description)
+        self.assertIn("作者：原作者", description)
+        self.assertIn("原始来源：https://example.com/video", description)
+
     def test_download_filename_wins_over_generic_container_title(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

@@ -18,6 +18,28 @@ from personal_podcast.store import EpisodeStore
 LOGGER = logging.getLogger(__name__)
 
 
+def build_episode_description(
+    original: str,
+    *,
+    title: str,
+    author: str,
+    source_url: str,
+) -> str:
+    body = original.strip()
+    if not body or body == f"原始来源：{source_url}":
+        body = (
+            f"本期为《{title}》的音频收听版，保留原视频内容与原作者声音，"
+            "便于在播客客户端中收听。"
+        )
+    details = []
+    if author and f"作者：{author}" not in body:
+        details.append(f"作者：{author}")
+    if source_url not in body:
+        details.append(f"原始来源：{source_url}")
+    details_text = "\n".join(details)
+    return f"{body}\n\n{details_text}" if details_text else body
+
+
 class PersonalPodcastService:
     def __init__(self, config: AppConfig):
         self.config = config
@@ -63,7 +85,12 @@ class PersonalPodcastService:
         fallback_title = download.path.stem or source_info.tags.get("title") or episode_id
         title = (metadata.title if metadata else "") or fallback_title
         author = (metadata.author if metadata else "") or self.config.podcast.author
-        description = (metadata.description if metadata else "") or f"原始来源：{url}"
+        description = build_episode_description(
+            metadata.description if metadata else "",
+            title=title,
+            author=author,
+            source_url=url,
+        )
         artwork = download_artwork(
             metadata.thumbnail_url if metadata else None,
             self.config.storage.artwork_dir / "Episodes" / episode_id,
