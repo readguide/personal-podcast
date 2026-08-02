@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Sun, 02 Aug 2026 00:16:26 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 02 Aug 2026 00:17:17 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,21 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>陆奇最新演讲完整视频｜大模型带来的新范式 新时代 新机会</title>
+      <link>https://www.bilibili.com/video/BV1mM4y147qw/</link>
+      <description>最近奇绩举办了以《新范式 新时代 新机会》为主题的分享活动，陆奇博士以“新范式”为核心，分享了他对当前技术变革的观点，欢迎大家观看完整讲座，一起交流。
+
+作者：奇绩创坛
+原始来源：https://www.bilibili.com/video/BV1mM4y147qw/</description>
+      <guid isPermaLink="false">personal-podcast:bilibili-bv1mm4y147qw</guid>
+      <pubDate>Sun, 02 Aug 2026 00:17:17 +0000</pubDate>
+      <enclosure url="https://readguide.github.io/personal-podcast/audio/bilibili-bv1mm4y147qw.m4a?v=1aa210f169daef61" length="131382688" type="audio/mp4" />
+      <itunes:author>奇绩创坛</itunes:author>
+      <itunes:duration>2:14:53</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/bilibili-bv1mm4y147qw.jpg" />
+    </item>
     <item>
       <title>【演讲】罗永浩15堂演讲私教课（老罗） p01 01如何克服“演讲恐惧症”？</title>
       <link>https://www.bilibili.com/video/BV1PP411T7fv/</link>
