@@ -8,6 +8,12 @@ from dataclasses import replace
 from pathlib import Path
 from typing import List, Optional
 
+from personal_podcast.clip_archive import (
+    ClipArchiveProcessor,
+    ClipArchiveStateStore,
+    clip_archive_lock,
+    read_clip_archive,
+)
 from personal_podcast.config import (
     AppConfig,
     DEFAULT_CONFIG_PATH,
@@ -19,6 +25,7 @@ from personal_podcast.downloader import DownieDownloader
 from personal_podcast.errors import ConfigError, PersonalPodcastError
 from personal_podcast.feed import validate_feed
 from personal_podcast.logging_setup import configure_logging
+from personal_podcast.listener import install_listener
 from personal_podcast.models import Episode
 from personal_podcast.service import PersonalPodcastService
 
@@ -64,6 +71,38 @@ def build_parser() -> argparse.ArgumentParser:
     )
     latest_parser.add_argument(
         "--sync-site", action="store_true", help="发布后提交并推送 RSS 站点"
+    )
+
+    clips_parser = subparsers.add_parser(
+        "process-clips", help="处理剪藏目录中基线之后新增的视频链接"
+    )
+    clips_parser.add_argument("source", type=Path, help="剪藏目录 TXT 文件")
+    clips_parser.add_argument(
+        "--publish", action="store_true", help="导入后立即发布到 GitHub Releases"
+    )
+    clips_parser.add_argument(
+        "--sync-site", action="store_true", help="批量处理后提交并推送 RSS 站点"
+    )
+    clips_parser.add_argument(
+        "--sync-transcripts",
+        action="store_true",
+        help="同时取回已经完成的云端转写稿",
+    )
+    clips_parser.add_argument(
+        "--initialize-only",
+        action="store_true",
+        help="仅把当前最后一条记录设为存量基线",
+    )
+
+    listener_parser = subparsers.add_parser(
+        "install-clips-listener", help="安装 macOS 剪藏目录变化监听"
+    )
+    listener_parser.add_argument("source", type=Path, help="剪藏目录 TXT 文件")
+    listener_parser.add_argument(
+        "--interval",
+        type=int,
+        default=300,
+        help="补偿检查间隔秒数，默认 300",
     )
 
     publish_parser = subparsers.add_parser("publish", help="发布一个节目到 GitHub Releases")
@@ -117,7 +156,11 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Optional[List[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command in {"add", "add-latest"} and args.sync_site and not args.publish:
+    if (
+        args.command in {"add", "add-latest", "process-clips"}
+        and args.sync_site
+        and not args.publish
+    ):
         parser.error("--sync-site 需要同时使用 --publish")
     try:
         if args.command not in {"init", "doctor"} and not args.config.exists():
@@ -175,6 +218,70 @@ def main(argv: Optional[List[str]] = None) -> int:
                 print(f"节目编号：{episode.episode_id}")
                 print(f"最终音频：{episode.audio_path}")
                 print("发布状态：已发布" if episode.public_audio_url else "发布状态：仅本地")
+        elif args.command == "process-clips":
+            with clip_archive_lock(config.storage.clip_archive_lock_path) as acquired:
+                if not acquired:
+                    print("已有剪藏处理任务正在运行，本次检查已跳过。")
+                    return 0
+                records = read_clip_archive(args.source)
+                state_store = ClipArchiveStateStore(
+                    config.storage.clip_archive_state_path, args.source.resolve()
+                )
+                processor = ClipArchiveProcessor(service, state_store)
+                if args.initialize_only:
+                    summary = processor.initialize(records)
+                    baseline = summary.baseline
+                    print(
+                        "存量基线已设置："
+                        f"{baseline.saved_at_text if baseline else '未知日期'}"
+                    )
+                    return 0
+                summary = processor.process(
+                    records, publish=args.publish, sync_site=args.sync_site
+                )
+                transcripts: List[Episode] = []
+                if args.sync_transcripts:
+                    transcripts = service.import_ready_transcripts()
+                    if transcripts and args.sync_site:
+                        service.sync_site(
+                            f"Publish {len(transcripts)} podcast transcript(s)"
+                        )
+                if summary.initialized:
+                    baseline = summary.baseline
+                    print(
+                        "首次检查只建立存量基线："
+                        f"{baseline.saved_at_text if baseline else '未知日期'}"
+                    )
+                else:
+                    print(
+                        f"剪藏检查完成：候选 {summary.candidates}，"
+                        f"导入 {len(summary.imported)}，已有 {summary.existing}，"
+                        f"跳过微信 {summary.skipped_wechat}，"
+                        f"跳过非媒体 {summary.skipped_non_media}，失败 {summary.failed}。"
+                    )
+                if transcripts:
+                    print(f"已取回 {len(transcripts)} 份转写稿并更新 RSS。")
+        elif args.command == "install-clips-listener":
+            with clip_archive_lock(config.storage.clip_archive_lock_path) as acquired:
+                if not acquired:
+                    raise PersonalPodcastError("已有剪藏处理任务正在运行，请稍后重试")
+                records = read_clip_archive(args.source)
+                state_store = ClipArchiveStateStore(
+                    config.storage.clip_archive_state_path, args.source.resolve()
+                )
+                baseline = ClipArchiveProcessor(service, state_store).initialize(
+                    records
+                ).baseline
+                plist_path = install_listener(
+                    config,
+                    args.config,
+                    args.source,
+                    interval_seconds=args.interval,
+                )
+            print(f"剪藏监听已启用：{args.source}")
+            if baseline:
+                print(f"存量基线：{baseline.saved_at_text}")
+            print(f"监听配置：{plist_path}")
         elif args.command == "publish":
             episode = service.publish(args.episode_id)
             print(f"已发布：{episode.public_audio_url}")

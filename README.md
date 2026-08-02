@@ -17,6 +17,8 @@
 - GitHub Release 发布、删除，以及显式站点同步。
 - GitHub Actions 使用 whisper.cpp 生成中文 TXT/SRT/VTT 转写稿。
 - TXT 转写稿永久保存在本地，RSS 简介自动附带全文。
+- 可监听一个剪藏目录 TXT，只处理存量基线之后新增的视频链接。
+- 微信文章直接跳过，其他文章在没有可下载媒体时跳过。
 - RSS 2.0 + Apple Podcasts 标签、稳定 GUID、封面和文件长度。
 - SQLite 节目记录、轮转日志、中文错误提示和基础测试。
 
@@ -122,6 +124,41 @@ personal-podcast add "https://example.com/video" --publish --sync-site
 
 `--sync-site` 是显式开关。省略时程序不会提交或推送 GitHub Pages 内容。
 
+## 剪藏目录自动监听
+
+剪藏目录可以使用以下重复记录格式：
+
+```text
+视频名称
+来源：https://example.com/video
+保存日期：2026年8月2日 12:30
+===
+```
+
+首次安装监听时，程序把文件中当前最后一条有效记录设为存量基线，不处理基线及其之前的内容。之后按保存日期从旧到新处理新增记录，并使用“来源链接 + 保存日期”保存状态，避免重复触发或重复下载。
+
+```bash
+personal-podcast install-clips-listener "/PATH/TO/剪藏目录.txt"
+```
+
+监听使用 macOS `launchd` 的精确文件 `WatchPaths`；文件变化时立即检查，每 5 分钟还会补偿检查一次。每次只运行一个串行任务，批量完成后统一更新站点。`mp.weixin.qq.com` 链接在媒体检测前直接跳过，程序不会修改剪藏目录原文件。
+
+监听任务还会定期检查已发布节目的 GitHub Release。云端转写完成后，TXT 会自动下载到本地并加入 RSS 简介，不再需要逐期手动执行 `transcript`。
+
+处理状态和日志分别保存在：
+
+```text
+$PODCAST_ROOT/Application Data/clip-archive-state.json
+$PODCAST_ROOT/Application Data/logs/clip-archive-listener.log
+$PODCAST_ROOT/Application Data/logs/clip-archive-listener-error.log
+```
+
+macOS 监听配置是系统要求的唯一外部运行文件：
+
+```text
+$HOME/Library/LaunchAgents/com.readguide.personal-podcast-clips.plist
+```
+
 ## 节目管理
 
 ```bash
@@ -164,6 +201,7 @@ personal-podcast sync-site
 $PODCAST_ROOT/
 ├── Application Data/
 │   ├── config.toml
+│   ├── clip-archive-state.json
 │   ├── podcast.db
 │   └── logs/
 ├── Final Audio/

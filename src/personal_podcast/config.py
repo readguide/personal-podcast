@@ -62,6 +62,14 @@ class StorageConfig:
         return self.root / "Inbox" / "links.txt"
 
     @property
+    def clip_archive_state_path(self) -> Path:
+        return self.app_dir / "clip-archive-state.json"
+
+    @property
+    def clip_archive_lock_path(self) -> Path:
+        return self.app_dir / "clip-archive.lock"
+
+    @property
     def temp_dir(self) -> Path:
         return self.root / "Temp"
 

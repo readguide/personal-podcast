@@ -1,4 +1,5 @@
 import hashlib
+import io
 import subprocess
 import tempfile
 import unittest
@@ -130,18 +131,16 @@ class ReleasePublisherTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             destination = Path(temporary)
             publisher = GitHubReleasePublisher(GitHubConfig())
-
-            def download(arguments, **kwargs):
-                (destination / "example-123.txt").write_text("Transcript", encoding="utf-8")
-
-            with patch("personal_podcast.publisher.executable_exists", return_value=True), patch(
-                "personal_podcast.publisher.run_checked", side_effect=download
-            ) as run:
+            with patch(
+                "personal_podcast.publisher.urlopen",
+                return_value=io.BytesIO(b"Transcript"),
+            ) as download:
                 path = publisher.download_transcript(
                     "episode-example-123", "example-123", destination
                 )
             self.assertEqual(path, destination / "example-123.txt")
-            self.assertIn("example-123.txt", run.call_args.args[0])
+            self.assertEqual(path.read_text(encoding="utf-8"), "Transcript")
+            self.assertIn("example-123.txt", download.call_args.args[0].full_url)
 
 
 class SitePublisherTests(unittest.TestCase):

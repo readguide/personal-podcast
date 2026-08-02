@@ -1,10 +1,14 @@
 import getpass
 import hashlib
 import os
+import shutil
 import subprocess
+import time
 from pathlib import Path
 from typing import Dict, Tuple
 from urllib.parse import quote
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 from personal_podcast.commands import executable_exists, run_checked
 from personal_podcast.config import GitHubConfig
@@ -124,28 +128,36 @@ class GitHubReleasePublisher:
     def download_transcript(
         self, tag: str, episode_id: str, destination: Path
     ) -> Path:
-        if not executable_exists(self.config.gh_command):
-            raise DependencyError(f"未找到 GitHub 工具: {self.config.gh_command}")
         destination.mkdir(parents=True, exist_ok=True)
         transcript_path = destination / f"{episode_id}.txt"
-        run_checked(
-            [
-                self.config.gh_command,
-                "release",
-                "download",
-                tag,
-                "--repo",
-                self.config.repository,
-                "--pattern",
-                transcript_path.name,
-                "--dir",
-                str(destination),
-                "--clobber",
-            ],
-            env=github_cli_environment(),
-            error_type=PublishError,
+        temporary = transcript_path.with_suffix(".txt.tmp")
+        url = (
+            f"https://github.com/{self.config.repository}/releases/download/"
+            f"{quote(tag, safe='')}/{quote(transcript_path.name, safe='')}"
         )
+        last_error: Exception = PublishError("未知下载错误")
+        for attempt in range(3):
+            try:
+                request = Request(
+                    url, headers={"User-Agent": "personal-podcast-generator"}
+                )
+                with urlopen(request, timeout=45) as response, temporary.open(
+                    "wb"
+                ) as output:
+                    shutil.copyfileobj(response, output)
+                temporary.replace(transcript_path)
+                break
+            except (HTTPError, URLError, TimeoutError, OSError) as error:
+                last_error = error
+                temporary.unlink(missing_ok=True)
+                if isinstance(error, HTTPError) and error.code == 404:
+                    break
+                if attempt < 2:
+                    time.sleep(2)
+        else:
+            raise PublishError(f"下载 Release 转写稿失败: {last_error}") from last_error
         if not transcript_path.exists() or transcript_path.stat().st_size == 0:
+            transcript_path.unlink(missing_ok=True)
             raise PublishError(f"Release 中没有可用转写稿: {transcript_path.name}")
         return transcript_path
 

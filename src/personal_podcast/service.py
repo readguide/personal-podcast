@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple
 from personal_podcast.artwork import download_artwork
 from personal_podcast.config import AppConfig
 from personal_podcast.downloader import DownloadManager, MetadataReader
-from personal_podcast.errors import PersonalPodcastError
+from personal_podcast.errors import PersonalPodcastError, PublishError
 from personal_podcast.identifiers import canonicalize_url, episode_id_for
 from personal_podcast.inbox import VideoLinkClassifier, latest_link
 from personal_podcast.media import MediaProcessor
@@ -250,6 +250,19 @@ class PersonalPodcastService:
             previous_path.unlink(missing_ok=True)
         self.generate_site()
         return updated
+
+    def import_ready_transcripts(self) -> List[Episode]:
+        imported: List[Episode] = []
+        for episode in self.store.list():
+            if not episode.release_tag:
+                continue
+            if episode.transcript_path and episode.transcript_path.exists():
+                continue
+            try:
+                imported.append(self.import_transcript(episode.episode_id))
+            except PublishError as error:
+                LOGGER.info("转写稿尚未可用，稍后重试: %s (%s)", episode.episode_id, error)
+        return imported
 
     def generate_site(self) -> int:
         return self.site.generate(self.store.list(include_deleted=True))
