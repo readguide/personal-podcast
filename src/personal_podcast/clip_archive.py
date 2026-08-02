@@ -1,8 +1,11 @@
+import errno
 import fcntl
 import hashlib
 import json
 import logging
 import os
+import re
+import time
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -12,28 +15,41 @@ from urllib.parse import urlsplit
 
 from personal_podcast.errors import PersonalPodcastError
 from personal_podcast.identifiers import canonicalize_url
+from personal_podcast.inbox import TRAILING_PUNCTUATION, URL_PATTERN, video_platform_for
 
 
 LOGGER = logging.getLogger(__name__)
 DATE_FORMAT = "%Y年%m月%d日 %H:%M"
-TERMINAL_STATUSES = {"succeeded", "existing", "skipped-wechat", "skipped-non-media"}
+DATE_PATTERNS = (
+    (re.compile(r"\d{4}年\d{1,2}月\d{1,2}日\s+\d{1,2}:\d{2}"), DATE_FORMAT),
+    (re.compile(r"\d{4}-\d{1,2}-\d{1,2}\s+\d{1,2}:\d{2}"), "%Y-%m-%d %H:%M"),
+)
+TERMINAL_STATUSES = {
+    "succeeded",
+    "existing",
+    "skipped-wechat",
+    "skipped-unsupported",
+    "skipped-non-media",
+    "failed",
+}
 
 
 @dataclass(frozen=True)
 class ClipRecord:
     title: str
     source_url: str
-    saved_at: datetime
+    saved_at: Optional[datetime]
     position: int
 
     @property
     def key(self) -> str:
-        value = f"{self.source_url}\n{self.saved_at.isoformat(timespec='minutes')}"
+        saved_at = self.saved_at.isoformat(timespec="minutes") if self.saved_at else ""
+        value = f"{self.source_url}\n{saved_at}"
         return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
     @property
     def saved_at_text(self) -> str:
-        return self.saved_at.strftime(DATE_FORMAT)
+        return self.saved_at.strftime(DATE_FORMAT) if self.saved_at else "未提供日期"
 
 
 @dataclass
@@ -42,6 +58,7 @@ class ClipProcessSummary:
     imported: List[str] = field(default_factory=list)
     existing: int = 0
     skipped_wechat: int = 0
+    skipped_unsupported: int = 0
     skipped_non_media: int = 0
     failed: int = 0
     initialized: bool = False
@@ -50,38 +67,44 @@ class ClipProcessSummary:
 
 def parse_clip_archive(text: str) -> List[ClipRecord]:
     records: List[ClipRecord] = []
-    for position, block in enumerate(text.split("===")):
-        lines = [line.strip() for line in block.splitlines() if line.strip()]
+    position = 0
+    for block in text.split("==="):
+        lines = [line.strip() for line in block.splitlines()]
         if not lines:
             continue
-        source = _field(lines, "来源")
-        saved_at_text = _field(lines, "保存日期")
-        if not source or not saved_at_text:
-            LOGGER.warning("跳过格式不完整的剪藏记录（位置 %s）", position)
-            continue
-        try:
-            url = canonicalize_url(source)
-            saved_at = datetime.strptime(saved_at_text, DATE_FORMAT)
-        except ValueError as error:
-            LOGGER.warning("跳过无效剪藏记录（位置 %s）: %s", position, error)
-            continue
-        title = next(
-            (line for line in lines if not _is_field(line, "来源", "保存日期")),
-            "未命名剪藏",
-        )
-        records.append(ClipRecord(title, url, saved_at, position))
+        for line_index, line in enumerate(lines):
+            for match in URL_PATTERN.finditer(line):
+                source = match.group(0).rstrip(TRAILING_PUNCTUATION)
+                try:
+                    url = canonicalize_url(source)
+                except ValueError as error:
+                    LOGGER.warning("跳过无效链接（位置 %s）: %s", position, error)
+                    continue
+                title = _title_near_url(lines, line_index, match.start())
+                saved_at = _date_near_url(lines, line_index)
+                records.append(ClipRecord(title, url, saved_at, position))
+                position += 1
     return records
 
 
 def read_clip_archive(path: Path) -> List[ClipRecord]:
     if not path.exists():
         raise PersonalPodcastError(f"剪藏目录不存在: {path}")
-    try:
-        text = path.read_text(encoding="utf-8-sig")
-    except PermissionError as error:
-        raise PersonalPodcastError(
-            "无法读取剪藏目录，请在 macOS 的“隐私与安全性 → 文件与文件夹”中允许 iCloud Drive"
-        ) from error
+    text: Optional[str] = None
+    for attempt in range(5):
+        try:
+            text = path.read_text(encoding="utf-8-sig")
+            break
+        except PermissionError as error:
+            raise PersonalPodcastError(
+                "无法读取剪藏目录，请在 macOS 的“隐私与安全性 → 文件与文件夹”中允许 iCloud Drive"
+            ) from error
+        except OSError as error:
+            if error.errno not in {errno.EAGAIN, errno.EBUSY} or attempt == 4:
+                raise
+            time.sleep(2)
+    if text is None:
+        raise PersonalPodcastError(f"无法读取剪藏目录: {path}")
     records = parse_clip_archive(text)
     if not records:
         raise PersonalPodcastError(f"剪藏目录中没有格式有效的记录: {path}")
@@ -149,15 +172,22 @@ class ClipArchiveStateStore:
                 baseline_index = index
         if baseline_index is not None:
             possible = records[baseline_index + 1 :]
+        elif baseline.saved_at is None:
+            LOGGER.warning("未找到无日期存量基线，为避免回溯处理，本次不导入")
+            possible = []
         else:
-            possible = [record for record in records if record.saved_at > baseline.saved_at]
+            possible = [
+                record
+                for record in records
+                if record.saved_at and record.saved_at > baseline.saved_at
+            ]
 
         entries = state.get("entries", {})
         if not isinstance(entries, dict):
             raise PersonalPodcastError("剪藏处理状态中的 entries 无效")
         seen: Set[str] = set()
         pending: List[ClipRecord] = []
-        for record in sorted(possible, key=lambda item: (item.saved_at, item.position)):
+        for record in possible:
             if record.key in seen:
                 continue
             seen.add(record.key)
@@ -237,6 +267,10 @@ class ClipArchiveProcessor:
                 self.state_store.record(state, item, "skipped-wechat")
                 summary.skipped_wechat += 1
                 continue
+            if video_platform_for(item.source_url) is None:
+                self.state_store.record(state, item, "skipped-unsupported")
+                summary.skipped_unsupported += 1
+                continue
             try:
                 existing = self.service.store.find_by_source_url(item.source_url)
                 if existing:
@@ -300,27 +334,48 @@ def clip_archive_lock(path: Path) -> Iterator[bool]:
             fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 
-def _field(lines: List[str], name: str) -> Optional[str]:
-    for line in lines:
-        for separator in ("：", ":"):
-            prefix = f"{name}{separator}"
-            if line.startswith(prefix):
-                return line[len(prefix) :].strip()
+def _title_near_url(lines: List[str], line_index: int, url_start: int) -> str:
+    same_line = lines[line_index][:url_start].strip(" ：:")
+    if same_line and same_line not in {"来源", "链接", "URL", "url"}:
+        return same_line
+    for index in range(line_index - 1, max(-1, line_index - 6), -1):
+        candidate = lines[index].strip()
+        if not candidate or URL_PATTERN.search(candidate) or _parse_date(candidate):
+            continue
+        if candidate == "===" or candidate.startswith(("来源：", "来源:")):
+            continue
+        return candidate
+    return "未命名剪藏"
+
+
+def _date_near_url(lines: List[str], line_index: int) -> Optional[datetime]:
+    indexes = list(range(line_index, min(len(lines), line_index + 5)))
+    indexes.extend(range(line_index - 1, max(-1, line_index - 3), -1))
+    for index in indexes:
+        parsed = _parse_date(lines[index])
+        if parsed:
+            return parsed
     return None
 
 
-def _is_field(line: str, *names: str) -> bool:
-    return any(
-        line.startswith(f"{name}{separator}")
-        for name in names
-        for separator in ("：", ":")
-    )
+def _parse_date(value: str) -> Optional[datetime]:
+    for pattern, date_format in DATE_PATTERNS:
+        match = pattern.search(value)
+        if not match:
+            continue
+        try:
+            return datetime.strptime(match.group(0), date_format)
+        except ValueError:
+            continue
+    return None
 
 
 def _record_payload(record: ClipRecord) -> Dict[str, object]:
     return {
         "source_url": record.source_url,
-        "saved_at": record.saved_at.isoformat(timespec="minutes"),
+        "saved_at": (
+            record.saved_at.isoformat(timespec="minutes") if record.saved_at else None
+        ),
     }
 
 
@@ -330,12 +385,16 @@ def _baseline_from_state(state: Dict[str, object]) -> Optional[ClipRecord]:
         return None
     source_url = baseline.get("source_url")
     saved_at = baseline.get("saved_at")
-    if not isinstance(source_url, str) or not isinstance(saved_at, str):
+    if not isinstance(source_url, str) or (
+        saved_at is not None and not isinstance(saved_at, str)
+    ):
         raise PersonalPodcastError("剪藏处理状态中的 baseline 无效")
-    try:
-        parsed = datetime.fromisoformat(saved_at)
-    except ValueError as error:
-        raise PersonalPodcastError("剪藏处理状态中的基线日期无效") from error
+    parsed: Optional[datetime] = None
+    if saved_at:
+        try:
+            parsed = datetime.fromisoformat(saved_at)
+        except ValueError as error:
+            raise PersonalPodcastError("剪藏处理状态中的基线日期无效") from error
     return ClipRecord("基线", source_url, parsed, -1)
 
 

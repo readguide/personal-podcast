@@ -126,7 +126,7 @@ personal-podcast add "https://example.com/video" --publish --sync-site
 
 ## 剪藏目录自动监听
 
-剪藏目录可以使用以下重复记录格式：
+剪藏目录不要求固定格式。只追加一行视频链接即可；如果同时包含标题和保存日期，程序会一并读取：
 
 ```text
 视频名称
@@ -135,7 +135,9 @@ personal-podcast add "https://example.com/video" --publish --sync-site
 ===
 ```
 
-首次安装监听时，程序把文件中当前最后一条有效记录设为存量基线，不处理基线及其之前的内容。之后按保存日期从旧到新处理新增记录，并使用“来源链接 + 保存日期”保存状态，避免重复触发或重复下载。
+首次安装监听时，程序把文件中当前最后一个链接设为存量基线，不处理基线及其之前的内容。之后扫描基线后新增的 URL；有保存日期时用日期辅助定位，没有日期时按文件中的先后顺序处理。处理状态使用“来源链接 + 保存日期”去重，没有日期时使用来源链接去重。
+
+自动转换仅支持明确的视频页面：YouTube、Bilibili、抖音、小红书、TikTok、快手、微博视频、AcFun、Vimeo、X/Twitter 视频、Instagram Reels 和 Facebook 视频。微信、GitHub 及其他普通网页直接跳过，不会调用下载器试探。
 
 ```bash
 personal-podcast install-clips-listener "/PATH/TO/剪藏目录.txt"

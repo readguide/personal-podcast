@@ -257,6 +257,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                         f"剪藏检查完成：候选 {summary.candidates}，"
                         f"导入 {len(summary.imported)}，已有 {summary.existing}，"
                         f"跳过微信 {summary.skipped_wechat}，"
+                        f"跳过非视频平台 {summary.skipped_unsupported}，"
                         f"跳过非媒体 {summary.skipped_non_media}，失败 {summary.failed}。"
                     )
                 if transcripts:

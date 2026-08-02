@@ -1,14 +1,17 @@
+import errno
 import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from personal_podcast.clip_archive import (
     ClipArchiveProcessor,
     ClipArchiveStateStore,
     is_wechat_article,
     parse_clip_archive,
+    read_clip_archive,
 )
 
 
@@ -75,6 +78,26 @@ class ClipArchiveTests(unittest.TestCase):
         self.assertEqual(records[1].saved_at, datetime(2026, 8, 1, 23, 37))
         self.assertTrue(is_wechat_article(records[0].source_url))
 
+    def test_plain_url_without_metadata_is_still_a_record(self) -> None:
+        records = parse_clip_archive(
+            SAMPLE + "刚保存的新内容\nhttps://youtu.be/OcKl98ZQbMQ\n"
+        )
+        self.assertEqual(records[-1].title, "刚保存的新内容")
+        self.assertEqual(records[-1].source_url, "https://youtu.be/OcKl98ZQbMQ")
+        self.assertIsNone(records[-1].saved_at)
+
+    def test_i_cloud_busy_read_is_retried(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "clips.txt"
+            source.touch()
+            busy = OSError(errno.EAGAIN, "Resource deadlock avoided")
+            with patch.object(
+                Path, "read_text", side_effect=[busy, SAMPLE]
+            ), patch("personal_podcast.clip_archive.time.sleep") as sleep:
+                records = read_clip_archive(source)
+            self.assertEqual(len(records), 3)
+            sleep.assert_called_once_with(2)
+
     def test_baseline_ignores_existing_records_and_falls_back_to_date(self) -> None:
         records = parse_clip_archive(SAMPLE)
         with tempfile.TemporaryDirectory() as temporary:
@@ -116,7 +139,8 @@ class ClipArchiveTests(unittest.TestCase):
             summary = processor.process(records, publish=True, sync_site=True)
             self.assertEqual(summary.imported, ["new-video"])
             self.assertEqual(summary.skipped_wechat, 1)
-            self.assertEqual(summary.skipped_non_media, 1)
+            self.assertEqual(summary.skipped_unsupported, 1)
+            self.assertEqual(summary.skipped_non_media, 0)
             self.assertEqual(service.synced, 1)
             self.assertNotIn(
                 "https://mp.weixin.qq.com/s/new-article",

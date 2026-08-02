@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from personal_podcast.config import DownloadConfig
 from personal_podcast.errors import PersonalPodcastError
-from personal_podcast.inbox import VideoLinkClassifier, latest_link
+from personal_podcast.inbox import VideoLinkClassifier, latest_link, video_platform_for
 
 
 class LinkInboxTests(unittest.TestCase):
@@ -48,6 +48,29 @@ class LinkInboxTests(unittest.TestCase):
             "personal_podcast.inbox.run_checked", return_value=result
         ):
             self.assertTrue(classifier.is_video("https://example.com/watch/123"))
+
+    def test_common_video_platforms_are_recognized_without_probing(self) -> None:
+        examples = {
+            "https://www.youtube.com/watch?v=OcKl98ZQbMQ": "YouTube",
+            "https://www.bilibili.com/video/BV1DMMuz7EDs/": "Bilibili",
+            "https://v.douyin.com/example/": "抖音",
+            "https://www.xiaohongshu.com/explore/example": "小红书",
+            "https://www.tiktok.com/@creator/video/123": "TikTok",
+            "https://v.kuaishou.com/example": "快手",
+            "https://x.com/example/status/123": "X/Twitter",
+            "https://vimeo.com/123456": "Vimeo",
+            "https://www.instagram.com/reel/example/": "Instagram",
+            "https://www.facebook.com/example/videos/123/": "Facebook",
+        }
+        for url, platform in examples.items():
+            with self.subTest(url=url):
+                self.assertEqual(video_platform_for(url), platform)
+
+    def test_article_url_is_not_a_supported_video_platform(self) -> None:
+        self.assertIsNone(video_platform_for("https://mp.weixin.qq.com/s/example"))
+        self.assertIsNone(video_platform_for("https://example.com/article"))
+        self.assertIsNone(video_platform_for("https://www.twitch.tv/videos/123"))
+        self.assertIsNone(video_platform_for("https://www.instagram.com/p/photo/"))
 
 
 if __name__ == "__main__":
