@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Sun, 02 Aug 2026 00:15:53 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 02 Aug 2026 00:16:26 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,22 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>【演讲】罗永浩15堂演讲私教课（老罗） p01 01如何克服“演讲恐惧症”？</title>
+      <link>https://www.bilibili.com/video/BV1PP411T7fv/</link>
+      <description>网络
+分享
+
+作者：彪哥终身学习
+原始来源：https://www.bilibili.com/video/BV1PP411T7fv/</description>
+      <guid isPermaLink="false">personal-podcast:bilibili-bv1pp411t7fv-p1</guid>
+      <pubDate>Sun, 02 Aug 2026 00:16:26 +0000</pubDate>
+      <enclosure url="https://readguide.github.io/personal-podcast/audio/bilibili-bv1pp411t7fv-p1.m4a?v=a29471fc10b2f39f" length="6807493" type="audio/mp4" />
+      <itunes:author>彪哥终身学习</itunes:author>
+      <itunes:duration>0:10:18</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/bilibili-bv1pp411t7fv-p1.png" />
+    </item>
     <item>
       <title>AI怎么就成了能源之战？大厂们准备怎么战？</title>
       <link>https://www.bilibili.com/video/BV1TqJg64EhU/</link>
