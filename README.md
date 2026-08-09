@@ -7,7 +7,7 @@
 ## 已实现
 
 - 单链接导入，按导入时间倒序排列。
-- Downie 4 自动化下载，指定“仅音频”和本地目标目录。
+- Downie 4 自动化下载原始媒体并存入本地目标目录，不请求下载后转音频。
 - `yt-dlp` 备用下载及元数据读取。
 - AAC 和 MP3 不重编码；Opus、Vorbis 等转为 AAC-LC M4A。
 - 默认 AAC 上限 128 kbps，源码率更低时不主动提高。
@@ -47,7 +47,7 @@ security add-generic-password -U \
 unset GITHUB_PODCAST_TOKEN
 ```
 
-本程序不读取 macOS 音乐资料库。Downie 只通过其公开的 `downie://XUOpenURL` 自动化接口接收链接、目标目录和“仅音频”选项。
+本程序不读取 macOS 音乐资料库。Downie 只通过其公开的 `downie://XUOpenURL` 自动化接口接收链接和本地目标目录，下载原始媒体文件；音频转换由 `ffmpeg` 完成，原始文件保留在 Source Media。
 
 程序不会修改 Downie 的默认下载目录。每个链接都会请求写入独立的 `Source Media` 节目目录；如果 Downie 忽略单次目录，程序只会识别本次新增的一个顶层媒体文件，并从 `downie_fallback_directory` 移入对应节目目录，已有下载不会被移动。
 

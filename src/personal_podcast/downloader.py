@@ -42,7 +42,6 @@ def build_downie_url(source_url: str, destination: Path, title: str) -> str:
     query = urlencode(
         {
             "url": source_url,
-            "postprocessing": "audio",
             "destination": str(destination),
             "title": title,
         },

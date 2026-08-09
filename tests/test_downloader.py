@@ -22,7 +22,9 @@ class DownloaderTests(unittest.TestCase):
         self.assertEqual(parsed.netloc, "XUOpenURL")
         self.assertEqual(values["url"], [source])
         self.assertEqual(values["destination"], [str(destination)])
-        self.assertEqual(values["postprocessing"], ["audio"])
+        # Downie 下载原始媒体（视频/音频），不请求下载后转音频；
+        # 音频转换由 ffmpeg 完成，原始文件保留在 Source Media。
+        self.assertNotIn("postprocessing", values)
 
     def test_episode_identifier_uses_source_metadata(self) -> None:
         metadata = EpisodeMetadata(
