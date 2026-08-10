@@ -266,7 +266,24 @@ class DownloadManager:
             "yt-dlp": YtDlpDownloader(config),
         }
 
+    def _existing_source(self, destination: Path) -> Optional[Path]:
+        """目标目录已有媒体文件时直接复用, 不触发重新下载。"""
+        if not destination.exists():
+            return None
+        candidates = [
+            path
+            for path in destination.iterdir()
+            if path.is_file()
+            and path.suffix.lower() in MEDIA_EXTENSIONS
+            and not path.name.startswith(".")
+        ]
+        return max(candidates, key=lambda p: p.stat().st_mtime) if candidates else None
+
     def download(self, source_url: str, destination: Path, title: str) -> DownloadResult:
+        existing = self._existing_source(destination)
+        if existing is not None:
+            LOGGER.info("目标目录已有源文件 %s, 跳过下载", existing.name)
+            return DownloadResult(path=existing, downloader="existing")
         failures: List[str] = []
         for name in self.config.order:
             downloader = self.downloaders[name]
