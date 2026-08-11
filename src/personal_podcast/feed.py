@@ -36,17 +36,8 @@ def _duration(value: float) -> str:
 
 
 def _description(episode: Episode) -> str:
-    description = episode.description.strip()
-    if not episode.transcript_path or not episode.transcript_path.exists():
-        return description
-    transcript = transcript_audio_text(
-        episode.transcript_path.read_text(encoding="utf-8")
-    )
-    if not transcript:
-        return description
-    return (
-        f"{description}\n\n自动转写全文（可能存在识别错误）：\n{transcript}"
-    )
+    # 简介只保留原始描述,不再拼接转写全文(转写文本单独存放于知识库播客文件夹)
+    return episode.description.strip()
 
 
 def build_feed(
