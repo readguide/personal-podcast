@@ -144,7 +144,19 @@ class DownieDownloader:
             timeout=30,
             error_type=DownloadError,
         )
-        # 兼容有无弹窗: 后台线程持续处理系统/Downie 弹窗, 直到下载完成/超时
+        # 链接给 Downie 后立即同步处理一次弹窗(不等循环, 尽快点掉播放窗口避免出声)
+        try:
+            time.sleep(0.5)
+            if POPUPS_SCRIPT.exists():
+                subprocess.run(
+                    ["osascript", str(POPUPS_SCRIPT), "reuse", "8"],
+                    capture_output=True,
+                    timeout=30,
+                    check=False,
+                )
+        except Exception:
+            pass
+        # 兼容有无弹窗: 后台常驻循环持续处理系统/Downie 弹窗, 直到下载完成/超时
         stop_event = threading.Event()
         popup_thread = threading.Thread(
             target=self._handle_popups,

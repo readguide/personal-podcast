@@ -45,7 +45,6 @@
 		tell application "System Events"
 			try
 				tell process "Downie 4"
-					set frontmost to true
 					set els to {}
 					try
 						set els to entire contents of window 1
@@ -126,12 +125,13 @@
 
 		set startTime to (current date)
 		repeat
+			-- 先快速扫描一次(不做 frontmost/delay, 尽快点掉播放窗口)
 			if handleSystemPopup() then
-				delay 0.3
-			else if handleDowniePopup(mode) then
-				delay 0.3
-			else
 				delay 0.2
+			else if handleDowniePopup(mode) then
+				delay 0.2
+			else
+				delay 0.15
 			end if
 			if ((current date) - startTime) > maxSeconds then
 				return "超时退出"
