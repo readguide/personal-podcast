@@ -18,7 +18,9 @@ from personal_podcast.models import EpisodeMetadata, metadata_from_mapping
 
 LOGGER = logging.getLogger(__name__)
 ASSETS_DIR = Path(__file__).resolve().parent / "assets"
-POPUPS_SCRIPT = ASSETS_DIR / "downie-click-popups.applescript"
+POPUPS_SCRIPT = ASSETS_DIR / "downie-click-popups-loop.applescript"
+if not POPUPS_SCRIPT.exists():
+    POPUPS_SCRIPT = ASSETS_DIR / "downie-click-popups.applescript"
 MEDIA_EXTENSIONS = {
     ".aac",
     ".flac",
@@ -162,11 +164,12 @@ class DownieDownloader:
             self._close_downie_windows()
 
     def _handle_popups(self, stop_event: threading.Event, destination: Path) -> None:
-        """后台线程: 每 2 秒轮询处理系统/Downie 弹窗(兼容无弹窗/多弹窗)。
+        """后台线程: 启动常驻 osascript 循环, 每 0.2s 扫描处理弹窗(兼容无弹窗/多弹窗)。
 
         弹窗判断: 系统「未设定打开 url 的应用程序」→点取消;
         Downie「已下载过,重新下载?」→ 有源文件点跳过(reuse)/无源文件点下载(redownload);
-        播放视频弹窗 →点完成。无弹窗时脚本静默返回,不影响下载。
+        播放视频弹窗 →点完成。无弹窗时静默跳过。
+        下载完成/超时后由调用方置位 stop_event, 此处 terminate 常驻进程。
         """
         if not POPUPS_SCRIPT.exists():
             LOGGER.warning("弹窗处理脚本缺失: %s", POPUPS_SCRIPT)
@@ -182,17 +185,18 @@ class DownieDownloader:
             )
         )
         mode = "reuse" if has_source else "redownload"
-        while not stop_event.is_set():
-            try:
-                subprocess.run(
-                    ["osascript", str(POPUPS_SCRIPT), mode],
-                    capture_output=True,
-                    timeout=15,
-                    check=False,
-                )
-            except Exception:  # 弹窗处理失败不影响下载主流程
-                pass
-            stop_event.wait(2)
+        proc = subprocess.Popen(
+            ["osascript", str(POPUPS_SCRIPT), mode, "1800"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        try:
+            while not stop_event.wait(1):
+                if proc.poll() is not None:
+                    return
+        finally:
+            if proc.poll() is None:
+                proc.terminate()
 
     def _wait_for_download(
         self,
