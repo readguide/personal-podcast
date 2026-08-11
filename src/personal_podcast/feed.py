@@ -6,7 +6,6 @@ from xml.etree import ElementTree as ET
 
 from personal_podcast.config import AppConfig
 from personal_podcast.models import Episode
-from personal_podcast.transcript import transcript_audio_text
 
 
 ITUNES = "http://www.itunes.com/dtds/podcast-1.0.dtd"
