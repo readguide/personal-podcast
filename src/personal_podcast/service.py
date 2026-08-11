@@ -248,8 +248,61 @@ class PersonalPodcastService:
             and previous_path.parent == destination
         ):
             previous_path.unlink(missing_ok=True)
+        self._sync_transcript_to_kb(episode, transcript_path)
         self.generate_site()
         return updated
+
+    def _sync_transcript_to_kb(self, episode: Episode, transcript_path: Path) -> None:
+        """转写完成后,自动同步一份简体 markdown 到 Obsidian 知识库播客文件夹
+        (简介不再包含转写全文,转写文本独立存放于知识库)"""
+        try:
+            import shutil
+            import re as _re
+            from datetime import datetime as _dt
+            try:
+                import opencc
+            except ImportError:
+                LOGGER.warning("opencc 不可用,转录稿同步跳过(繁体未转换)")
+                return
+            cc = opencc.OpenCC("t2s")
+            kb_dir = (
+                Path.home()
+                / "Library/Mobile Documents/com~apple~CloudDocs/00en/en/Obsidian/知识库/3-Resources/播客"
+            )
+            kb_dir.mkdir(parents=True, exist_ok=True)
+            raw = transcript_path.read_text(encoding="utf-8")
+            title = cc.convert(episode.title.strip())
+            author = cc.convert(episode.author.strip() or "")
+            body = raw.split("音频文本：", 1)[-1].split("音频文本:", 1)[-1].strip()
+            body = cc.convert(body)
+            if not body:
+                return
+            now = _dt.now().strftime("%Y-%m-%dT%H:%M:%S")
+            fname = _re.sub(r"[\\/:*?\"<>|#]", " ", title).strip()[:80] or "未命名"
+            md = [
+                "---",
+                f"created: {now}",
+                f"updated: {now}",
+                f"source: {episode.source_url}",
+            ]
+            if author:
+                md.append(f"author: {author}")
+            md += ["tags:", "  - 播客", "  - 转录稿", "---", "", f"# {title}", ""]
+            if author:
+                md.append(f"> **作者**: {author} | [原始来源]({episode.source_url})")
+                md.append("")
+            md += ["## 全文转录", "", body, ""]
+            out = kb_dir / f"{fname}.md"
+            for attempt in range(5):
+                try:
+                    out.write_text("\n".join(md), encoding="utf-8")
+                    break
+                except OSError:
+                    import time
+                    time.sleep(3)
+            LOGGER.info("转录稿已同步知识库: %s", out.name)
+        except Exception as error:  # noqa: BLE001
+            LOGGER.warning("转录稿同步知识库失败: %s", error)
 
     def import_ready_transcripts(self) -> List[Episode]:
         imported: List[Episode] = []
