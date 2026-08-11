@@ -113,6 +113,18 @@ class DownieDownloader:
             )
         ) and executable_exists("open")
 
+    def _close_downie_windows(self) -> None:
+        """收尾: 只关闭 Downie 窗口, 不退出应用 (2026-08-10 用户确认, 2026-08-11 内建)。"""
+        try:
+            subprocess.run(
+                ["osascript", "-e", f'tell application "{self.config.downie_app}" to close every window'],
+                capture_output=True,
+                timeout=15,
+                check=False,
+            )
+        except Exception:
+            pass
+
     def download(self, source_url: str, destination: Path, title: str) -> DownloadResult:
         if not self.is_available():
             raise DownloadError(f"未找到 {self.config.downie_app}")
@@ -146,6 +158,8 @@ class DownieDownloader:
         finally:
             stop_event.set()
             popup_thread.join(timeout=3)
+            # 收尾: 只关窗口不退出应用 (2026-08-11 内建, 不再依赖手动 osascript)
+            self._close_downie_windows()
 
     def _handle_popups(self, stop_event: threading.Event, destination: Path) -> None:
         """后台线程: 每 2 秒轮询处理系统/Downie 弹窗(兼容无弹窗/多弹窗)。
