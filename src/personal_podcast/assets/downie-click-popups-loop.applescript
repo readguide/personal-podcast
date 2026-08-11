@@ -56,6 +56,27 @@
 						end repeat
 					end try
 
+					-- 0. 通用策略: 优先点「默认选中」按钮(focused/highlighted)
+					--    这样无需维护按钮名单, 兼容任何弹窗 (2026-08-11 用户思路)
+					repeat with el in els
+						try
+							if (role of el as text) is "AXButton" then
+								set foc to false
+								set hlt to false
+								try
+									set foc to (focused of el) as boolean
+								end try
+								try
+									set hlt to (highlighted of el) as boolean
+								end try
+								if foc or hlt then
+									click el
+									return true
+								end if
+							end if
+						end try
+					end repeat
+
 					-- 2a. 「已下载过,重新下载?」弹窗(跳过/下载 二选一)
 					if mode is "redownload" then
 						set targets to {"下载", "重新下载", "Download", "Redownload"}
