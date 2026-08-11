@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Tue, 11 Aug 2026 13:00:11 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 11 Aug 2026 23:53:41 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,21 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>私募大佬韩广斌早期珍贵采访</title>
+      <link>https://v.douyin.com/npvXswAzFFY/</link>
+      <description>本期为《私募大佬韩广斌早期珍贵采访》的音频收听版，保留原视频内容与原作者声音，便于在播客客户端中收听。
+
+作者：en
+原始来源：https://v.douyin.com/npvXswAzFFY/</description>
+      <guid isPermaLink="false">personal-podcast:v-douyin-com-46c127db06b2e269</guid>
+      <pubDate>Tue, 11 Aug 2026 23:53:41 +0000</pubDate>
+      <enclosure url="https://github.com/readguide/personal-podcast/releases/download/episode-v-douyin-com-46c127db06b2e269/v-douyin-com-46c127db06b2e269.m4a?v=b66b784e9e72405b" length="10141844" type="audio/mp4" />
+      <itunes:author>en</itunes:author>
+      <itunes:duration>0:26:45</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+    </item>
     <item>
       <title>大厂agent面试没那么恶心，来来回回就四类 #大厂 #互联网 #AI #面试 #找工作-</title>
       <link>https://v.douyin.com/VH8hg7_UOpo/</link>
