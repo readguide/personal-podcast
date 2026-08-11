@@ -105,6 +105,29 @@
 							end if
 						end try
 					end repeat
+
+					-- 2c. 「考虑登录」等站点登录提示 → 点【考虑登录】继续(2026-08-11 实测)
+					set targets to {"考虑登录"}
+					repeat with el in els
+						try
+							if (role of el as text) is "AXButton" then
+								set t to ""
+								set d to ""
+								try
+									set t to (title of el as text)
+								end try
+								try
+									set d to (description of el as text)
+								end try
+								repeat with target in targets
+									if (t is target) or (d is target) or (d contains target) then
+										click el
+										return true
+									end if
+								end repeat
+							end if
+						end try
+					end repeat
 				end tell
 			end try
 		end tell
