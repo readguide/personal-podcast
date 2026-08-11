@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Mon, 10 Aug 2026 12:11:17 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 11 Aug 2026 11:42:35 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,21 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>王强：AI时代，提问能力比答案更珍贵 AI时代，答案会越来越多，真正稀缺的是能把问题问对的人。  #章泽天  #王强  …</title>
+      <link>https://v.douyin.com/WzMc-0fy0u0/</link>
+      <description>本期为《王强：AI时代，提问能力比答案更珍贵 AI时代，答案会越来越多，真正稀缺的是能把问题问对的人。  #章泽天  #王强  …》的音频收听版，保留原视频内容与原作者声音，便于在播客客户端中收听。
+
+作者：en
+原始来源：https://v.douyin.com/WzMc-0fy0u0/</description>
+      <guid isPermaLink="false">personal-podcast:v-douyin-com-5a85ab597072d6d0</guid>
+      <pubDate>Tue, 11 Aug 2026 11:42:35 +0000</pubDate>
+      <enclosure url="https://github.com/readguide/personal-podcast/releases/download/episode-v-douyin-com-5a85ab597072d6d0/v-douyin-com-5a85ab597072d6d0.m4a?v=4645472cfb2b27b7" length="3333297" type="audio/mp4" />
+      <itunes:author>en</itunes:author>
+      <itunes:duration>0:08:55</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+    </item>
     <item>
       <title>成年人必修：如何练就「快速翻篇」的能力？ 如何成为一个社会化程度高的人？ 这期我邀请到了红圈所律师合伙人，也是《令人心动的Offer 5》上的带教老师@刘思远…</title>
       <link>https://v.douyin.com/3-5o3kCSgSk/</link>
