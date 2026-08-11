@@ -3,12 +3,44 @@ import unittest
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from personal_podcast.downloader import DownieDownloader, build_downie_url
+from personal_podcast.downloader import (
+    DownieDownloader,
+    POPUPS_SCRIPT,
+    build_downie_url,
+)
 from personal_podcast.config import DownloadConfig
 from personal_podcast.downloader import DownloadManager, DownloadResult
 from personal_podcast.errors import DownloadError
 from personal_podcast.identifiers import canonicalize_url, episode_id_for
 from personal_podcast.models import EpisodeMetadata
+
+
+class PopupHandlingTests(unittest.TestCase):
+    def test_popup_script_ships_with_package(self) -> None:
+        self.assertTrue(POPUPS_SCRIPT.exists(), f"缺少弹窗处理脚本: {POPUPS_SCRIPT}")
+        content = POPUPS_SCRIPT.read_text(encoding="utf-8")
+        # 必须同时覆盖系统弹窗(取消)和 Downie 播放弹窗(完成), 兼容无弹窗静默
+        self.assertIn("CoreServicesUIAgent", content)
+        self.assertIn("完成", content)
+        self.assertIn("无弹窗", content)
+
+    def test_popup_thread_stops_on_event(self) -> None:
+        import threading
+        import tempfile
+        from pathlib import Path
+
+        downloader = DownieDownloader(DownloadConfig())
+        with tempfile.TemporaryDirectory() as temporary:
+            stop_event = threading.Event()
+            stop_event.set()  # 预置停止 -> 线程应立即退出
+            thread = threading.Thread(
+                target=downloader._handle_popups,
+                args=(stop_event, Path(temporary)),
+                daemon=True,
+            )
+            thread.start()
+            thread.join(timeout=5)
+            self.assertFalse(thread.is_alive(), "弹窗线程在停止事件后未退出")
 
 
 class DownloaderTests(unittest.TestCase):

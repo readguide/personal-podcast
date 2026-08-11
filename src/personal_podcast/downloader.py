@@ -1,6 +1,8 @@
 import json
 import logging
 import shutil
+import subprocess
+import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -15,6 +17,8 @@ from personal_podcast.models import EpisodeMetadata, metadata_from_mapping
 
 
 LOGGER = logging.getLogger(__name__)
+ASSETS_DIR = Path(__file__).resolve().parent / "assets"
+POPUPS_SCRIPT = ASSETS_DIR / "downie-click-popups.applescript"
 MEDIA_EXTENSIONS = {
     ".aac",
     ".flac",
@@ -126,8 +130,55 @@ class DownieDownloader:
             timeout=30,
             error_type=DownloadError,
         )
-        path = self._wait_for_download(destination, before, fallback, fallback_before)
-        return DownloadResult(path=path, downloader="downie")
+        # 兼容有无弹窗: 后台线程持续处理系统/Downie 弹窗, 直到下载完成/超时
+        stop_event = threading.Event()
+        popup_thread = threading.Thread(
+            target=self._handle_popups,
+            args=(stop_event, destination),
+            daemon=True,
+        )
+        popup_thread.start()
+        try:
+            path = self._wait_for_download(
+                destination, before, fallback, fallback_before
+            )
+            return DownloadResult(path=path, downloader="downie")
+        finally:
+            stop_event.set()
+            popup_thread.join(timeout=3)
+
+    def _handle_popups(self, stop_event: threading.Event, destination: Path) -> None:
+        """后台线程: 每 2 秒轮询处理系统/Downie 弹窗(兼容无弹窗/多弹窗)。
+
+        弹窗判断: 系统「未设定打开 url 的应用程序」→点取消;
+        Downie「已下载过,重新下载?」→ 有源文件点跳过(reuse)/无源文件点下载(redownload);
+        播放视频弹窗 →点完成。无弹窗时脚本静默返回,不影响下载。
+        """
+        if not POPUPS_SCRIPT.exists():
+            LOGGER.warning("弹窗处理脚本缺失: %s", POPUPS_SCRIPT)
+            return
+        has_source = bool(
+            destination
+            and destination.exists()
+            and any(
+                p.is_file()
+                and p.suffix.lower() in MEDIA_EXTENSIONS
+                and not p.name.startswith(".")
+                for p in destination.iterdir()
+            )
+        )
+        mode = "reuse" if has_source else "redownload"
+        while not stop_event.is_set():
+            try:
+                subprocess.run(
+                    ["osascript", str(POPUPS_SCRIPT), mode],
+                    capture_output=True,
+                    timeout=15,
+                    check=False,
+                )
+            except Exception:  # 弹窗处理失败不影响下载主流程
+                pass
+            stop_event.wait(2)
 
     def _wait_for_download(
         self,
