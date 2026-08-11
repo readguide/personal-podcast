@@ -1,75 +1,39 @@
-	-- 弹窗自动处理·极速版(兼容有无弹窗 + 多弹窗 + 零延迟):
-	--   核心思路: 不遍历 UI 树(entire contents 太慢, 要几秒),
-	--   改用 Downie 自身 AppleScript 接口(0.02s)快速检测窗口变化,
-	--   发现弹窗立即按回车触发「默认选中按钮」(macOS 弹窗默认按钮都响应回车)。
-	--   兜底: 若回车无效, 再遍历按钮名单点击。
+	-- 弹窗自动处理·极速版v2(兼容有无弹窗 + 多弹窗 + 零延迟):
+	--   核心: System Events 中 Downie 的窗口数 = 弹窗信号!
+	--   无弹窗时窗口数 = 0(0.02s 检测), 有弹窗时 > 0。
+	--   检测到弹窗 → 立即按回车触发「默认选中按钮」(macOS 弹窗默认按钮都响应回车)。
+	--   回车无效 → 遍历按钮名单兜底(取消/跳过/完成/考虑登录)。
 	-- 用法: osascript downie-click-popups-loop.applescript [reuse|redownload] [maxSeconds]
 	--   由调用方(Python 后台线程)启动, 下载完成/超时后 terminate 该进程
 	-- 需要辅助功能权限: 系统设置 → 隐私与安全性 → 辅助功能 → 勾选运行终端
 
-	on isDownieRunning()
-		try
-			tell application "System Events"
-				set p to (name of every process)
-			end tell
-			repeat with n in p
-				if (n as text) is "Downie 4" then
-					return true
-				end if
-			end repeat
-		end try
-		return false
-	end isDownieRunning
-
-	-- 快速取 Downie 窗口名列表(Downie 自身接口, ~0.02s)
-	on downieWindows()
-		try
-			tell application "Downie 4"
-				return (name of every window) as list
-			end tell
-		on error
-			return {}
-		end try
-	end downieWindows
-
-	-- 快速路径: 发现弹窗(窗口集合变化/数量异常) → 回车触发默认按钮
-	-- 返回 {是否处理, 当前窗口列表}
-	on fastReturn(prevWindows, initialized)
-		set cur to downieWindows()
-		if (count of cur) is 0 then
-			return {false, prevWindows}
-		end if
-		if not initialized then
-			-- 首次运行: 只记录窗口基线, 不按回车(避免误触发)
-			return {false, cur}
-		end if
-		set changed to false
-		-- 窗口名列表变化, 或窗口数量比上次多 → 可能有新弹窗
-		if (count of cur) is not (count of prevWindows) then
-			set changed to true
-		else
+	-- 快速检测弹窗: System Events 中 Downie 窗口数 (0 = 无弹窗, 0.02s)
+	on popupWindowCount()
+		tell application "System Events"
 			try
-				repeat with i from 1 to (count of cur)
-					if (item i of cur) is not (item i of prevWindows) then
-						set changed to true
-						exit repeat
-					end if
-				end repeat
+				return (count of windows of process "Downie 4")
+			on error
+				return 0
 			end try
-		end if
-		if changed then
+		end tell
+	end popupWindowCount
+
+	-- 快速路径: 检测到弹窗 → 回车触发默认按钮
+	on fastHandlePopup()
+		set n to popupWindowCount()
+		if n > 0 then
 			-- 激活 Downie 并按回车(触发默认按钮: 完成/考虑登录/确定 等)
 			try
 				tell application "Downie 4" to activate
-				delay 0.15
+				delay 0.1
 				tell application "System Events" to keystroke return
 			end try
-			return {true, cur}
+			return true
 		end if
-		return {false, cur}
-	end fastReturn
+		return false
+	end fastHandlePopup
 
-	-- 兜底: 遍历按钮名单点击(entire contents 慢, 只在回车无效时用)
+	-- 兜底: 系统弹窗取消
 	on handleSystemPopup()
 		tell application "System Events"
 			try
@@ -103,6 +67,7 @@
 		return false
 	end handleSystemPopup
 
+	-- 兜底: 遍历 Downie 按钮名单点击(entire contents 慢, 只在回车无效时用)
 	on handleDowniePopup(mode)
 		tell application "System Events"
 			try
@@ -229,18 +194,12 @@
 		end if
 
 		set startTime to (current date)
-		set prevWindows to {}
-		set initialized to false
 		repeat
-			-- 快速路径: 检测窗口变化 → 回车
-			set r to fastReturn(prevWindows, initialized)
-			set handled to (item 1 of r)
-			set prevWindows to (item 2 of r)
-			set initialized to true
-			if handled then
+			-- 主路径: 弹窗窗口数 > 0 → 回车(快, 0.02s 检测)
+			if fastHandlePopup() then
 				delay 0.15
 			else
-				-- 慢路径兜底(低频): 系统弹窗取消 + Downie 按钮名单
+				-- 兜底: 系统弹窗取消 + Downie 按钮名单(低频, 慢)
 				if handleSystemPopup() then
 					delay 0.15
 				else if handleDowniePopup(mode) then
