@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Wed, 12 Aug 2026 13:04:17 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 12 Aug 2026 13:50:40 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,21 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>段永平早期采访：大道至简 重温阿段早年拍下巴菲特午餐后的专访，诸多理念，多年来始终知行合一。#段永平 #投资 #成…</title>
+      <link>https://v.douyin.com/UMEO4Utn_co/</link>
+      <description>段永平早期采访：大道至简 重温阿段早年拍下巴菲特午餐后的专访，诸多理念，多年来始终知行合一。#段永平 #投资 #成…
+
+作者：en
+原始来源：https://v.douyin.com/UMEO4Utn_co/</description>
+      <guid isPermaLink="false">personal-podcast:v-douyin-com-136dc700a0a77cf6</guid>
+      <pubDate>Wed, 12 Aug 2026 13:50:40 +0000</pubDate>
+      <enclosure url="https://github.com/readguide/personal-podcast/releases/download/episode-v-douyin-com-136dc700a0a77cf6/v-douyin-com-136dc700a0a77cf6.m4a?v=a5e99489930b9b88" length="6702688" type="audio/mp4" />
+      <itunes:author>en</itunes:author>
+      <itunes:duration>0:17:33</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+    </item>
     <item>
       <title>北大教授程乐松：我凭什么说教年轻人？我自己手上都没有人生地图 他说自己活得既不精致，也没品味；他说高中时抄作业、大学天…</title>
       <link>https://v.douyin.com/9eMX5BnI-lc/</link>
