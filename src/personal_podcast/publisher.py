@@ -103,9 +103,12 @@ class GitHubReleasePublisher:
 
     @staticmethod
     def _stage_asset(source: Path, asset_name: str) -> Path:
-        """复制音频到临时文件(文件名=资产名), 供上传。"""
+        """复制音频到临时目录(文件名=纯资产名, 不带前缀), 供上传。"""
         import shutil as _shutil
-        staged = source.parent / f".upload-{asset_name}"
+        import tempfile as _tempfile
+        temp_dir = Path(_tempfile.gettempdir()) / "podcast-assets"
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        staged = temp_dir / asset_name
         _shutil.copy2(str(source), str(staged))
         return staged
 
