@@ -29,10 +29,7 @@ def build_episode_description(
 ) -> str:
     body = original.strip()
     if not body or body == f"原始来源：{source_url}":
-        body = (
-            f"本期为《{title}》的音频收听版，保留原视频内容与原作者声音，"
-            "便于在播客客户端中收听。"
-        )
+        body = f"{title}"
     details = []
     if author and f"作者：{author}" not in body:
         details.append(f"作者：{author}")

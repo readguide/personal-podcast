@@ -421,15 +421,34 @@ class DouyinApiDownloader:
 class MetadataReader:
     """读取链接元数据(标题/作者)。
 
-    2026-08-12 用户定版: 所有视频始终用 Downie 下载, 不再调用 yt-dlp
-    (含元数据读取)。元数据改为从 URL 推断, 标题回退到下载文件名。
+    2026-08-12 修正: 下载始终用 Downie(用户定版), 但元数据读取仍用 yt-dlp
+    (仅 --dump-single-json --skip-download, 不触发下载), 否则 YouTube 等
+    平台拿不到标题/UP主名称, 会回退成文件名字符串(ID)。
     """
 
     def __init__(self, config: DownloadConfig):
         self.config = config
 
     def read(self, source_url: str) -> Optional[EpisodeMetadata]:
-        return inferred_metadata_for_url(source_url)
+        if not executable_exists(self.config.yt_dlp_command):
+            return inferred_metadata_for_url(source_url)
+        try:
+            result = run_checked(
+                [
+                    self.config.yt_dlp_command,
+                    "--dump-single-json",
+                    "--skip-download",
+                    "--no-playlist",
+                    "--no-warnings",
+                    source_url,
+                ],
+                error_type=DownloadError,
+            )
+            payload = json.loads(result.stdout)
+            return metadata_from_mapping(payload, fallback_title="未命名节目")
+        except (DownloadError, json.JSONDecodeError, TypeError) as error:
+            LOGGER.warning("无法读取链接元数据，将使用下载文件信息: %s", error)
+            return inferred_metadata_for_url(source_url)
 
 
 class DownloadManager:
