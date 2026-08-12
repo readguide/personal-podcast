@@ -58,44 +58,60 @@ class GitHubReleasePublisher:
             raise PublishError(f"成品音频不存在: {episode.audio_path}")
         tag = episode.release_tag or f"episode-{episode.episode_id}"
         environment = github_cli_environment()
-        if self._release_exists(tag):
-            run_checked(
-                [
-                    self.config.gh_command,
-                    "release",
-                    "upload",
-                    tag,
-                    str(episode.audio_path),
-                    "--clobber",
-                    "--repo",
-                    self.config.repository,
-                ],
-                env=environment,
-                error_type=PublishError,
-            )
-        else:
-            notes = episode.description or f"原始来源：{episode.source_url}"
-            run_checked(
-                [
-                    self.config.gh_command,
-                    "release",
-                    "create",
-                    tag,
-                    str(episode.audio_path),
-                    "--repo",
-                    self.config.repository,
-                    "--title",
-                    episode.title,
-                    "--notes",
-                    notes,
-                ],
-                env=environment,
-                error_type=PublishError,
-            )
+        # 资产名统一用 episode_id(纯 ASCII), 避免中文/特殊字符文件名在 GitHub 上被乱改
+        # (2026-08-12: 曾因中文资产名导致 release 资产变成 AI.AI.m4a, feed 下载失败)
+        asset_name = f"{episode.episode_id}{episode.audio_path.suffix}"
+        upload_path = self._stage_asset(episode.audio_path, asset_name)
+        try:
+            if self._release_exists(tag):
+                run_checked(
+                    [
+                        self.config.gh_command,
+                        "release",
+                        "upload",
+                        tag,
+                        str(upload_path),
+                        "--clobber",
+                        "--repo",
+                        self.config.repository,
+                    ],
+                    env=environment,
+                    error_type=PublishError,
+                )
+            else:
+                notes = episode.description or f"原始来源：{episode.source_url}"
+                run_checked(
+                    [
+                        self.config.gh_command,
+                        "release",
+                        "create",
+                        tag,
+                        str(upload_path),
+                        "--repo",
+                        self.config.repository,
+                        "--title",
+                        episode.title,
+                        "--notes",
+                        notes,
+                    ],
+                    env=environment,
+                    error_type=PublishError,
+                )
+        finally:
+            upload_path.unlink(missing_ok=True)
         return tag, self.public_url(episode, tag)
 
+    @staticmethod
+    def _stage_asset(source: Path, asset_name: str) -> Path:
+        """复制音频到临时文件(文件名=资产名), 供上传。"""
+        import shutil as _shutil
+        staged = source.parent / f".upload-{asset_name}"
+        _shutil.copy2(str(source), str(staged))
+        return staged
+
     def public_url(self, episode: Episode, tag: str) -> str:
-        filename = quote(episode.audio_path.name)
+        # 资产名与上传一致: episode_id.后缀
+        filename = quote(f"{episode.episode_id}{episode.audio_path.suffix}")
         if self.config.audio_host == "cloudflare":
             base_url = f"{self.config.cloudflare_audio_base_url}/audio/{filename}"
         elif self.config.audio_host == "github-pages":

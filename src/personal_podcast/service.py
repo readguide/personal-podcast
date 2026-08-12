@@ -106,6 +106,17 @@ class PersonalPodcastService:
         temp_directory = self.config.storage.temp_dir / "Sources" / episode_id
         download = self.downloads.download(url, temp_directory, episode_id)
         original_stem = download.path.stem
+        source_info = self.media.probe(download.path)
+
+        fallback_title = original_stem or source_info.tags.get("title") or episode_id
+        title = (metadata.title if metadata else "") or fallback_title
+        # 标题下载后才完整(如抖音), 用最终标题重新生成文件名
+        source_stem = _readable_source_stem(imported_at, None, episode_id)
+        if title and title != episode_id:
+            import re as _re2
+            safe_title = _re2.sub(r"[\\/:*?\"<>|#\s]+", "-", title).strip("-")[:60].rstrip("-")
+            if safe_title:
+                source_stem = f"{imported_at.strftime('%Y-%m-%d')}-{safe_title}"
         final_source = self.config.storage.source_media_dir / f"{source_stem}{download.path.suffix}"
         if download.path != final_source:
             final_source.parent.mkdir(parents=True, exist_ok=True)
@@ -116,10 +127,7 @@ class PersonalPodcastService:
             import shutil as _shutil
             _shutil.move(str(download.path), str(final_source))
             download = DownloadResult(path=final_source, downloader=download.downloader)
-        source_info = self.media.probe(download.path)
 
-        fallback_title = original_stem or source_info.tags.get("title") or episode_id
-        title = (metadata.title if metadata else "") or fallback_title
         author = (metadata.author if metadata else "") or self.config.podcast.author
         description = build_episode_description(
             metadata.description if metadata else "",
