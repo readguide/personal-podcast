@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 
 from personal_podcast.artwork import download_artwork
 from personal_podcast.config import AppConfig
-from personal_podcast.downloader import DownloadManager, MetadataReader
+from personal_podcast.downloader import DownloadManager, DownloadResult, MetadataReader
 from personal_podcast.errors import PersonalPodcastError, PublishError
 from personal_podcast.identifiers import canonicalize_url, episode_id_for
 from personal_podcast.inbox import VideoLinkClassifier, latest_link
@@ -14,20 +14,24 @@ from personal_podcast.models import Episode, EpisodeMetadata
 from personal_podcast.publisher import GitHubReleasePublisher, GitSitePublisher
 from personal_podcast.site import SiteGenerator
 from personal_podcast.store import EpisodeStore
-from personal_podcast.transcript import format_transcript, transcript_filename
+from personal_podcast.transcript import (
+    CHINA_STANDARD_TIME,
+    format_transcript,
+    transcript_filename,
+)
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-def _readable_source_folder(
+def _readable_source_stem(
     imported_at: datetime,
     metadata: Optional[EpisodeMetadata],
     episode_id: str,
 ) -> str:
-    """源文件目录名: 日期-标题(可读, 不再用 episode_id 裸 ID)。
+    """源文件名主干: 日期-标题(可读, 不再用 episode_id 裸 ID, 也不再建子目录)。
 
-    2026-08-12 用户要求: Source Media 下的目录要能直接看出内容。
+    2026-08-12 用户要求: Source Media 下直接平铺文件, 不要文件夹。
     格式: YYYY-MM-DD-标题(去特殊字符, 截断 60 字); 标题缺失时回退 episode_id。
     """
     import re as _re
@@ -97,14 +101,24 @@ class PersonalPodcastService:
         imported_at = datetime.now(timezone.utc)
         metadata = self.metadata.read(url)
         episode_id = episode_id_for(url, metadata)
-        source_directory = (
-            self.config.storage.source_media_dir
-            / _readable_source_folder(imported_at, metadata, episode_id)
-        )
-        download = self.downloads.download(url, source_directory, episode_id)
+        source_stem = _readable_source_stem(imported_at, metadata, episode_id)
+        # 下载到临时目录, 完成后平铺到 Source Media(文件名=日期-标题, 不建子目录)
+        temp_directory = self.config.storage.temp_dir / "Sources" / episode_id
+        download = self.downloads.download(url, temp_directory, episode_id)
+        original_stem = download.path.stem
+        final_source = self.config.storage.source_media_dir / f"{source_stem}{download.path.suffix}"
+        if download.path != final_source:
+            final_source.parent.mkdir(parents=True, exist_ok=True)
+            if final_source.exists():
+                final_source = final_source.with_name(
+                    f"{source_stem}-{episode_id[:8]}{download.path.suffix}"
+                )
+            import shutil as _shutil
+            _shutil.move(str(download.path), str(final_source))
+            download = DownloadResult(path=final_source, downloader=download.downloader)
         source_info = self.media.probe(download.path)
 
-        fallback_title = download.path.stem or source_info.tags.get("title") or episode_id
+        fallback_title = original_stem or source_info.tags.get("title") or episode_id
         title = (metadata.title if metadata else "") or fallback_title
         author = (metadata.author if metadata else "") or self.config.podcast.author
         description = build_episode_description(
@@ -138,7 +152,7 @@ class PersonalPodcastService:
         ):
             download.path.unlink(missing_ok=True)
             retained_source = None
-            self._remove_empty_parent(source_directory)
+            self._remove_empty_parent(temp_directory)
 
         episode = Episode(
             episode_id=episode_id,
@@ -294,6 +308,7 @@ class PersonalPodcastService:
             if not body:
                 return
             now = _dt.now().strftime("%Y-%m-%dT%H:%M:%S")
+            date_part = episode.imported_at.astimezone(CHINA_STANDARD_TIME).strftime("%Y-%m-%d")
             fname = _re.sub(r"[\\/:*?\"<>|#]", " ", title).strip()[:80] or "未命名"
             md = [
                 "---",
@@ -308,7 +323,7 @@ class PersonalPodcastService:
                 md.append(f"> **作者**: {author} | [原始来源]({episode.source_url})")
                 md.append("")
             md += ["## 全文转录", "", body, ""]
-            out = kb_dir / f"{fname}.md"
+            out = kb_dir / f"{date_part}-{fname}.md"
             for attempt in range(5):
                 try:
                     out.write_text("\n".join(md), encoding="utf-8")
