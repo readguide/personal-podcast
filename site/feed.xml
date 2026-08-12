@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Wed, 12 Aug 2026 12:44:32 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 12 Aug 2026 13:04:17 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,21 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>北大教授程乐松：我凭什么说教年轻人？我自己手上都没有人生地图 他说自己活得既不精致，也没品味；他说高中时抄作业、大学天…</title>
+      <link>https://v.douyin.com/9eMX5BnI-lc/</link>
+      <description>北大教授程乐松：我凭什么说教年轻人？我自己手上都没有人生地图 他说自己活得既不精致，也没品味；他说高中时抄作业、大学天…
+
+作者：en
+原始来源：https://v.douyin.com/9eMX5BnI-lc/</description>
+      <guid isPermaLink="false">personal-podcast:v-douyin-com-631891cd27ede139</guid>
+      <pubDate>Wed, 12 Aug 2026 13:04:17 +0000</pubDate>
+      <enclosure url="https://github.com/readguide/personal-podcast/releases/download/episode-v-douyin-com-631891cd27ede139/v-douyin-com-631891cd27ede139.m4a?v=7ff449adecd82683" length="18517988" type="audio/mp4" />
+      <itunes:author>en</itunes:author>
+      <itunes:duration>0:49:38</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+    </item>
     <item>
       <title>第一集｜老，到底可不可以慢一点？ #阿雅  #和时间做朋友  #诊室之外  #视频播客扶持计划#走进生命医线-</title>
       <link>https://v.douyin.com/C_erGKAvFcY/</link>
