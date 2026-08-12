@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Wed, 12 Aug 2026 11:38:41 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 12 Aug 2026 12:44:32 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,21 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>第一集｜老，到底可不可以慢一点？ #阿雅  #和时间做朋友  #诊室之外  #视频播客扶持计划#走进生命医线-</title>
+      <link>https://v.douyin.com/C_erGKAvFcY/</link>
+      <description>第一集｜老，到底可不可以慢一点？ #阿雅  #和时间做朋友  #诊室之外  #视频播客扶持计划#走进生命医线-
+
+作者：en
+原始来源：https://v.douyin.com/C_erGKAvFcY/</description>
+      <guid isPermaLink="false">personal-podcast:v-douyin-com-230bb89f408a2c78</guid>
+      <pubDate>Wed, 12 Aug 2026 12:44:32 +0000</pubDate>
+      <enclosure url="https://github.com/readguide/personal-podcast/releases/download/episode-v-douyin-com-230bb89f408a2c78/v-douyin-com-230bb89f408a2c78.m4a?v=b15d007cc2dfe672" length="4513368" type="audio/mp4" />
+      <itunes:author>en</itunes:author>
+      <itunes:duration>0:11:39</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+    </item>
     <item>
       <title>周受资：AI时代，未知里藏着真创新 周受资在南洋理工大学的毕业演讲： AI时代，别总待在自己最擅长的地方。 从父亲…</title>
       <link>https://v.douyin.com/zOe3xYKtSQ0/</link>
