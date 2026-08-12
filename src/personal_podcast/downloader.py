@@ -313,30 +313,123 @@ class YtDlpDownloader:
         return DownloadResult(path=candidate, downloader="yt-dlp")
 
 
+class DouyinApiDownloader:
+    """抖音官方分享页 API 直链下载(2026-08-11 新增, Downie/yt-dlp 失败后的兜底)。
+
+    背景: Downie 用桌面版 douyin.com 解析, 部分抖音视频页面无 play_addr 导致无法下载;
+    但移动分享页 iesdouyin.com/share/video/<id> 的 ROUTER_DATA 里有无水印直链。
+    """
+
+    def __init__(self, config: DownloadConfig):
+        self.config = config
+
+    def is_available(self) -> bool:
+        return executable_exists("curl")
+
+    @staticmethod
+    def _video_id(source_url: str) -> Optional[str]:
+        import re as _re
+        m = _re.search(r"(?:douyin|iesdouyin)\.com/video/(\d{15,20})", source_url)
+        if m:
+            return m.group(1)
+        if "v.douyin.com" in source_url:
+            try:
+                result = run_checked(
+                    [
+                        "curl", "-s", "-L", "-m", "20",
+                        "-o", "/dev/null", "-w", "%{url_effective}",
+                        source_url,
+                    ],
+                    error_type=DownloadError,
+                )
+                final_url = result.stdout.strip()
+                m = _re.search(r"/video/(\d{15,20})", final_url)
+                if m:
+                    return m.group(1)
+            except DownloadError:
+                return None
+        return None
+
+    def download(self, source_url: str, destination: Path, title: str) -> DownloadResult:
+        import re as _re
+        import json as _json
+
+        video_id = self._video_id(source_url)
+        if not video_id:
+            raise DownloadError("无法从链接提取抖音视频 ID")
+        share_url = f"https://www.iesdouyin.com/share/video/{video_id}"
+        try:
+            result = run_checked(
+                [
+                    "curl", "-s", "-L", "-m", "30",
+                    "-A", "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+                    share_url,
+                ],
+                error_type=DownloadError,
+            )
+        except DownloadError as error:
+            raise DownloadError(f"抖音分享页抓取失败: {error}") from error
+        html = result.stdout
+        m = _re.search(r"window\._ROUTER_DATA\s*=\s*(\{.*?\});?\s*</script>", html, _re.S)
+        if not m:
+            raise DownloadError("抖音分享页无 ROUTER_DATA(视频可能被删/私密/风控)")
+        try:
+            data = _json.loads(m.group(1))
+        except _json.JSONDecodeError as error:
+            raise DownloadError(f"抖音 ROUTER_DATA 解析失败: {error}") from error
+
+        def _find_play_addr(obj, depth=0):
+            found = []
+            if depth > 8 or not isinstance(obj, (dict, list)):
+                return found
+            if isinstance(obj, dict):
+                for key, value in obj.items():
+                    if key == "play_addr":
+                        found.append(value)
+                    found.extend(_find_play_addr(value, depth + 1))
+            else:
+                for item in obj:
+                    found.extend(_find_play_addr(item, depth + 1))
+            return found
+
+        video_url = None
+        for addr in _find_play_addr(data):
+            if isinstance(addr, dict):
+                urls = addr.get("url_list") or []
+                if urls:
+                    video_url = urls[0]
+                    break
+        if not video_url:
+            raise DownloadError("抖音分享页无播放直链")
+        destination.mkdir(parents=True, exist_ok=True)
+        safe_title = "".join(c for c in title if c not in "/\\:*?\"<>| ").strip() or "douyin"
+        target = destination / f"{safe_title[:80]}.mp4"
+        run_checked(
+            [
+                "curl", "-s", "-L", "-m", "600",
+                "-A", "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)",
+                "-o", str(target),
+                video_url,
+            ],
+            error_type=DownloadError,
+        )
+        if not target.exists() or target.stat().st_size < 10000:
+            raise DownloadError(f"抖音直链下载失败(文件过小或不存在): {target}")
+        return DownloadResult(path=target.resolve(), downloader="douyin-api")
+
+
 class MetadataReader:
+    """读取链接元数据(标题/作者)。
+
+    2026-08-12 用户定版: 所有视频始终用 Downie 下载, 不再调用 yt-dlp
+    (含元数据读取)。元数据改为从 URL 推断, 标题回退到下载文件名。
+    """
+
     def __init__(self, config: DownloadConfig):
         self.config = config
 
     def read(self, source_url: str) -> Optional[EpisodeMetadata]:
-        if not executable_exists(self.config.yt_dlp_command):
-            return inferred_metadata_for_url(source_url)
-        try:
-            result = run_checked(
-                [
-                    self.config.yt_dlp_command,
-                    "--dump-single-json",
-                    "--skip-download",
-                    "--no-playlist",
-                    "--no-warnings",
-                    source_url,
-                ],
-                error_type=DownloadError,
-            )
-            payload = json.loads(result.stdout)
-            return metadata_from_mapping(payload, fallback_title="未命名节目")
-        except (DownloadError, json.JSONDecodeError, TypeError) as error:
-            LOGGER.warning("无法读取链接元数据，将使用下载文件信息: %s", error)
-            return inferred_metadata_for_url(source_url)
+        return inferred_metadata_for_url(source_url)
 
 
 class DownloadManager:
@@ -345,6 +438,7 @@ class DownloadManager:
         self.downloaders = {
             "downie": DownieDownloader(config),
             "yt-dlp": YtDlpDownloader(config),
+            "douyin-api": DouyinApiDownloader(config),
         }
 
     def _existing_source(self, destination: Path) -> Optional[Path]:

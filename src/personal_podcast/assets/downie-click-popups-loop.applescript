@@ -1,39 +1,65 @@
-	-- 弹窗自动处理·极速版v2(兼容有无弹窗 + 多弹窗 + 零延迟):
-	--   核心: System Events 中 Downie 的窗口数 = 弹窗信号!
-	--   无弹窗时窗口数 = 0(0.02s 检测), 有弹窗时 > 0。
-	--   检测到弹窗 → 立即按回车触发「默认选中按钮」(macOS 弹窗默认按钮都响应回车)。
-	--   回车无效 → 遍历按钮名单兜底(取消/跳过/完成/考虑登录)。
+	-- 弹窗自动处理·修正版v2(2026-08-11 23:30):
+	--   核心: 深层遍历(entire contents)Downie 所有窗口按钮, 过滤正常窗口按钮,
+	--   只有发现「弹窗特征按钮」才动作; 无弹窗完全静默, 不按任何键。
+	--   背景: 之前用浅层 buttons of window 抓不到深层弹窗按钮,
+	--   导致播放弹窗没点【完成】→ 下载不触发(踩坑记录早有此条)。
+	-- 处理规则:
+	--   1. 系统弹窗(CoreServicesUIAgent)→ 点【取消】
+	--   2. Downie 内「下载/重新下载」(redownload)或「跳过」(reuse)→ 按键
+	--   3. 播放视频弹窗 → 点【完成】(出声前关闭, 不点不触发下载)
+	--   4. 「考虑登录」等登录提示 → 点【考虑登录】继续
+	--   5. 无弹窗按钮 → 静默等待
 	-- 用法: osascript downie-click-popups-loop.applescript [reuse|redownload] [maxSeconds]
-	--   由调用方(Python 后台线程)启动, 下载完成/超时后 terminate 该进程
-	-- 需要辅助功能权限: 系统设置 → 隐私与安全性 → 辅助功能 → 勾选运行终端
 
-	-- 快速检测弹窗: System Events 中 Downie 窗口数 (0 = 无弹窗, 0.02s)
-	on popupWindowCount()
-		tell application "System Events"
-			try
-				return (count of windows of process "Downie 4")
-			on error
-				return 0
-			end try
-		end tell
-	end popupWindowCount
-
-	-- 快速路径: 检测到弹窗 → 回车触发默认按钮
-	on fastHandlePopup()
-		set n to popupWindowCount()
-		if n > 0 then
-			-- 激活 Downie 并按回车(触发默认按钮: 完成/考虑登录/确定 等)
-			try
-				tell application "Downie 4" to activate
-				delay 0.1
-				tell application "System Events" to keystroke return
-			end try
+	-- Downie 正常窗口的按钮(不属弹窗), 出现这些不处理
+	on isNormalButton(d)
+		if d is "关闭按钮" or d is "全屏幕按钮" or d is "最小化按钮" or d is "缩放按钮" then
+			return true
+		end if
+		if d contains "显示历史记录" or d contains "搜索和热门下载" or d contains "清空已完成的下载" then
+			return true
+		end if
+		if d contains "联系支持" or d contains "添加..." or d contains "打开用户自定义提取" then
 			return true
 		end if
 		return false
-	end fastHandlePopup
+	end isNormalButton
 
-	-- 兜底: 系统弹窗取消
+	-- 深层遍历 Downie 按钮, 返回弹窗特征按钮文本(无弹窗返回 "")
+	on downiePopupButtons()
+		tell application "System Events"
+			tell process "Downie 4"
+				set out to ""
+				repeat with w in (every window)
+					try
+						set els to entire contents of w
+						repeat with el in els
+							try
+								if (role of el as text) is "AXButton" then
+									set t to ""
+									set d to ""
+									try
+										set t to (title of el as text)
+									end try
+									try
+										set d to (description of el as text)
+									end try
+									if not my isNormalButton(d) then
+										if t is not "" or d is not "" then
+											set out to out & t & "|" & d & linefeed
+										end if
+									end if
+								end if
+							end try
+						end repeat
+					end try
+				end repeat
+				return out
+			end tell
+		end tell
+	end downiePopupButtons
+
+	-- 系统弹窗取消
 	on handleSystemPopup()
 		tell application "System Events"
 			try
@@ -67,120 +93,6 @@
 		return false
 	end handleSystemPopup
 
-	-- 兜底: 遍历 Downie 按钮名单点击(entire contents 慢, 只在回车无效时用)
-	on handleDowniePopup(mode)
-		tell application "System Events"
-			try
-				tell process "Downie 4"
-					set els to {}
-					try
-						set els to entire contents of window 1
-					on error
-						repeat with w in (every window)
-							try
-								set els to els & (entire contents of w)
-							end try
-						end repeat
-					end try
-
-					-- 通用策略: 优先点「默认选中」按钮(focused/highlighted)
-					repeat with el in els
-						try
-							if (role of el as text) is "AXButton" then
-								set foc to false
-								set hlt to false
-								try
-									set foc to (focused of el) as boolean
-								end try
-								try
-									set hlt to (highlighted of el) as boolean
-								end try
-								if foc or hlt then
-									click el
-									return true
-								end if
-							end if
-						end try
-					end repeat
-
-					-- 2a. 「已下载过,重新下载?」弹窗(跳过/下载 二选一)
-					if mode is "redownload" then
-						set targets to {"下载", "重新下载", "Download", "Redownload"}
-					else
-						set targets to {"跳过", "Skip", "取消", "Cancel", "不用", "不要"}
-					end if
-					repeat with el in els
-						try
-							if (role of el as text) is "AXButton" then
-								set t to ""
-								set d to ""
-								try
-									set t to (title of el as text)
-								end try
-								try
-									set d to (description of el as text)
-								end try
-								repeat with target in targets
-									if (t is target) or (d is target) or (d contains target) then
-										click el
-										return true
-									end if
-								end repeat
-							end if
-						end try
-					end repeat
-
-					-- 2b. 播放视频弹窗 → 点【完成】
-					set targets to {"完成", "确定", "OK", "Done", "好的"}
-					repeat with el in els
-						try
-							if (role of el as text) is "AXButton" then
-								set t to ""
-								set d to ""
-								try
-									set t to (title of el as text)
-								end try
-								try
-									set d to (description of el as text)
-								end try
-								repeat with target in targets
-									if (t is target) or (d is target) or (d contains target) then
-										click el
-										return true
-									end if
-								end repeat
-							end if
-						end try
-					end repeat
-
-					-- 2c. 「考虑登录」等站点登录提示 → 点【考虑登录】继续
-					set targets to {"考虑登录"}
-					repeat with el in els
-						try
-							if (role of el as text) is "AXButton" then
-								set t to ""
-								set d to ""
-								try
-									set t to (title of el as text)
-								end try
-								try
-									set d to (description of el as text)
-								end try
-								repeat with target in targets
-									if (t is target) or (d is target) or (d contains target) then
-										click el
-										return true
-									end if
-								end repeat
-							end if
-						end try
-					end repeat
-				end tell
-			end try
-		end tell
-		return false
-	end handleDowniePopup
-
 	on run argv
 		set mode to "reuse"
 		if (count of argv) > 0 then
@@ -195,17 +107,57 @@
 
 		set startTime to (current date)
 		repeat
-			-- 主路径: 弹窗窗口数 > 0 → 回车(快, 0.02s 检测)
-			if fastHandlePopup() then
-				delay 0.15
+			-- 1. 系统弹窗 → 点取消
+			if handleSystemPopup() then
+				delay 0.2
 			else
-				-- 兜底: 系统弹窗取消 + Downie 按钮名单(低频, 慢)
-				if handleSystemPopup() then
-					delay 0.15
-				else if handleDowniePopup(mode) then
-					delay 0.15
+				-- 2. Downie 弹窗: 深层遍历, 确认有弹窗特征按钮才动作
+				set btns to downiePopupButtons()
+				set handled to false
+				if btns is not "" then
+					-- 2a. 重复下载(跳过/下载)
+					if mode is "redownload" then
+						if btns contains "下载" or btns contains "重新下载" or btns contains "Download" or btns contains "Redownload" then
+							try
+								tell application "Downie 4" to activate
+								delay 0.1
+								tell application "System Events" to keystroke return
+							end try
+							set handled to true
+						end if
+					else
+						if btns contains "跳过" or btns contains "Skip" or btns contains "不用" then
+							try
+								tell application "Downie 4" to activate
+								delay 0.1
+								tell application "System Events" to keystroke return
+							end try
+							set handled to true
+						end if
+					end if
+					-- 2b. 播放视频/完成类(不点不触发下载)
+					if not handled and (btns contains "完成" or btns contains "确定" or btns contains "OK" or btns contains "Done" or btns contains "好的") then
+						try
+							tell application "Downie 4" to activate
+							delay 0.1
+							tell application "System Events" to keystroke return
+						end try
+						set handled to true
+					end if
+					-- 2c. 考虑登录
+					if not handled and btns contains "考虑登录" then
+						try
+							tell application "Downie 4" to activate
+							delay 0.1
+							tell application "System Events" to keystroke return
+						end try
+						set handled to true
+					end if
+				end if
+				if handled then
+					delay 0.2
 				else
-					delay 0.3
+					delay 0.4
 				end if
 			end if
 			if ((current date) - startTime) > maxSeconds then

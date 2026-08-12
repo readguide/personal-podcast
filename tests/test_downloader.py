@@ -116,7 +116,7 @@ class DownloaderTests(unittest.TestCase):
             def download(self, source_url: str, destination: Path, title: str) -> DownloadResult:
                 return DownloadResult(destination / "audio.opus", "yt-dlp")
 
-        manager = DownloadManager(DownloadConfig())
+        manager = DownloadManager(DownloadConfig(order=["downie", "yt-dlp"]))
         manager.downloaders = {
             "downie": FailingDownloader(),
             "yt-dlp": SuccessfulDownloader(),

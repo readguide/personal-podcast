@@ -34,7 +34,7 @@ class ConfigTests(unittest.TestCase):
             config.storage.transcripts_dir,
             Path("/Users/en/Downloads/en/Personal Podcast/Transcripts"),
         )
-        self.assertEqual(config.download.order, ["downie", "yt-dlp"])
+        self.assertEqual(config.download.order, ["downie"])
         self.assertEqual(config.download.downie_fallback_directory, Path.home() / "Downloads")
 
     def test_rendered_config_round_trips(self) -> None:
