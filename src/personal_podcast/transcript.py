@@ -10,10 +10,12 @@ INVALID_FILENAME_CHARACTERS = re.compile(r"[\\/:*?\"<>|\x00]")
 
 
 def transcript_filename(episode: Episode) -> str:
+    """转录稿文件名: 日期-标题.txt (2026-08-12 用户要求可读命名)。"""
     title = " ".join(episode.title.split())
     title = INVALID_FILENAME_CHARACTERS.sub("-", title).strip(" .-") or "未命名视频"
-    title = _truncate_utf8(title, 180)
-    return f"{episode.episode_id} - {title}.txt"
+    title = _truncate_utf8(title, 120)
+    date_part = episode.imported_at.astimezone(CHINA_STANDARD_TIME).strftime("%Y-%m-%d")
+    return f"{date_part}-{title}.txt"
 
 
 def format_transcript(episode: Episode, audio_text: str) -> str:

@@ -1,4 +1,5 @@
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -7,6 +8,16 @@ from personal_podcast.commands import run_checked
 from personal_podcast.config import AudioConfig
 from personal_podcast.errors import MediaError
 from personal_podcast.models import AudioResult, MediaInfo
+
+
+INVALID_FILENAME_CHARACTERS = re.compile(r"[\\/:*?\"<>|\x00]")
+
+
+def _safe_output_stem(title: str, episode_id: str) -> str:
+    """音频输出文件名主干: 标题(去非法字符, 截断); 空时回退 episode_id。"""
+    clean = " ".join(title.split())
+    clean = INVALID_FILENAME_CHARACTERS.sub("-", clean).strip(" .-") or episode_id
+    return clean[:120].rstrip(" .-") or episode_id
 
 
 @dataclass(frozen=True)
@@ -89,7 +100,8 @@ class MediaProcessor:
         info = self.probe(source_path)
         plan = balanced_audio_plan(info, self.config.aac_bitrate_kbps)
         output_directory.mkdir(parents=True, exist_ok=True)
-        output_path = output_directory / f"{episode_id}.{plan.extension}"
+        output_stem = _safe_output_stem(title, episode_id)
+        output_path = output_directory / f"{output_stem}.{plan.extension}"
         arguments: List[str] = [self.config.ffmpeg_command, "-y", "-i", str(source_path)]
         has_artwork = bool(artwork_path and artwork_path.exists())
         embed_artwork = has_artwork and plan.extension == "mp3"

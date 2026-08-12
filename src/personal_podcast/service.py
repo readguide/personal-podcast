@@ -10,7 +10,7 @@ from personal_podcast.errors import PersonalPodcastError, PublishError
 from personal_podcast.identifiers import canonicalize_url, episode_id_for
 from personal_podcast.inbox import VideoLinkClassifier, latest_link
 from personal_podcast.media import MediaProcessor
-from personal_podcast.models import Episode
+from personal_podcast.models import Episode, EpisodeMetadata
 from personal_podcast.publisher import GitHubReleasePublisher, GitSitePublisher
 from personal_podcast.site import SiteGenerator
 from personal_podcast.store import EpisodeStore
@@ -18,6 +18,26 @@ from personal_podcast.transcript import format_transcript, transcript_filename
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def _readable_source_folder(
+    imported_at: datetime,
+    metadata: Optional[EpisodeMetadata],
+    episode_id: str,
+) -> str:
+    """源文件目录名: 日期-标题(可读, 不再用 episode_id 裸 ID)。
+
+    2026-08-12 用户要求: Source Media 下的目录要能直接看出内容。
+    格式: YYYY-MM-DD-标题(去特殊字符, 截断 60 字); 标题缺失时回退 episode_id。
+    """
+    import re as _re
+    date_part = imported_at.strftime("%Y-%m-%d")
+    raw_title = (metadata.title if metadata and metadata.title else "").strip()
+    if not raw_title:
+        raw_title = episode_id
+    safe = _re.sub(r"[\\/:*?\"<>|#\s]+", "-", raw_title).strip("-")
+    safe = safe[:60].rstrip("-") or episode_id
+    return f"{date_part}-{safe}"
 
 
 def build_episode_description(
@@ -79,8 +99,7 @@ class PersonalPodcastService:
         episode_id = episode_id_for(url, metadata)
         source_directory = (
             self.config.storage.source_media_dir
-            / str(imported_at.year)
-            / episode_id
+            / _readable_source_folder(imported_at, metadata, episode_id)
         )
         download = self.downloads.download(url, source_directory, episode_id)
         source_info = self.media.probe(download.path)
@@ -99,7 +118,7 @@ class PersonalPodcastService:
             self.config.storage.artwork_dir / "Episodes" / episode_id,
         )
         embedded_artwork = artwork or self.site.ensure_local_cover()
-        final_directory = self.config.storage.final_audio_dir / str(imported_at.year)
+        final_directory = self.config.storage.final_audio_dir
         audio = self.media.process(
             source_path=download.path,
             output_directory=final_directory,
@@ -222,7 +241,7 @@ class PersonalPodcastService:
         episode = self.store.get(episode_id)
         if not episode.release_tag:
             raise PersonalPodcastError("节目尚未发布，无法从 GitHub 下载转写稿")
-        destination = self.config.storage.transcripts_dir / str(episode.imported_at.year)
+        destination = self.config.storage.transcripts_dir
         download_directory = (
             self.config.storage.temp_dir / "Transcripts" / episode.episode_id
         )
