@@ -112,7 +112,10 @@ class SiteGenerator:
         # Keep the history control compact when there are only a few dates.  Its
         # extent grows with the number of recorded dates, rather than with gaps
         # in the calendar (which previously made a quiet week look enormous).
-        timeline_height = min(360, max(92, 24 + 34 * len(dates)))
+        # Keep the history control centered and compact by default.  It still
+        # grows as more recorded dates are present, but does not overwhelm the
+        # page when the library only spans a handful of days.
+        timeline_height = min(300, max(76, 20 + 25 * len(dates)))
         last_index = max(1, len(dates) - 1)
         timeline_ticks = "".join(
             (
@@ -156,8 +159,8 @@ class SiteGenerator:
     button[aria-pressed="true"] {{ border-color:var(--green); background:var(--green); color:white; }}
     .search {{ margin-left:auto; width:min(300px, 32vw); min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 16px; color:var(--ink); font:inherit; }}
     .date-jump {{ display:none; min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 32px 0 13px; color:var(--ink); font:650 13px/1 inherit; }}
-    .time-scrubber {{ position:fixed; z-index:8; left:0; top:120px; width:64px; height:{timeline_height}px; max-height:calc(100vh - 144px); color:var(--muted); user-select:none; }}
-    .timeline-track {{ position:absolute; inset:14px 0; }}
+    .time-scrubber {{ position:fixed; z-index:8; left:0; top:50%; width:64px; height:{timeline_height}px; max-height:calc(100vh - 48px); color:var(--muted); user-select:none; transform:translateY(-50%); }}
+    .timeline-track {{ position:absolute; inset:10px 0; }}
     .timeline-tick {{ position:absolute; left:0; top:var(--at); width:48px; min-height:28px; height:28px; padding:0; border:0; border-radius:0; background:transparent; transform:translateY(-50%); cursor:pointer; }}
     .timeline-tick::before {{ content:""; position:absolute; left:0; top:50%; width:var(--bar); height:4px; border-radius:0 999px 999px 0; background:rgba(50,68,57,.32); transform:translateY(-50%); transition:width .18s ease, height .18s ease, background .18s ease, box-shadow .18s ease; }}
     .timeline-tick:hover::before, .timeline-tick:focus-visible::before {{ width:calc(var(--bar) + 5px); background:rgba(31,101,76,.68); }}
