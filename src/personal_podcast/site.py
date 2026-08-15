@@ -128,6 +128,7 @@ class SiteGenerator:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="按时间整理的视频收藏，汇总播客节目与 Telegram channel。">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <title>视频收藏库</title>
   <style>
     :root {{ color-scheme: light; font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; --ink:#182019; --muted:#687269; --paper:#f3f1e9; --card:#fffefa; --line:#dcd9cf; --green:#1f654c; --orange:#c75b2a; }}
