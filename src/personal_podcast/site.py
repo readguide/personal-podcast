@@ -154,8 +154,9 @@ class SiteGenerator:
     .timeline-edge {{ position:absolute; left:0; width:72px; font-size:10px; color:#8b8d86; }}
     .timeline-edge.newest {{ top:0; }} .timeline-edge.oldest {{ bottom:0; }}
     .grid {{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }}
-    article {{ overflow:hidden; scroll-margin-top:76px; border:1px solid var(--line); border-radius:18px; background:var(--card); transition:transform .18s ease, box-shadow .18s ease; }}
+    article {{ overflow:hidden; scroll-margin-top:76px; border:1px solid var(--line); border-radius:18px; background:var(--card); cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; }}
     article:hover {{ transform:translateY(-3px); box-shadow:0 16px 34px rgba(45,42,34,.10); }}
+    article:focus-visible {{ outline:3px solid #d78a62; outline-offset:3px; }}
     article[hidden] {{ display:none; }}
     .visual {{ position:relative; display:block; aspect-ratio:16/9; background:linear-gradient(145deg,#203d31,#c26738); overflow:hidden; }}
     .visual img {{ width:100%; height:100%; object-fit:cover; transition:transform .35s ease; }}
@@ -225,6 +226,11 @@ class SiteGenerator:
     }}
     buttons.forEach(button=>button.addEventListener('click',()=>{{active=button.dataset.filter; buttons.forEach(item=>item.setAttribute('aria-pressed',String(item===button))); apply();}}));
     search.addEventListener('input',apply);
+    cards.forEach(card=>{{
+      const openSource=()=>window.open(card.dataset.sourceUrl,'_blank','noopener');
+      card.addEventListener('click',event=>{{if(!event.target.closest('a,button,input,select,label'))openSource();}});
+      card.addEventListener('keydown',event=>{{if(event.key==='Enter'||event.key===' '){{event.preventDefault();openSource();}}}});
+    }});
     dateJump.addEventListener('change',()=>{{if(dateJump.value)goToDate(dateJump.value);}});
     document.querySelectorAll('.timeline-tick').forEach(tick=>tick.addEventListener('click',()=>goToDate(tick.dataset.date)));
     track.addEventListener('pointerenter',()=>{{hovering=true;}});
@@ -262,17 +268,20 @@ def _render_card(item: LibraryItem) -> str:
         else ""
     )
     actions = [
-        f'<a href="{html.escape(item.source_url, quote=True)}">原视频</a>'
+        f'<a href="{html.escape(item.source_url, quote=True)}" target="_blank" rel="noopener">原视频</a>'
     ]
     if item.audio_url:
-        actions.append(f'<a href="{html.escape(item.audio_url, quote=True)}">收听</a>')
+        label = "收听" if "/audio/" in item.audio_url else "音频下载"
+        actions.append(
+            f'<a href="{html.escape(item.audio_url, quote=True)}" target="_blank" rel="noopener">{label}</a>'
+        )
     searchable = html.escape(f"{item.title} {item.author} {item.platform}".lower(), quote=True)
     author = html.escape(item.author or item.platform)
     return (
-        f'<article data-sources="{" ".join(sources)}" data-date="{date_text}" data-search="{searchable}">'
-        f'<a class="visual" href="{html.escape(item.source_url, quote=True)}">{image}{duration}</a>'
+        f'<article data-sources="{" ".join(sources)}" data-date="{date_text}" data-search="{searchable}" data-source-url="{html.escape(item.source_url, quote=True)}" tabindex="0" role="link" aria-label="在新标签页打开原视频：{html.escape(item.title, quote=True)}">'
+        f'<a class="visual" href="{html.escape(item.source_url, quote=True)}" target="_blank" rel="noopener">{image}{duration}</a>'
         f'<div class="card-body"><div class="meta">{"".join(badges)}<time datetime="{date_text}">{date_text}</time></div>'
-        f'<h2><a href="{html.escape(item.source_url, quote=True)}">{html.escape(item.title)}</a></h2>'
+        f'<h2><a href="{html.escape(item.source_url, quote=True)}" target="_blank" rel="noopener">{html.escape(item.title)}</a></h2>'
         f'<p class="author">{author} · {html.escape(item.platform)}</p>'
         f'<div class="actions">{"".join(actions)}</div></div></article>'
     )

@@ -17,6 +17,7 @@ from personal_podcast.models import Episode
 
 
 KEYCHAIN_TOKEN_SERVICE = "personal-podcast-github-token"
+MAX_PAGES_AUDIO_BYTES = 100 * 1024 * 1024
 
 
 def github_cli_environment() -> Dict[str, str]:
@@ -117,7 +118,10 @@ class GitHubReleasePublisher:
         filename = quote(f"{episode.episode_id}{episode.audio_path.suffix}")
         if self.config.audio_host == "cloudflare":
             base_url = f"{self.config.cloudflare_audio_base_url}/audio/{filename}"
-        elif self.config.audio_host == "github-pages":
+        elif (
+            self.config.audio_host == "github-pages"
+            and _audio_size(episode) <= MAX_PAGES_AUDIO_BYTES
+        ):
             base_url = f"{self.config.pages_base_url}/audio/{filename}"
         else:
             base_url = (
@@ -210,6 +214,15 @@ def _asset_version(path: Path) -> str:
         for chunk in iter(lambda: source.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()[:16]
+
+
+def _audio_size(episode: Episode) -> int:
+    if episode.audio_bytes:
+        return episode.audio_bytes
+    try:
+        return episode.audio_path.stat().st_size
+    except OSError:
+        return 0
 
 
 class GitSitePublisher:
