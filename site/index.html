@@ -25,8 +25,8 @@
     .timeline-tick { position:absolute; left:8px; top:var(--at); width:11px; min-height:0; height:1px; padding:0; border:0; border-radius:0; background:#92948d; transform:translateY(-50%); transition:width .12s, background .12s; }
     .timeline-tick:nth-of-type(3n+1) { width:17px; }
     .timeline-tick:hover { width:24px; background:var(--orange); }
-    .timeline-handle { position:absolute; z-index:2; left:7px; top:0; width:13px; height:13px; border:2px solid var(--paper); border-radius:50%; background:var(--orange); box-shadow:0 0 0 1px rgba(67,61,50,.24), 0 3px 9px rgba(40,36,29,.2); transform:translateY(-50%); pointer-events:none; }
-    .timeline-tooltip { position:absolute; left:25px; top:50%; min-width:72px; padding:6px 8px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink); font-size:12px; font-weight:700; white-space:nowrap; box-shadow:0 8px 20px rgba(45,42,34,.1); transform:translateY(-50%); }
+    .timeline-handle { position:absolute; z-index:2; left:8px; top:0; width:11px; height:11px; border:2px solid var(--paper); border-radius:50%; background:var(--orange); box-shadow:0 0 0 1px rgba(67,61,50,.18); transform:translateY(-50%); pointer-events:none; }
+    .timeline-current { position:absolute; left:31px; top:50%; color:#85877f; font-size:11px; font-weight:600; line-height:1; letter-spacing:.01em; white-space:nowrap; opacity:.72; transform:translateY(-50%); pointer-events:none; }
     .timeline-edge { position:absolute; left:0; width:72px; font-size:10px; color:#8b8d86; }
     .timeline-edge.newest { top:0; } .timeline-edge.oldest { bottom:0; }
     .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
@@ -61,7 +61,7 @@
   <aside class="time-scrubber" aria-label="按时间快速定位">
     <span class="timeline-edge newest">8月15日</span>
     <div class="timeline-track" role="slider" aria-label="视频时间" aria-orientation="vertical" tabindex="0">
-      <button class="timeline-tick" data-date="2026-08-15" style="--at:0.000%" aria-label="跳到 8月15日"></button><button class="timeline-tick" data-date="2026-08-13" style="--at:14.286%" aria-label="跳到 8月13日"></button><button class="timeline-tick" data-date="2026-08-12" style="--at:21.429%" aria-label="跳到 8月12日"></button><button class="timeline-tick" data-date="2026-08-11" style="--at:28.571%" aria-label="跳到 8月11日"></button><button class="timeline-tick" data-date="2026-08-10" style="--at:35.714%" aria-label="跳到 8月10日"></button><button class="timeline-tick" data-date="2026-08-09" style="--at:42.857%" aria-label="跳到 8月9日"></button><button class="timeline-tick" data-date="2026-08-02" style="--at:92.857%" aria-label="跳到 8月2日"></button><button class="timeline-tick" data-date="2026-08-01" style="--at:100.000%" aria-label="跳到 8月1日"></button><span class="timeline-handle"><span class="timeline-tooltip">8月15日</span></span>
+      <button class="timeline-tick" data-date="2026-08-15" style="--at:0.000%" aria-label="跳到 8月15日"></button><button class="timeline-tick" data-date="2026-08-13" style="--at:14.286%" aria-label="跳到 8月13日"></button><button class="timeline-tick" data-date="2026-08-12" style="--at:21.429%" aria-label="跳到 8月12日"></button><button class="timeline-tick" data-date="2026-08-11" style="--at:28.571%" aria-label="跳到 8月11日"></button><button class="timeline-tick" data-date="2026-08-10" style="--at:35.714%" aria-label="跳到 8月10日"></button><button class="timeline-tick" data-date="2026-08-09" style="--at:42.857%" aria-label="跳到 8月9日"></button><button class="timeline-tick" data-date="2026-08-02" style="--at:92.857%" aria-label="跳到 8月2日"></button><button class="timeline-tick" data-date="2026-08-01" style="--at:100.000%" aria-label="跳到 8月1日"></button><span class="timeline-handle"><span class="timeline-current">8月15日</span></span>
     </div>
     <span class="timeline-edge oldest">8月1日</span>
   </aside>
@@ -106,19 +106,20 @@
     const dateJump=document.querySelector('.date-jump');
     const track=document.querySelector('.timeline-track');
     const handle=document.querySelector('.timeline-handle');
-    const tooltip=document.querySelector('.timeline-tooltip');
+    const currentLabel=document.querySelector('.timeline-current');
     let active='all';
-    let dragging=false, hovering=false, scrollFrame=0, programmaticUntil=0;
+    let dragging=false, scrollFrame=0, programmaticUntil=0;
     const uniqueDates=[...new Set(cards.map(card=>card.dataset.date))].sort().reverse();
+    let currentDate=uniqueDates[0]||'';
     const dateValue=date=>new Date(date+'T12:00:00+08:00').getTime();
     const maxDate=Math.max(...uniqueDates.map(dateValue)), minDate=Math.min(...uniqueDates.map(dateValue));
     const formatDate=date=>{const [year,month,day]=date.split('-'); return `${Number(month)}月${Number(day)}日`;};
     const visibleCards=()=>cards.filter(card=>!card.hidden);
     function nearestDate(target){return uniqueDates.reduce((best,date)=>Math.abs(dateValue(date)-target)<Math.abs(dateValue(best)-target)?date:best,uniqueDates[0]);}
-    function setHandle(date){if(!date||!handle)return; const ratio=maxDate===minDate?0:(maxDate-dateValue(date))/(maxDate-minDate); handle.style.top=`${ratio*100}%`; tooltip.textContent=formatDate(date); track.setAttribute('aria-valuetext',formatDate(date));}
+    function setHandle(date){if(!date||!handle)return; currentDate=date; const ratio=maxDate===minDate?0:(maxDate-dateValue(date))/(maxDate-minDate); handle.style.top=`${ratio*100}%`; currentLabel.textContent=formatDate(date); track.setAttribute('aria-valuetext',formatDate(date));}
     function goToDate(date, smooth=true){const candidates=visibleCards(); if(!candidates.length)return; const exact=candidates.find(card=>card.dataset.date===date); const target=exact||candidates.reduce((best,card)=>Math.abs(dateValue(card.dataset.date)-dateValue(date))<Math.abs(dateValue(best.dataset.date)-dateValue(date))?card:best,candidates[0]); programmaticUntil=Date.now()+(smooth?900:300); setHandle(target.dataset.date); target.scrollIntoView({behavior:smooth?'smooth':'auto',block:'start'});}
     function scrub(event, navigate){const rect=track.getBoundingClientRect(); const ratio=Math.max(0,Math.min(1,(event.clientY-rect.top)/rect.height)); const date=nearestDate(maxDate-ratio*(maxDate-minDate)); setHandle(date); if(navigate)goToDate(date,false);}
-    function syncFromScroll(){if(hovering||dragging||Date.now()<programmaticUntil)return; const top=document.querySelector('.toolbar').getBoundingClientRect().bottom+8; const candidates=visibleCards().filter(card=>card.getBoundingClientRect().bottom>top); if(candidates.length)setHandle(candidates.reduce((best,card)=>Math.abs(card.getBoundingClientRect().top-top)<Math.abs(best.getBoundingClientRect().top-top)?card:best,candidates[0]).dataset.date);}
+    function syncFromScroll(){if(dragging||Date.now()<programmaticUntil)return; const top=document.querySelector('.toolbar').getBoundingClientRect().bottom+8; const candidates=visibleCards().filter(card=>card.getBoundingClientRect().bottom>top); if(candidates.length)setHandle(candidates.reduce((best,card)=>Math.abs(card.getBoundingClientRect().top-top)<Math.abs(best.getBoundingClientRect().top-top)?card:best,candidates[0]).dataset.date);}
     function apply(){
       const q=search.value.trim().toLowerCase(); let shown=0;
       cards.forEach(card=>{const source=card.dataset.sources.split(' '); const okSource=active==='all'||source.includes(active); const okText=!q||card.dataset.search.includes(q); card.hidden=!(okSource&&okText); if(!card.hidden) shown++;});
@@ -134,12 +135,10 @@
     });
     dateJump.addEventListener('change',()=>{if(dateJump.value)goToDate(dateJump.value);});
     document.querySelectorAll('.timeline-tick').forEach(tick=>tick.addEventListener('click',()=>goToDate(tick.dataset.date)));
-    track.addEventListener('pointerenter',()=>{hovering=true;});
-    track.addEventListener('pointerleave',()=>{if(!dragging){hovering=false;syncFromScroll();}});
-    track.addEventListener('pointermove',event=>scrub(event,dragging));
-    track.addEventListener('pointerdown',event=>{dragging=true;hovering=true;track.setPointerCapture(event.pointerId);scrub(event,true);});
-    track.addEventListener('pointerup',event=>{dragging=false;hovering=false;track.releasePointerCapture(event.pointerId);syncFromScroll();});
-    track.addEventListener('keydown',event=>{const current=tooltip.textContent; const index=uniqueDates.findIndex(date=>formatDate(date)===current); if(event.key==='ArrowDown'&&index<uniqueDates.length-1){event.preventDefault();goToDate(uniqueDates[index+1]);} if(event.key==='ArrowUp'&&index>0){event.preventDefault();goToDate(uniqueDates[index-1]);}});
+    track.addEventListener('pointermove',event=>{if(dragging)scrub(event,true);});
+    track.addEventListener('pointerdown',event=>{dragging=true;track.setPointerCapture(event.pointerId);scrub(event,true);});
+    track.addEventListener('pointerup',event=>{dragging=false;track.releasePointerCapture(event.pointerId);syncFromScroll();});
+    track.addEventListener('keydown',event=>{const index=uniqueDates.indexOf(currentDate); if(event.key==='ArrowDown'&&index<uniqueDates.length-1){event.preventDefault();goToDate(uniqueDates[index+1]);} if(event.key==='ArrowUp'&&index>0){event.preventDefault();goToDate(uniqueDates[index-1]);}});
     window.addEventListener('scroll',()=>{cancelAnimationFrame(scrollFrame);scrollFrame=requestAnimationFrame(syncFromScroll);},{passive:true});
     setHandle(uniqueDates[0]);
   </script>
