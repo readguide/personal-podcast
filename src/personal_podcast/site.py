@@ -187,6 +187,7 @@ class SiteGenerator:
     .meta {{ display:flex; align-items:center; gap:7px; min-height:23px; margin-bottom:10px; flex-wrap:wrap; }}
     .badge {{ padding:4px 7px; border-radius:6px; font-size:11px; font-weight:750; }}
     .podcast {{ background:#dcebe4; color:#17543e; }} .channel {{ background:#f9e1d5; color:#9e421b; }}
+    .duration-inline {{ color:var(--muted); font-size:12px; font-variant-numeric:tabular-nums; }}
     time {{ margin-left:auto; color:var(--muted); font-size:12px; }}
     h2 {{ margin:0; font-size:18px; line-height:1.45; letter-spacing:-.015em; }}
     h2 a {{ color:inherit; text-decoration:none; }}
@@ -310,6 +311,11 @@ def _render_card(item: LibraryItem) -> str:
         if item.duration_seconds
         else ""
     )
+    duration_meta = (
+        f'<span class="duration-inline">时长 {_duration_text(item.duration_seconds)}</span>'
+        if item.duration_seconds
+        else ""
+    )
     actions = [
         f'<a href="{html.escape(item.source_url, quote=True)}" target="_blank" rel="noopener">原视频</a>'
     ]
@@ -324,7 +330,7 @@ def _render_card(item: LibraryItem) -> str:
     return (
         f'<article data-sources="{" ".join(sources)}" data-date="{date_text}" data-search="{searchable}" data-source-url="{html.escape(item.source_url, quote=True)}" tabindex="0" role="link" aria-label="在新标签页打开原视频：{html.escape(item.title, quote=True)}">'
         f'<a class="{visual_class}" href="{html.escape(item.source_url, quote=True)}" target="_blank" rel="noopener">{image}{duration}</a>'
-        f'<div class="card-body"><div class="meta">{"".join(badges)}<time datetime="{date_text}">{date_text}</time></div>'
+        f'<div class="card-body"><div class="meta">{"".join(badges)}{duration_meta}<time datetime="{date_text}">{date_text}</time></div>'
         f'<h2><a href="{html.escape(item.source_url, quote=True)}" target="_blank" rel="noopener">{html.escape(item.title)}</a></h2>'
         f'<p class="author">{author} · {html.escape(item.platform)}</p>'
         f'<div class="actions">{"".join(actions)}</div></div></article>'
