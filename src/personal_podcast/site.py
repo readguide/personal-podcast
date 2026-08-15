@@ -98,11 +98,30 @@ class SiteGenerator:
             cards = '<p class="empty">暂无已收藏视频</p>'
         china = ZoneInfo("Asia/Shanghai")
         updated = updated_at.astimezone(china).strftime("%Y-%m-%d %H:%M")
-        name = html.escape(self.config.podcast.name)
-        author = html.escape(self.config.podcast.author)
         feed_url = f"{self.config.github.pages_base_url}/feed.xml"
-        podcast_count = sum(item.in_podcast for item in library_items)
-        channel_count = sum(item.in_channel for item in library_items)
+        dates = sorted(
+            {item.date.astimezone(china).date() for item in library_items}, reverse=True
+        )
+        newest_day = dates[0].toordinal() if dates else 0
+        oldest_day = dates[-1].toordinal() if dates else 0
+        span = max(1, newest_day - oldest_day)
+        timeline_ticks = "".join(
+            (
+                '<button class="timeline-tick" data-date="{date}" '
+                'style="--at:{position:.3f}%" aria-label="跳到 {label}"></button>'
+            ).format(
+                date=value.isoformat(),
+                label=f"{value.month}月{value.day}日",
+                position=(newest_day - value.toordinal()) / span * 100,
+            )
+            for value in dates
+        )
+        date_options = "".join(
+            f'<option value="{value.isoformat()}">{value.month}月{value.day}日</option>'
+            for value in dates
+        )
+        newest_label = f"{dates[0].month}月{dates[0].day}日" if dates else ""
+        oldest_label = f"{dates[-1].month}月{dates[-1].day}日" if dates else ""
         return f'''<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -114,22 +133,28 @@ class SiteGenerator:
     :root {{ color-scheme: light; font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; --ink:#182019; --muted:#687269; --paper:#f3f1e9; --card:#fffefa; --line:#dcd9cf; --green:#1f654c; --orange:#c75b2a; }}
     * {{ box-sizing: border-box; }}
     body {{ margin:0; background:var(--paper); color:var(--ink); }}
-    main {{ width:min(1180px, calc(100% - 36px)); margin:auto; padding:52px 0 72px; }}
-    header {{ display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:28px; align-items:end; padding:0 0 36px; border-bottom:1px solid var(--line); }}
-    .eyebrow {{ margin:0 0 10px; color:var(--orange); font-size:13px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }}
-    h1 {{ margin:0; font-family:Georgia, "Songti SC", serif; font-size:clamp(42px, 7vw, 82px); font-weight:500; line-height:.98; letter-spacing:-.045em; }}
-    .intro {{ max-width:680px; margin:20px 0 0; color:var(--muted); font-size:16px; line-height:1.7; }}
-    .stats {{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }}
-    .stat {{ min-width:102px; padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.46); }}
-    .stat strong {{ display:block; font:600 27px/1 Georgia,serif; }}
-    .stat span {{ display:block; margin-top:6px; color:var(--muted); font-size:12px; }}
-    .toolbar {{ position:sticky; top:0; z-index:5; display:flex; gap:12px; align-items:center; padding:18px 0; background:color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter:blur(14px); }}
+    main {{ width:min(1180px, calc(100% - 36px)); margin:auto; padding:22px 0 72px; }}
+    header {{ display:flex; align-items:baseline; justify-content:space-between; gap:20px; min-height:44px; }}
+    h1 {{ margin:0; font-family:Georgia, "Songti SC", serif; font-size:28px; font-weight:500; letter-spacing:-.025em; }}
+    .count {{ color:var(--muted); font-size:12px; }}
+    .toolbar {{ position:sticky; top:0; z-index:5; display:flex; gap:12px; align-items:center; padding:12px 0 14px; border-top:1px solid var(--line); background:color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter:blur(14px); }}
     .filters {{ display:flex; gap:8px; flex-wrap:wrap; }}
     button, .rss {{ border:1px solid var(--line); border-radius:999px; background:var(--card); color:var(--ink); min-height:38px; padding:0 14px; font:650 13px/1 inherit; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; }}
     button[aria-pressed="true"] {{ border-color:var(--green); background:var(--green); color:white; }}
     .search {{ margin-left:auto; width:min(300px, 32vw); min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 16px; color:var(--ink); font:inherit; }}
+    .date-jump {{ display:none; min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 32px 0 13px; color:var(--ink); font:650 13px/1 inherit; }}
+    .time-scrubber {{ position:fixed; z-index:8; left:max(14px, calc((100vw - 1340px)/2)); top:120px; width:86px; height:min(62vh,560px); color:var(--muted); user-select:none; }}
+    .timeline-track {{ position:absolute; left:19px; top:25px; bottom:25px; width:28px; cursor:ns-resize; touch-action:none; }}
+    .timeline-track::before {{ content:""; position:absolute; top:0; bottom:0; left:13px; width:1px; background:#b9b8af; }}
+    .timeline-tick {{ position:absolute; left:8px; top:var(--at); width:11px; min-height:0; height:1px; padding:0; border:0; border-radius:0; background:#92948d; transform:translateY(-50%); transition:width .12s, background .12s; }}
+    .timeline-tick:nth-of-type(3n+1) {{ width:17px; }}
+    .timeline-tick:hover {{ width:24px; background:var(--orange); }}
+    .timeline-handle {{ position:absolute; z-index:2; left:7px; top:0; width:13px; height:13px; border:2px solid var(--paper); border-radius:50%; background:var(--orange); box-shadow:0 0 0 1px rgba(67,61,50,.24), 0 3px 9px rgba(40,36,29,.2); transform:translateY(-50%); pointer-events:none; }}
+    .timeline-tooltip {{ position:absolute; left:25px; top:50%; min-width:72px; padding:6px 8px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink); font-size:12px; font-weight:700; white-space:nowrap; box-shadow:0 8px 20px rgba(45,42,34,.1); transform:translateY(-50%); }}
+    .timeline-edge {{ position:absolute; left:0; width:72px; font-size:10px; color:#8b8d86; }}
+    .timeline-edge.newest {{ top:0; }} .timeline-edge.oldest {{ bottom:0; }}
     .grid {{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }}
-    article {{ overflow:hidden; border:1px solid var(--line); border-radius:18px; background:var(--card); transition:transform .18s ease, box-shadow .18s ease; }}
+    article {{ overflow:hidden; scroll-margin-top:76px; border:1px solid var(--line); border-radius:18px; background:var(--card); transition:transform .18s ease, box-shadow .18s ease; }}
     article:hover {{ transform:translateY(-3px); box-shadow:0 16px 34px rgba(45,42,34,.10); }}
     article[hidden] {{ display:none; }}
     .visual {{ position:relative; display:block; aspect-ratio:16/9; background:linear-gradient(145deg,#203d31,#c26738); overflow:hidden; }}
@@ -150,17 +175,24 @@ class SiteGenerator:
     .actions a + a::before {{ content:"·"; margin-right:8px; color:#aaa79e; }}
     .empty {{ color:var(--muted); }}
     footer {{ display:flex; justify-content:space-between; gap:20px; margin-top:34px; padding-top:22px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }}
-    @media (max-width:900px) {{ .grid {{ grid-template-columns:repeat(2,minmax(0,1fr)); }} header {{ grid-template-columns:1fr; }} .stats {{ justify-content:flex-start; }} }}
-    @media (max-width:600px) {{ main {{ width:min(100% - 24px,1180px); padding-top:28px; }} .grid {{ grid-template-columns:1fr; }} .toolbar {{ align-items:stretch; flex-direction:column; }} .search {{ order:-1; width:100%; margin:0; }} h1 {{ font-size:48px; }} .stat {{ flex:1; }} footer {{ flex-direction:column; }} }}
+    @media (max-width:1279px) {{ .time-scrubber {{ display:none; }} .date-jump {{ display:block; }} }}
+    @media (max-width:900px) {{ .grid {{ grid-template-columns:repeat(2,minmax(0,1fr)); }} }}
+    @media (max-width:600px) {{ main {{ width:min(100% - 24px,1180px); padding-top:14px; }} header {{ min-height:40px; }} h1 {{ font-size:24px; }} .grid {{ grid-template-columns:1fr; }} .toolbar {{ position:relative; display:grid; grid-template-columns:1fr auto; align-items:center; gap:9px; }} .search {{ grid-column:1/-1; grid-row:1; width:100%; margin:0; }} .filters {{ grid-column:1; grid-row:2; }} .rss {{ grid-column:2; grid-row:2; }} .date-jump {{ grid-column:1/-1; grid-row:3; width:100%; }} footer {{ flex-direction:column; }} }}
   </style>
 </head>
 <body>
+  <aside class="time-scrubber" aria-label="按时间快速定位">
+    <span class="timeline-edge newest">{newest_label}</span>
+    <div class="timeline-track" role="slider" aria-label="视频时间" aria-orientation="vertical" tabindex="0">
+      {timeline_ticks}<span class="timeline-handle"><span class="timeline-tooltip">{newest_label}</span></span>
+    </div>
+    <span class="timeline-edge oldest">{oldest_label}</span>
+  </aside>
   <main>
     <header>
-      <div><p class="eyebrow">{name} · by {author}</p><h1>视频收藏库</h1><p class="intro">把分享到播客与 Telegram channel 的视频放在同一条时间线上。每条都保留原视频链接，并标明它出现在哪里。</p></div>
-      <div class="stats"><div class="stat"><strong>{len(library_items)}</strong><span>条独立视频</span></div><div class="stat"><strong>{podcast_count}</strong><span>播客</span></div><div class="stat"><strong>{channel_count}</strong><span>Channel</span></div></div>
+      <h1>视频收藏库</h1><span class="count">{len(library_items)} 条视频</span>
     </header>
-    <nav class="toolbar" aria-label="视频筛选"><div class="filters"><button data-filter="all" aria-pressed="true">全部</button><button data-filter="podcast" aria-pressed="false">播客</button><button data-filter="channel" aria-pressed="false">Channel</button></div><input class="search" type="search" placeholder="搜索标题或作者" aria-label="搜索标题或作者"><a class="rss" href="{html.escape(feed_url, quote=True)}">RSS</a></nav>
+    <nav class="toolbar" aria-label="视频筛选"><div class="filters"><button data-filter="all" aria-pressed="true">全部</button><button data-filter="podcast" aria-pressed="false">播客</button><button data-filter="channel" aria-pressed="false">Channel</button></div><select class="date-jump" aria-label="按日期跳转"><option value="">定位日期</option>{date_options}</select><input class="search" type="search" placeholder="搜索标题或作者" aria-label="搜索标题或作者"><a class="rss" href="{html.escape(feed_url, quote=True)}">RSS</a></nav>
     <section class="grid" aria-live="polite">{cards}</section>
     <p class="empty" id="no-results" hidden>没有符合条件的视频。</p>
     <footer><span>更新于 {updated}（北京时间）</span><span>原视频版权归原作者所有</span></footer>
@@ -169,14 +201,40 @@ class SiteGenerator:
     const cards=[...document.querySelectorAll('article[data-sources]')];
     const buttons=[...document.querySelectorAll('button[data-filter]')];
     const search=document.querySelector('.search');
+    const dateJump=document.querySelector('.date-jump');
+    const track=document.querySelector('.timeline-track');
+    const handle=document.querySelector('.timeline-handle');
+    const tooltip=document.querySelector('.timeline-tooltip');
     let active='all';
+    let dragging=false, hovering=false, scrollFrame=0, programmaticUntil=0;
+    const uniqueDates=[...new Set(cards.map(card=>card.dataset.date))].sort().reverse();
+    const dateValue=date=>new Date(date+'T12:00:00+08:00').getTime();
+    const maxDate=Math.max(...uniqueDates.map(dateValue)), minDate=Math.min(...uniqueDates.map(dateValue));
+    const formatDate=date=>{{const [year,month,day]=date.split('-'); return `${{Number(month)}}月${{Number(day)}}日`;}};
+    const visibleCards=()=>cards.filter(card=>!card.hidden);
+    function nearestDate(target){{return uniqueDates.reduce((best,date)=>Math.abs(dateValue(date)-target)<Math.abs(dateValue(best)-target)?date:best,uniqueDates[0]);}}
+    function setHandle(date){{if(!date||!handle)return; const ratio=maxDate===minDate?0:(maxDate-dateValue(date))/(maxDate-minDate); handle.style.top=`${{ratio*100}}%`; tooltip.textContent=formatDate(date); track.setAttribute('aria-valuetext',formatDate(date));}}
+    function goToDate(date, smooth=true){{const candidates=visibleCards(); if(!candidates.length)return; const exact=candidates.find(card=>card.dataset.date===date); const target=exact||candidates.reduce((best,card)=>Math.abs(dateValue(card.dataset.date)-dateValue(date))<Math.abs(dateValue(best.dataset.date)-dateValue(date))?card:best,candidates[0]); programmaticUntil=Date.now()+(smooth?900:300); setHandle(target.dataset.date); target.scrollIntoView({{behavior:smooth?'smooth':'auto',block:'start'}});}}
+    function scrub(event, navigate){{const rect=track.getBoundingClientRect(); const ratio=Math.max(0,Math.min(1,(event.clientY-rect.top)/rect.height)); const date=nearestDate(maxDate-ratio*(maxDate-minDate)); setHandle(date); if(navigate)goToDate(date,false);}}
+    function syncFromScroll(){{if(hovering||dragging||Date.now()<programmaticUntil)return; const top=document.querySelector('.toolbar').getBoundingClientRect().bottom+8; const candidates=visibleCards().filter(card=>card.getBoundingClientRect().bottom>top); if(candidates.length)setHandle(candidates.reduce((best,card)=>Math.abs(card.getBoundingClientRect().top-top)<Math.abs(best.getBoundingClientRect().top-top)?card:best,candidates[0]).dataset.date);}}
     function apply(){{
       const q=search.value.trim().toLowerCase(); let shown=0;
       cards.forEach(card=>{{const source=card.dataset.sources.split(' '); const okSource=active==='all'||source.includes(active); const okText=!q||card.dataset.search.includes(q); card.hidden=!(okSource&&okText); if(!card.hidden) shown++;}});
       document.querySelector('#no-results').hidden=shown!==0;
+      syncFromScroll();
     }}
     buttons.forEach(button=>button.addEventListener('click',()=>{{active=button.dataset.filter; buttons.forEach(item=>item.setAttribute('aria-pressed',String(item===button))); apply();}}));
     search.addEventListener('input',apply);
+    dateJump.addEventListener('change',()=>{{if(dateJump.value)goToDate(dateJump.value);}});
+    document.querySelectorAll('.timeline-tick').forEach(tick=>tick.addEventListener('click',()=>goToDate(tick.dataset.date)));
+    track.addEventListener('pointerenter',()=>{{hovering=true;}});
+    track.addEventListener('pointerleave',()=>{{if(!dragging){{hovering=false;syncFromScroll();}}}});
+    track.addEventListener('pointermove',event=>scrub(event,dragging));
+    track.addEventListener('pointerdown',event=>{{dragging=true;hovering=true;track.setPointerCapture(event.pointerId);scrub(event,true);}});
+    track.addEventListener('pointerup',event=>{{dragging=false;hovering=false;track.releasePointerCapture(event.pointerId);syncFromScroll();}});
+    track.addEventListener('keydown',event=>{{const current=tooltip.textContent; const index=uniqueDates.findIndex(date=>formatDate(date)===current); if(event.key==='ArrowDown'&&index<uniqueDates.length-1){{event.preventDefault();goToDate(uniqueDates[index+1]);}} if(event.key==='ArrowUp'&&index>0){{event.preventDefault();goToDate(uniqueDates[index-1]);}}}});
+    window.addEventListener('scroll',()=>{{cancelAnimationFrame(scrollFrame);scrollFrame=requestAnimationFrame(syncFromScroll);}},{{passive:true}});
+    setHandle(uniqueDates[0]);
   </script>
 </body>
 </html>
@@ -211,7 +269,7 @@ def _render_card(item: LibraryItem) -> str:
     searchable = html.escape(f"{item.title} {item.author} {item.platform}".lower(), quote=True)
     author = html.escape(item.author or item.platform)
     return (
-        f'<article data-sources="{" ".join(sources)}" data-search="{searchable}">'
+        f'<article data-sources="{" ".join(sources)}" data-date="{date_text}" data-search="{searchable}">'
         f'<a class="visual" href="{html.escape(item.source_url, quote=True)}">{image}{duration}</a>'
         f'<div class="card-body"><div class="meta">{"".join(badges)}<time datetime="{date_text}">{date_text}</time></div>'
         f'<h2><a href="{html.escape(item.source_url, quote=True)}">{html.escape(item.title)}</a></h2>'

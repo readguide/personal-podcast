@@ -11,6 +11,8 @@ from personal_podcast.library import (
     normalized_source_url,
 )
 from personal_podcast.models import Episode
+from personal_podcast.site import SiteGenerator
+from personal_podcast.config import AppConfig, GitHubConfig, StorageConfig
 
 
 def podcast_episode(url: str) -> Episode:
@@ -77,6 +79,24 @@ class LibraryTests(unittest.TestCase):
             videos = load_channel_videos(path)
             self.assertEqual(len(videos), 1)
             self.assertEqual(videos[0].platform, "YouTube")
+
+    def test_homepage_has_compact_header_and_time_scrubber(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            config = AppConfig(
+                storage=StorageConfig(root=root, app_dir=root / "data"),
+                github=GitHubConfig(site_dir=root / "site"),
+            )
+            item = merge_library(
+                [podcast_episode("https://example.com/video")], []
+            )[0]
+            rendered = SiteGenerator(config)._render_index(
+                [item], datetime(2026, 8, 15, tzinfo=timezone.utc)
+            )
+            self.assertIn('class="time-scrubber"', rendered)
+            self.assertIn('data-date="2026-08-12"', rendered)
+            self.assertIn('class="date-jump"', rendered)
+            self.assertNotIn("把分享到播客", rendered)
 
 
 if __name__ == "__main__":
