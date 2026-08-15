@@ -95,6 +95,10 @@ class LibraryTests(unittest.TestCase):
             )
             self.assertIn('class="time-scrubber"', rendered)
             self.assertIn('data-date="2026-08-12"', rendered)
+            self.assertIn('class="timeline-tooltip"', rendered)
+            self.assertIn('2026年8月12日 · 1条视频', rendered)
+            self.assertNotIn('timeline-track::before', rendered)
+            self.assertNotIn('class="timeline-handle"', rendered)
             self.assertIn('class="date-jump"', rendered)
             self.assertNotIn("把分享到播客", rendered)
 

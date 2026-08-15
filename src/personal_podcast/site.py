@@ -102,17 +102,29 @@ class SiteGenerator:
         dates = sorted(
             {item.date.astimezone(china).date() for item in library_items}, reverse=True
         )
+        date_counts = {
+            value: sum(
+                item.date.astimezone(china).date() == value for item in library_items
+            )
+            for value in dates
+        }
+        max_date_count = max(date_counts.values(), default=1)
         newest_day = dates[0].toordinal() if dates else 0
         oldest_day = dates[-1].toordinal() if dates else 0
         span = max(1, newest_day - oldest_day)
         timeline_ticks = "".join(
             (
                 '<button class="timeline-tick" data-date="{date}" '
-                'style="--at:{position:.3f}%" aria-label="跳到 {label}"></button>'
+                'data-count="{count}" style="--at:{position:.3f}%;--bar:{bar:.1f}px" '
+                'aria-label="{full_label} · {count}条视频">'
+                '<span class="timeline-tooltip">{full_label} · {count}条视频</span>'
+                "</button>"
             ).format(
                 date=value.isoformat(),
-                label=f"{value.month}月{value.day}日",
+                full_label=f"{value.year}年{value.month}月{value.day}日",
+                count=date_counts[value],
                 position=(newest_day - value.toordinal()) / span * 100,
+                bar=12 + 18 * date_counts[value] / max_date_count,
             )
             for value in dates
         )
@@ -120,7 +132,6 @@ class SiteGenerator:
             f'<option value="{value.isoformat()}">{value.month}月{value.day}日</option>'
             for value in dates
         )
-        newest_label = f"{dates[0].month}月{dates[0].day}日" if dates else ""
         return f'''<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -143,15 +154,15 @@ class SiteGenerator:
     button[aria-pressed="true"] {{ border-color:var(--green); background:var(--green); color:white; }}
     .search {{ margin-left:auto; width:min(300px, 32vw); min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 16px; color:var(--ink); font:inherit; }}
     .date-jump {{ display:none; min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 32px 0 13px; color:var(--ink); font:650 13px/1 inherit; }}
-    .time-scrubber {{ position:fixed; z-index:8; left:6px; top:120px; width:52px; height:min(62vh,560px); color:var(--muted); user-select:none; }}
-    .timeline-track {{ position:absolute; left:0; top:10px; bottom:10px; width:32px; cursor:ns-resize; touch-action:none; }}
-    .timeline-track::before {{ content:""; position:absolute; top:0; bottom:0; left:8px; width:1px; background:rgba(63,78,67,.24); }}
-    .timeline-tick {{ position:absolute; left:8px; top:var(--at); width:9px; min-height:0; height:1px; padding:0; border:0; border-radius:0; background:rgba(46,65,53,.40); transform:translateY(-50%); transition:width .16s ease, background .16s ease; }}
-    .timeline-tick:nth-of-type(3n+1) {{ width:15px; }}
-    .timeline-tick:hover {{ width:21px; background:rgba(31,101,76,.72); }}
-    .timeline-handle {{ position:absolute; z-index:2; left:4px; top:0; width:9px; height:9px; border:1.5px solid var(--paper); border-radius:50%; background:var(--orange); box-shadow:0 0 0 1px rgba(67,61,50,.14); opacity:0; transform:translateY(-50%) scale(.7); transition:opacity .16s ease, transform .16s ease; pointer-events:none; }}
-    .time-scrubber:hover .timeline-handle, .time-scrubber:focus-within .timeline-handle, .timeline-track.is-dragging .timeline-handle {{ opacity:1; transform:translateY(-50%) scale(1); }}
-    .timeline-current {{ position:absolute; left:19px; top:50%; color:rgba(67,78,70,.72); font-size:11px; font-weight:600; line-height:1; letter-spacing:.01em; white-space:nowrap; transform:translateY(-50%); pointer-events:none; }}
+    .time-scrubber {{ position:fixed; z-index:8; left:0; top:120px; width:64px; height:min(62vh,560px); color:var(--muted); user-select:none; }}
+    .timeline-track {{ position:absolute; inset:14px 0; }}
+    .timeline-tick {{ position:absolute; left:0; top:var(--at); width:48px; min-height:28px; height:28px; padding:0; border:0; border-radius:0; background:transparent; transform:translateY(-50%); cursor:pointer; }}
+    .timeline-tick::before {{ content:""; position:absolute; left:0; top:50%; width:var(--bar); height:4px; border-radius:0 999px 999px 0; background:rgba(50,68,57,.32); transform:translateY(-50%); transition:width .18s ease, height .18s ease, background .18s ease, box-shadow .18s ease; }}
+    .timeline-tick:hover::before, .timeline-tick:focus-visible::before {{ width:calc(var(--bar) + 5px); background:rgba(31,101,76,.68); }}
+    .timeline-tick[aria-current="date"]::before {{ width:calc(var(--bar) + 7px); height:5px; background:var(--orange); box-shadow:0 1px 5px rgba(154,68,29,.18); }}
+    .timeline-tick:focus-visible {{ outline:none; }}
+    .timeline-tooltip {{ position:absolute; z-index:3; left:calc(var(--bar) + 10px); top:50%; padding:6px 9px; border:1px solid rgba(54,67,58,.12); border-radius:8px; background:rgba(255,254,250,.94); box-shadow:0 8px 22px rgba(45,42,34,.10); color:#4c574f; font-size:11px; font-weight:600; line-height:1; white-space:nowrap; opacity:0; transform:translate(4px,-50%); transition:opacity .14s ease, transform .14s ease; pointer-events:none; backdrop-filter:blur(10px); }}
+    .timeline-tick:hover .timeline-tooltip, .timeline-tick:focus-visible .timeline-tooltip {{ opacity:1; transform:translate(0,-50%); }}
     .grid {{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }}
     article {{ overflow:hidden; scroll-margin-top:76px; border:1px solid var(--line); border-radius:18px; background:var(--card); cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; }}
     article:hover {{ transform:translateY(-3px); box-shadow:0 16px 34px rgba(45,42,34,.10); }}
@@ -182,8 +193,8 @@ class SiteGenerator:
 </head>
 <body>
   <aside class="time-scrubber" aria-label="按时间快速定位">
-    <div class="timeline-track" role="slider" aria-label="视频时间" aria-orientation="vertical" tabindex="0">
-      {timeline_ticks}<span class="timeline-handle"><span class="timeline-current">{newest_label}</span></span>
+    <div class="timeline-track" role="navigation" aria-label="视频收藏时间">
+      {timeline_ticks}
     </div>
   </aside>
   <main>
@@ -201,25 +212,35 @@ class SiteGenerator:
     const search=document.querySelector('.search');
     const dateJump=document.querySelector('.date-jump');
     const track=document.querySelector('.timeline-track');
-    const handle=document.querySelector('.timeline-handle');
-    const currentLabel=document.querySelector('.timeline-current');
+    const ticks=[...document.querySelectorAll('.timeline-tick')];
     let active='all';
-    let dragging=false, scrollFrame=0, programmaticUntil=0;
+    let scrollFrame=0, programmaticUntil=0;
     const uniqueDates=[...new Set(cards.map(card=>card.dataset.date))].sort().reverse();
     let currentDate=uniqueDates[0]||'';
     const dateValue=date=>new Date(date+'T12:00:00+08:00').getTime();
-    const maxDate=Math.max(...uniqueDates.map(dateValue)), minDate=Math.min(...uniqueDates.map(dateValue));
-    const formatDate=date=>{{const [year,month,day]=date.split('-'); return `${{Number(month)}}月${{Number(day)}}日`;}};
+    const formatFullDate=date=>{{const [year,month,day]=date.split('-'); return `${{Number(year)}}年${{Number(month)}}月${{Number(day)}}日`;}};
     const visibleCards=()=>cards.filter(card=>!card.hidden);
-    function nearestDate(target){{return uniqueDates.reduce((best,date)=>Math.abs(dateValue(date)-target)<Math.abs(dateValue(best)-target)?date:best,uniqueDates[0]);}}
-    function setHandle(date){{if(!date||!handle)return; currentDate=date; const ratio=maxDate===minDate?0:(maxDate-dateValue(date))/(maxDate-minDate); handle.style.top=`${{ratio*100}}%`; currentLabel.textContent=formatDate(date); track.setAttribute('aria-valuetext',formatDate(date));}}
-    function goToDate(date, smooth=true){{const candidates=visibleCards(); if(!candidates.length)return; const exact=candidates.find(card=>card.dataset.date===date); const target=exact||candidates.reduce((best,card)=>Math.abs(dateValue(card.dataset.date)-dateValue(date))<Math.abs(dateValue(best.dataset.date)-dateValue(date))?card:best,candidates[0]); programmaticUntil=Date.now()+(smooth?900:300); setHandle(target.dataset.date); target.scrollIntoView({{behavior:smooth?'smooth':'auto',block:'start'}});}}
-    function scrub(event, navigate){{const rect=track.getBoundingClientRect(); const ratio=Math.max(0,Math.min(1,(event.clientY-rect.top)/rect.height)); const date=nearestDate(maxDate-ratio*(maxDate-minDate)); setHandle(date); if(navigate)goToDate(date,false);}}
-    function syncFromScroll(){{if(dragging||Date.now()<programmaticUntil)return; const top=document.querySelector('.toolbar').getBoundingClientRect().bottom+8; const candidates=visibleCards().filter(card=>card.getBoundingClientRect().bottom>top); if(candidates.length)setHandle(candidates.reduce((best,card)=>Math.abs(card.getBoundingClientRect().top-top)<Math.abs(best.getBoundingClientRect().top-top)?card:best,candidates[0]).dataset.date);}}
+    function setCurrentDate(date){{if(!date)return; currentDate=date; ticks.forEach(tick=>{{if(tick.dataset.date===date)tick.setAttribute('aria-current','date');else tick.removeAttribute('aria-current');}});}}
+    function updateTimeline(){{
+      const counts=visibleCards().reduce((result,card)=>{{result[card.dataset.date]=(result[card.dataset.date]||0)+1;return result;}},{{}});
+      const maxCount=Math.max(1,...Object.values(counts));
+      ticks.forEach(tick=>{{
+        const count=counts[tick.dataset.date]||0;
+        tick.hidden=count===0;
+        tick.dataset.count=String(count);
+        tick.style.setProperty('--bar',`${{12+18*count/maxCount}}px`);
+        const label=`${{formatFullDate(tick.dataset.date)}} · ${{count}}条视频`;
+        tick.setAttribute('aria-label',label);
+        tick.querySelector('.timeline-tooltip').textContent=label;
+      }});
+    }}
+    function goToDate(date, smooth=true){{const candidates=visibleCards(); if(!candidates.length)return; const exact=candidates.find(card=>card.dataset.date===date); const target=exact||candidates.reduce((best,card)=>Math.abs(dateValue(card.dataset.date)-dateValue(date))<Math.abs(dateValue(best.dataset.date)-dateValue(date))?card:best,candidates[0]); programmaticUntil=Date.now()+(smooth?900:300); setCurrentDate(target.dataset.date); target.scrollIntoView({{behavior:smooth?'smooth':'auto',block:'start'}});}}
+    function syncFromScroll(){{if(Date.now()<programmaticUntil)return; const top=document.querySelector('.toolbar').getBoundingClientRect().bottom+8; const candidates=visibleCards().filter(card=>card.getBoundingClientRect().bottom>top); if(candidates.length)setCurrentDate(candidates.reduce((best,card)=>Math.abs(card.getBoundingClientRect().top-top)<Math.abs(best.getBoundingClientRect().top-top)?card:best,candidates[0]).dataset.date);}}
     function apply(){{
       const q=search.value.trim().toLowerCase(); let shown=0;
       cards.forEach(card=>{{const source=card.dataset.sources.split(' '); const okSource=active==='all'||source.includes(active); const okText=!q||card.dataset.search.includes(q); card.hidden=!(okSource&&okText); if(!card.hidden) shown++;}});
       document.querySelector('#no-results').hidden=shown!==0;
+      updateTimeline();
       syncFromScroll();
     }}
     buttons.forEach(button=>button.addEventListener('click',()=>{{active=button.dataset.filter; buttons.forEach(item=>item.setAttribute('aria-pressed',String(item===button))); apply();}}));
@@ -230,14 +251,13 @@ class SiteGenerator:
       card.addEventListener('keydown',event=>{{if(event.key==='Enter'||event.key===' '){{event.preventDefault();openSource();}}}});
     }});
     dateJump.addEventListener('change',()=>{{if(dateJump.value)goToDate(dateJump.value);}});
-    document.querySelectorAll('.timeline-tick').forEach(tick=>tick.addEventListener('click',()=>goToDate(tick.dataset.date)));
-    track.addEventListener('pointermove',event=>{{if(dragging)scrub(event,true);}});
-    track.addEventListener('pointerdown',event=>{{dragging=true;track.classList.add('is-dragging');track.setPointerCapture(event.pointerId);scrub(event,true);}});
-    track.addEventListener('pointerup',event=>{{dragging=false;track.classList.remove('is-dragging');track.releasePointerCapture(event.pointerId);syncFromScroll();}});
-    track.addEventListener('pointercancel',()=>{{dragging=false;track.classList.remove('is-dragging');syncFromScroll();}});
-    track.addEventListener('keydown',event=>{{const index=uniqueDates.indexOf(currentDate); if(event.key==='ArrowDown'&&index<uniqueDates.length-1){{event.preventDefault();goToDate(uniqueDates[index+1]);}} if(event.key==='ArrowUp'&&index>0){{event.preventDefault();goToDate(uniqueDates[index-1]);}}}});
+    ticks.forEach(tick=>{{
+      tick.addEventListener('click',()=>goToDate(tick.dataset.date));
+      tick.addEventListener('keydown',event=>{{const visibleTicks=ticks.filter(item=>!item.hidden);const index=visibleTicks.indexOf(tick);if(event.key==='ArrowDown'&&index<visibleTicks.length-1){{event.preventDefault();visibleTicks[index+1].focus();goToDate(visibleTicks[index+1].dataset.date);}}if(event.key==='ArrowUp'&&index>0){{event.preventDefault();visibleTicks[index-1].focus();goToDate(visibleTicks[index-1].dataset.date);}}}});
+    }});
     window.addEventListener('scroll',()=>{{cancelAnimationFrame(scrollFrame);scrollFrame=requestAnimationFrame(syncFromScroll);}},{{passive:true}});
-    setHandle(uniqueDates[0]);
+    updateTimeline();
+    setCurrentDate(uniqueDates[0]);
   </script>
 </body>
 </html>
