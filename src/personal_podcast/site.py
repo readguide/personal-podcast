@@ -143,7 +143,7 @@ class SiteGenerator:
     button[aria-pressed="true"] {{ border-color:var(--green); background:var(--green); color:white; }}
     .search {{ margin-left:auto; width:min(300px, 32vw); min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 16px; color:var(--ink); font:inherit; }}
     .date-jump {{ display:none; min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 32px 0 13px; color:var(--ink); font:650 13px/1 inherit; }}
-    .time-scrubber {{ position:fixed; z-index:8; left:max(14px, calc((100vw - 1340px)/2)); top:120px; width:86px; height:min(62vh,560px); color:var(--muted); user-select:none; }}
+    .time-scrubber {{ position:fixed; z-index:8; left:14px; top:120px; width:86px; height:min(62vh,560px); color:var(--muted); user-select:none; }}
     .timeline-track {{ position:absolute; left:19px; top:25px; bottom:25px; width:28px; cursor:ns-resize; touch-action:none; }}
     .timeline-track::before {{ content:""; position:absolute; top:0; bottom:0; left:13px; width:1px; background:#b9b8af; }}
     .timeline-tick {{ position:absolute; left:8px; top:var(--at); width:11px; min-height:0; height:1px; padding:0; border:0; border-radius:0; background:#92948d; transform:translateY(-50%); transition:width .12s, background .12s; }}
