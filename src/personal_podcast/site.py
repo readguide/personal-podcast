@@ -173,10 +173,15 @@ class SiteGenerator:
     article:hover {{ transform:translateY(-3px); box-shadow:0 16px 34px rgba(45,42,34,.10); }}
     article:focus-visible {{ outline:3px solid #d78a62; outline-offset:3px; }}
     article[hidden] {{ display:none; }}
-    .visual {{ position:relative; display:block; aspect-ratio:16/9; background:linear-gradient(145deg,#203d31,#c26738); overflow:hidden; }}
-    .visual img {{ width:100%; height:100%; object-fit:cover; transition:transform .35s ease; }}
+    .visual {{ position:relative; display:block; aspect-ratio:16/9; background:#eef0ee; overflow:hidden; }}
+    .visual::before {{ content:""; position:absolute; inset:0; opacity:0; background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.58) 47%,transparent 64%); transform:translateX(-115%); pointer-events:none; }}
+    .visual.is-loading::before {{ opacity:1; animation:cover-sheen 1.35s ease-in-out infinite; }}
+    .visual img {{ position:relative; z-index:1; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .32s ease, transform .35s ease; }}
+    .visual.is-ready img {{ opacity:1; }}
     article:hover .visual img {{ transform:scale(1.025); }}
-    .no-image {{ position:absolute; inset:0; display:grid; place-items:center; color:rgba(255,255,255,.78); font:500 18px Georgia,serif; letter-spacing:.08em; }}
+    .no-image {{ position:absolute; inset:0; display:grid; place-items:center; color:#9aa09a; font:500 13px Georgia,serif; letter-spacing:.08em; background:#eef0ee; }}
+    @keyframes cover-sheen {{ to {{ transform:translateX(115%); }} }}
+    @media (prefers-reduced-motion:reduce) {{ .visual.is-loading::before {{ animation:none; opacity:.38; }} .visual img {{ transition:none; }} }}
     .duration {{ position:absolute; right:10px; bottom:10px; padding:5px 8px; border-radius:7px; background:rgba(18,22,19,.82); color:#fff; font-size:12px; }}
     .card-body {{ padding:17px 17px 16px; }}
     .meta {{ display:flex; align-items:center; gap:7px; min-height:23px; margin-bottom:10px; flex-wrap:wrap; }}
@@ -264,6 +269,13 @@ class SiteGenerator:
       card.addEventListener('click',event=>{{if(!event.target.closest('a,button,input,select,label'))openSource();}});
       card.addEventListener('keydown',event=>{{if(event.key==='Enter'||event.key===' '){{event.preventDefault();openSource();}}}});
     }});
+    document.querySelectorAll('.visual img').forEach(image=>{{
+      const visual=image.closest('.visual');
+      const reveal=()=>{{visual.classList.remove('is-loading');visual.classList.add('is-ready');}};
+      const fallback=()=>{{visual.classList.remove('is-loading');image.remove();visual.insertAdjacentHTML('afterbegin','<span class="no-image">VIDEO ARCHIVE</span>');}};
+      if(image.complete&&image.naturalWidth)reveal();
+      else {{image.addEventListener('load',reveal,{{once:true}});image.addEventListener('error',fallback,{{once:true}});}}
+    }});
     dateJump.addEventListener('change',()=>{{if(dateJump.value)goToDate(dateJump.value);}});
     ticks.forEach(tick=>{{
       tick.addEventListener('click',()=>goToDate(tick.dataset.date));
@@ -308,9 +320,10 @@ def _render_card(item: LibraryItem) -> str:
         )
     searchable = html.escape(f"{item.title} {item.author} {item.platform}".lower(), quote=True)
     author = html.escape(item.author or item.platform)
+    visual_class = "visual is-loading" if item.thumbnail_url else "visual"
     return (
         f'<article data-sources="{" ".join(sources)}" data-date="{date_text}" data-search="{searchable}" data-source-url="{html.escape(item.source_url, quote=True)}" tabindex="0" role="link" aria-label="在新标签页打开原视频：{html.escape(item.title, quote=True)}">'
-        f'<a class="visual" href="{html.escape(item.source_url, quote=True)}" target="_blank" rel="noopener">{image}{duration}</a>'
+        f'<a class="{visual_class}" href="{html.escape(item.source_url, quote=True)}" target="_blank" rel="noopener">{image}{duration}</a>'
         f'<div class="card-body"><div class="meta">{"".join(badges)}<time datetime="{date_text}">{date_text}</time></div>'
         f'<h2><a href="{html.escape(item.source_url, quote=True)}" target="_blank" rel="noopener">{html.escape(item.title)}</a></h2>'
         f'<p class="author">{author} · {html.escape(item.platform)}</p>'
