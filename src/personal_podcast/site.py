@@ -235,7 +235,16 @@ class SiteGenerator:
       }});
     }}
     function goToDate(date, smooth=true){{const candidates=visibleCards(); if(!candidates.length)return; const exact=candidates.find(card=>card.dataset.date===date); const target=exact||candidates.reduce((best,card)=>Math.abs(dateValue(card.dataset.date)-dateValue(date))<Math.abs(dateValue(best.dataset.date)-dateValue(date))?card:best,candidates[0]); programmaticUntil=Date.now()+(smooth?900:300); setCurrentDate(target.dataset.date); target.scrollIntoView({{behavior:smooth?'smooth':'auto',block:'start'}});}}
-    function syncFromScroll(){{if(Date.now()<programmaticUntil)return; const top=document.querySelector('.toolbar').getBoundingClientRect().bottom+8; const candidates=visibleCards().filter(card=>card.getBoundingClientRect().bottom>top); if(candidates.length)setCurrentDate(candidates.reduce((best,card)=>Math.abs(card.getBoundingClientRect().top-top)<Math.abs(best.getBoundingClientRect().top-top)?card:best,candidates[0]).dataset.date);}}
+    function syncFromScroll(){{
+      if(Date.now()<programmaticUntil)return;
+      const top=document.querySelector('.toolbar').getBoundingClientRect().bottom+8;
+      const candidates=visibleCards().filter(card=>card.getBoundingClientRect().bottom>top);
+      if(!candidates.length)return;
+      const distances=candidates.map(card=>Math.abs(card.getBoundingClientRect().top-top));
+      const nearestDistance=Math.min(...distances);
+      const nearest=candidates.filter((card,index)=>Math.abs(distances[index]-nearestDistance)<1);
+      setCurrentDate((nearest.find(card=>card.dataset.date===currentDate)||nearest[0]).dataset.date);
+    }}
     function apply(){{
       const q=search.value.trim().toLowerCase(); let shown=0;
       cards.forEach(card=>{{const source=card.dataset.sources.split(' '); const okSource=active==='all'||source.includes(active); const okText=!q||card.dataset.search.includes(q); card.hidden=!(okSource&&okText); if(!card.hidden) shown++;}});
