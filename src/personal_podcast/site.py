@@ -40,8 +40,8 @@ class SiteGenerator:
 
         local_cover = self.ensure_local_cover()
         shutil.copy2(local_cover, artwork_dir / "podcast-cover.png")
-        placeholder = Path(__file__).parent / "assets" / "library-placeholder.svg"
-        shutil.copy2(placeholder, artwork_dir / "library-placeholder.svg")
+        placeholder = Path(__file__).parent / "assets" / "library-placeholder-minimal.svg"
+        shutil.copy2(placeholder, artwork_dir / "library-placeholder-minimal.svg")
 
         episode_list: List[Episode] = list(episodes)
         updated_at = _site_updated_at(episode_list)
@@ -176,7 +176,7 @@ class SiteGenerator:
     article:focus-visible {{ outline:3px solid #d78a62; outline-offset:3px; }}
     article[hidden] {{ display:none; }}
     .visual {{ position:relative; display:block; aspect-ratio:16/9; background:#eef0ee; overflow:hidden; }}
-    .visual.no-photo {{ background:#eef0ee url('artwork/library-placeholder.svg') center/cover no-repeat; }}
+    .visual.no-photo {{ background:#eef0ee url('artwork/library-placeholder-minimal.svg') center/cover no-repeat; }}
     .visual::before {{ content:""; position:absolute; inset:0; opacity:0; background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.58) 47%,transparent 64%); transform:translateX(-115%); pointer-events:none; }}
     .visual.is-loading::before {{ opacity:1; animation:cover-sheen 1.35s ease-in-out infinite; }}
     .visual img {{ position:relative; z-index:1; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .32s ease, transform .35s ease; }}
