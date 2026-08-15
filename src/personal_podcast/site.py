@@ -121,7 +121,6 @@ class SiteGenerator:
             for value in dates
         )
         newest_label = f"{dates[0].month}月{dates[0].day}日" if dates else ""
-        oldest_label = f"{dates[-1].month}月{dates[-1].day}日" if dates else ""
         return f'''<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -144,16 +143,15 @@ class SiteGenerator:
     button[aria-pressed="true"] {{ border-color:var(--green); background:var(--green); color:white; }}
     .search {{ margin-left:auto; width:min(300px, 32vw); min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 16px; color:var(--ink); font:inherit; }}
     .date-jump {{ display:none; min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 32px 0 13px; color:var(--ink); font:650 13px/1 inherit; }}
-    .time-scrubber {{ position:fixed; z-index:8; left:14px; top:120px; width:86px; height:min(62vh,560px); color:var(--muted); user-select:none; }}
-    .timeline-track {{ position:absolute; left:19px; top:25px; bottom:25px; width:28px; cursor:ns-resize; touch-action:none; }}
-    .timeline-track::before {{ content:""; position:absolute; top:0; bottom:0; left:13px; width:1px; background:#b9b8af; }}
-    .timeline-tick {{ position:absolute; left:8px; top:var(--at); width:11px; min-height:0; height:1px; padding:0; border:0; border-radius:0; background:#92948d; transform:translateY(-50%); transition:width .12s, background .12s; }}
-    .timeline-tick:nth-of-type(3n+1) {{ width:17px; }}
-    .timeline-tick:hover {{ width:24px; background:var(--orange); }}
-    .timeline-handle {{ position:absolute; z-index:2; left:8px; top:0; width:11px; height:11px; border:2px solid var(--paper); border-radius:50%; background:var(--orange); box-shadow:0 0 0 1px rgba(67,61,50,.18); transform:translateY(-50%); pointer-events:none; }}
-    .timeline-current {{ position:absolute; left:31px; top:50%; color:#85877f; font-size:11px; font-weight:600; line-height:1; letter-spacing:.01em; white-space:nowrap; opacity:.72; transform:translateY(-50%); pointer-events:none; }}
-    .timeline-edge {{ position:absolute; left:0; width:72px; font-size:10px; color:#8b8d86; }}
-    .timeline-edge.newest {{ top:0; }} .timeline-edge.oldest {{ bottom:0; }}
+    .time-scrubber {{ position:fixed; z-index:8; left:6px; top:120px; width:52px; height:min(62vh,560px); color:var(--muted); user-select:none; }}
+    .timeline-track {{ position:absolute; left:0; top:10px; bottom:10px; width:32px; cursor:ns-resize; touch-action:none; }}
+    .timeline-track::before {{ content:""; position:absolute; top:0; bottom:0; left:8px; width:1px; background:rgba(63,78,67,.24); }}
+    .timeline-tick {{ position:absolute; left:8px; top:var(--at); width:9px; min-height:0; height:1px; padding:0; border:0; border-radius:0; background:rgba(46,65,53,.40); transform:translateY(-50%); transition:width .16s ease, background .16s ease; }}
+    .timeline-tick:nth-of-type(3n+1) {{ width:15px; }}
+    .timeline-tick:hover {{ width:21px; background:rgba(31,101,76,.72); }}
+    .timeline-handle {{ position:absolute; z-index:2; left:4px; top:0; width:9px; height:9px; border:1.5px solid var(--paper); border-radius:50%; background:var(--orange); box-shadow:0 0 0 1px rgba(67,61,50,.14); opacity:0; transform:translateY(-50%) scale(.7); transition:opacity .16s ease, transform .16s ease; pointer-events:none; }}
+    .time-scrubber:hover .timeline-handle, .time-scrubber:focus-within .timeline-handle, .timeline-track.is-dragging .timeline-handle {{ opacity:1; transform:translateY(-50%) scale(1); }}
+    .timeline-current {{ position:absolute; left:19px; top:50%; color:rgba(67,78,70,.72); font-size:11px; font-weight:600; line-height:1; letter-spacing:.01em; white-space:nowrap; transform:translateY(-50%); pointer-events:none; }}
     .grid {{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }}
     article {{ overflow:hidden; scroll-margin-top:76px; border:1px solid var(--line); border-radius:18px; background:var(--card); cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; }}
     article:hover {{ transform:translateY(-3px); box-shadow:0 16px 34px rgba(45,42,34,.10); }}
@@ -184,11 +182,9 @@ class SiteGenerator:
 </head>
 <body>
   <aside class="time-scrubber" aria-label="按时间快速定位">
-    <span class="timeline-edge newest">{newest_label}</span>
     <div class="timeline-track" role="slider" aria-label="视频时间" aria-orientation="vertical" tabindex="0">
       {timeline_ticks}<span class="timeline-handle"><span class="timeline-current">{newest_label}</span></span>
     </div>
-    <span class="timeline-edge oldest">{oldest_label}</span>
   </aside>
   <main>
     <header>
@@ -236,8 +232,9 @@ class SiteGenerator:
     dateJump.addEventListener('change',()=>{{if(dateJump.value)goToDate(dateJump.value);}});
     document.querySelectorAll('.timeline-tick').forEach(tick=>tick.addEventListener('click',()=>goToDate(tick.dataset.date)));
     track.addEventListener('pointermove',event=>{{if(dragging)scrub(event,true);}});
-    track.addEventListener('pointerdown',event=>{{dragging=true;track.setPointerCapture(event.pointerId);scrub(event,true);}});
-    track.addEventListener('pointerup',event=>{{dragging=false;track.releasePointerCapture(event.pointerId);syncFromScroll();}});
+    track.addEventListener('pointerdown',event=>{{dragging=true;track.classList.add('is-dragging');track.setPointerCapture(event.pointerId);scrub(event,true);}});
+    track.addEventListener('pointerup',event=>{{dragging=false;track.classList.remove('is-dragging');track.releasePointerCapture(event.pointerId);syncFromScroll();}});
+    track.addEventListener('pointercancel',()=>{{dragging=false;track.classList.remove('is-dragging');syncFromScroll();}});
     track.addEventListener('keydown',event=>{{const index=uniqueDates.indexOf(currentDate); if(event.key==='ArrowDown'&&index<uniqueDates.length-1){{event.preventDefault();goToDate(uniqueDates[index+1]);}} if(event.key==='ArrowUp'&&index>0){{event.preventDefault();goToDate(uniqueDates[index-1]);}}}});
     window.addEventListener('scroll',()=>{{cancelAnimationFrame(scrollFrame);scrollFrame=requestAnimationFrame(syncFromScroll);}},{{passive:true}});
     setHandle(uniqueDates[0]);
