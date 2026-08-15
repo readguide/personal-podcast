@@ -20,7 +20,7 @@
     button[aria-pressed="true"] { border-color:var(--green); background:var(--green); color:white; }
     .search { margin-left:auto; width:min(300px, 32vw); min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 16px; color:var(--ink); font:inherit; }
     .date-jump { display:none; min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 32px 0 13px; color:var(--ink); font:650 13px/1 inherit; }
-    .time-scrubber { position:fixed; z-index:8; left:0; top:120px; width:64px; height:min(62vh,560px); color:var(--muted); user-select:none; }
+    .time-scrubber { position:fixed; z-index:8; left:0; top:120px; width:64px; height:296px; max-height:calc(100vh - 144px); color:var(--muted); user-select:none; }
     .timeline-track { position:absolute; inset:14px 0; }
     .timeline-tick { position:absolute; left:0; top:var(--at); width:48px; min-height:28px; height:28px; padding:0; border:0; border-radius:0; background:transparent; transform:translateY(-50%); cursor:pointer; }
     .timeline-tick::before { content:""; position:absolute; left:0; top:50%; width:var(--bar); height:4px; border-radius:0 999px 999px 0; background:rgba(50,68,57,.32); transform:translateY(-50%); transition:width .18s ease, height .18s ease, background .18s ease, box-shadow .18s ease; }
@@ -60,7 +60,7 @@
 <body>
   <aside class="time-scrubber" aria-label="按时间快速定位">
     <div class="timeline-track" role="navigation" aria-label="视频收藏时间">
-      <button class="timeline-tick" data-date="2026-08-15" data-count="1" style="--at:0.000%;--bar:14.2px" aria-label="2026年8月15日 · 1条视频"><span class="timeline-tooltip">2026年8月15日 · 1条视频</span></button><button class="timeline-tick" data-date="2026-08-13" data-count="2" style="--at:14.286%;--bar:16.5px" aria-label="2026年8月13日 · 2条视频"><span class="timeline-tooltip">2026年8月13日 · 2条视频</span></button><button class="timeline-tick" data-date="2026-08-12" data-count="8" style="--at:21.429%;--bar:30.0px" aria-label="2026年8月12日 · 8条视频"><span class="timeline-tooltip">2026年8月12日 · 8条视频</span></button><button class="timeline-tick" data-date="2026-08-11" data-count="4" style="--at:28.571%;--bar:21.0px" aria-label="2026年8月11日 · 4条视频"><span class="timeline-tooltip">2026年8月11日 · 4条视频</span></button><button class="timeline-tick" data-date="2026-08-10" data-count="1" style="--at:35.714%;--bar:14.2px" aria-label="2026年8月10日 · 1条视频"><span class="timeline-tooltip">2026年8月10日 · 1条视频</span></button><button class="timeline-tick" data-date="2026-08-09" data-count="3" style="--at:42.857%;--bar:18.8px" aria-label="2026年8月9日 · 3条视频"><span class="timeline-tooltip">2026年8月9日 · 3条视频</span></button><button class="timeline-tick" data-date="2026-08-02" data-count="6" style="--at:92.857%;--bar:25.5px" aria-label="2026年8月2日 · 6条视频"><span class="timeline-tooltip">2026年8月2日 · 6条视频</span></button><button class="timeline-tick" data-date="2026-08-01" data-count="1" style="--at:100.000%;--bar:14.2px" aria-label="2026年8月1日 · 1条视频"><span class="timeline-tooltip">2026年8月1日 · 1条视频</span></button>
+      <button class="timeline-tick" data-date="2026-08-15" data-count="1" style="--at:0.000%;--bar:14.2px" aria-label="2026年8月15日"><span class="timeline-tooltip">2026年8月15日</span></button><button class="timeline-tick" data-date="2026-08-13" data-count="2" style="--at:14.286%;--bar:16.5px" aria-label="2026年8月13日"><span class="timeline-tooltip">2026年8月13日</span></button><button class="timeline-tick" data-date="2026-08-12" data-count="8" style="--at:28.571%;--bar:30.0px" aria-label="2026年8月12日"><span class="timeline-tooltip">2026年8月12日</span></button><button class="timeline-tick" data-date="2026-08-11" data-count="4" style="--at:42.857%;--bar:21.0px" aria-label="2026年8月11日"><span class="timeline-tooltip">2026年8月11日</span></button><button class="timeline-tick" data-date="2026-08-10" data-count="1" style="--at:57.143%;--bar:14.2px" aria-label="2026年8月10日"><span class="timeline-tooltip">2026年8月10日</span></button><button class="timeline-tick" data-date="2026-08-09" data-count="3" style="--at:71.429%;--bar:18.8px" aria-label="2026年8月9日"><span class="timeline-tooltip">2026年8月9日</span></button><button class="timeline-tick" data-date="2026-08-02" data-count="6" style="--at:85.714%;--bar:25.5px" aria-label="2026年8月2日"><span class="timeline-tooltip">2026年8月2日</span></button><button class="timeline-tick" data-date="2026-08-01" data-count="1" style="--at:100.000%;--bar:14.2px" aria-label="2026年8月1日"><span class="timeline-tooltip">2026年8月1日</span></button>
     </div>
   </aside>
   <main>
@@ -120,7 +120,7 @@
         tick.hidden=count===0;
         tick.dataset.count=String(count);
         tick.style.setProperty('--bar',`${12+18*count/maxCount}px`);
-        const label=`${formatFullDate(tick.dataset.date)} · ${count}条视频`;
+        const label=formatFullDate(tick.dataset.date);
         tick.setAttribute('aria-label',label);
         tick.querySelector('.timeline-tooltip').textContent=label;
       });

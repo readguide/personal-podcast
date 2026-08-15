@@ -109,24 +109,26 @@ class SiteGenerator:
             for value in dates
         }
         max_date_count = max(date_counts.values(), default=1)
-        newest_day = dates[0].toordinal() if dates else 0
-        oldest_day = dates[-1].toordinal() if dates else 0
-        span = max(1, newest_day - oldest_day)
+        # Keep the history control compact when there are only a few dates.  Its
+        # extent grows with the number of recorded dates, rather than with gaps
+        # in the calendar (which previously made a quiet week look enormous).
+        timeline_height = min(360, max(92, 24 + 34 * len(dates)))
+        last_index = max(1, len(dates) - 1)
         timeline_ticks = "".join(
             (
                 '<button class="timeline-tick" data-date="{date}" '
                 'data-count="{count}" style="--at:{position:.3f}%;--bar:{bar:.1f}px" '
-                'aria-label="{full_label} · {count}条视频">'
-                '<span class="timeline-tooltip">{full_label} · {count}条视频</span>'
+                'aria-label="{full_label}">'
+                '<span class="timeline-tooltip">{full_label}</span>'
                 "</button>"
             ).format(
                 date=value.isoformat(),
                 full_label=f"{value.year}年{value.month}月{value.day}日",
                 count=date_counts[value],
-                position=(newest_day - value.toordinal()) / span * 100,
+                position=(index / last_index * 100) if len(dates) > 1 else 50,
                 bar=12 + 18 * date_counts[value] / max_date_count,
             )
-            for value in dates
+            for index, value in enumerate(dates)
         )
         date_options = "".join(
             f'<option value="{value.isoformat()}">{value.month}月{value.day}日</option>'
@@ -154,7 +156,7 @@ class SiteGenerator:
     button[aria-pressed="true"] {{ border-color:var(--green); background:var(--green); color:white; }}
     .search {{ margin-left:auto; width:min(300px, 32vw); min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 16px; color:var(--ink); font:inherit; }}
     .date-jump {{ display:none; min-height:40px; border:1px solid var(--line); border-radius:999px; background:var(--card); padding:0 32px 0 13px; color:var(--ink); font:650 13px/1 inherit; }}
-    .time-scrubber {{ position:fixed; z-index:8; left:0; top:120px; width:64px; height:min(62vh,560px); color:var(--muted); user-select:none; }}
+    .time-scrubber {{ position:fixed; z-index:8; left:0; top:120px; width:64px; height:{timeline_height}px; max-height:calc(100vh - 144px); color:var(--muted); user-select:none; }}
     .timeline-track {{ position:absolute; inset:14px 0; }}
     .timeline-tick {{ position:absolute; left:0; top:var(--at); width:48px; min-height:28px; height:28px; padding:0; border:0; border-radius:0; background:transparent; transform:translateY(-50%); cursor:pointer; }}
     .timeline-tick::before {{ content:""; position:absolute; left:0; top:50%; width:var(--bar); height:4px; border-radius:0 999px 999px 0; background:rgba(50,68,57,.32); transform:translateY(-50%); transition:width .18s ease, height .18s ease, background .18s ease, box-shadow .18s ease; }}
@@ -229,7 +231,7 @@ class SiteGenerator:
         tick.hidden=count===0;
         tick.dataset.count=String(count);
         tick.style.setProperty('--bar',`${{12+18*count/maxCount}}px`);
-        const label=`${{formatFullDate(tick.dataset.date)}} · ${{count}}条视频`;
+        const label=formatFullDate(tick.dataset.date);
         tick.setAttribute('aria-label',label);
         tick.querySelector('.timeline-tooltip').textContent=label;
       }});
