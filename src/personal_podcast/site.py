@@ -40,6 +40,8 @@ class SiteGenerator:
 
         local_cover = self.ensure_local_cover()
         shutil.copy2(local_cover, artwork_dir / "podcast-cover.png")
+        placeholder = Path(__file__).parent / "assets" / "library-placeholder.svg"
+        shutil.copy2(placeholder, artwork_dir / "library-placeholder.svg")
 
         episode_list: List[Episode] = list(episodes)
         updated_at = _site_updated_at(episode_list)
@@ -174,15 +176,15 @@ class SiteGenerator:
     article:focus-visible {{ outline:3px solid #d78a62; outline-offset:3px; }}
     article[hidden] {{ display:none; }}
     .visual {{ position:relative; display:block; aspect-ratio:16/9; background:#eef0ee; overflow:hidden; }}
+    .visual.no-photo {{ background:#eef0ee url('artwork/library-placeholder.svg') center/cover no-repeat; }}
     .visual::before {{ content:""; position:absolute; inset:0; opacity:0; background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.58) 47%,transparent 64%); transform:translateX(-115%); pointer-events:none; }}
     .visual.is-loading::before {{ opacity:1; animation:cover-sheen 1.35s ease-in-out infinite; }}
     .visual img {{ position:relative; z-index:1; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .32s ease, transform .35s ease; }}
     .visual.is-ready img {{ opacity:1; }}
     article:hover .visual img {{ transform:scale(1.025); }}
-    .no-image {{ position:absolute; inset:0; display:grid; place-items:center; color:#9aa09a; font:500 13px Georgia,serif; letter-spacing:.08em; background:#eef0ee; }}
     @keyframes cover-sheen {{ to {{ transform:translateX(115%); }} }}
     @media (prefers-reduced-motion:reduce) {{ .visual.is-loading::before {{ animation:none; opacity:.38; }} .visual img {{ transition:none; }} }}
-    .duration {{ position:absolute; right:10px; bottom:10px; padding:5px 8px; border-radius:7px; background:rgba(18,22,19,.82); color:#fff; font-size:12px; }}
+    .duration {{ position:absolute; z-index:2; right:10px; bottom:10px; padding:5px 8px; border-radius:7px; background:rgba(18,22,19,.82); color:#fff; font-size:12px; pointer-events:none; }}
     .card-body {{ padding:17px 17px 16px; }}
     .meta {{ display:flex; align-items:center; gap:7px; min-height:23px; margin-bottom:10px; flex-wrap:wrap; }}
     .badge {{ padding:4px 7px; border-radius:6px; font-size:11px; font-weight:750; }}
@@ -273,7 +275,7 @@ class SiteGenerator:
     document.querySelectorAll('.visual img').forEach(image=>{{
       const visual=image.closest('.visual');
       const reveal=()=>{{visual.classList.remove('is-loading');visual.classList.add('is-ready');}};
-      const fallback=()=>{{visual.classList.remove('is-loading');image.remove();visual.insertAdjacentHTML('afterbegin','<span class="no-image">VIDEO ARCHIVE</span>');}};
+      const fallback=()=>{{visual.classList.remove('is-loading');visual.classList.add('no-photo');image.remove();}};
       if(image.complete&&image.naturalWidth)reveal();
       else {{image.addEventListener('load',reveal,{{once:true}});image.addEventListener('error',fallback,{{once:true}});}}
     }});
@@ -304,7 +306,7 @@ def _render_card(item: LibraryItem) -> str:
     image = (
         f'<img src="{html.escape(item.thumbnail_url, quote=True)}" alt="" loading="lazy">'
         if item.thumbnail_url
-        else '<span class="no-image">VIDEO ARCHIVE</span>'
+        else ''
     )
     duration = (
         f'<span class="duration">{_duration_text(item.duration_seconds)}</span>'
@@ -326,7 +328,7 @@ def _render_card(item: LibraryItem) -> str:
         )
     searchable = html.escape(f"{item.title} {item.author} {item.platform}".lower(), quote=True)
     author = html.escape(item.author or item.platform)
-    visual_class = "visual is-loading" if item.thumbnail_url else "visual"
+    visual_class = "visual is-loading" if item.thumbnail_url else "visual no-photo"
     return (
         f'<article data-sources="{" ".join(sources)}" data-date="{date_text}" data-search="{searchable}" data-source-url="{html.escape(item.source_url, quote=True)}" tabindex="0" role="link" aria-label="在新标签页打开原视频：{html.escape(item.title, quote=True)}">'
         f'<a class="{visual_class}" href="{html.escape(item.source_url, quote=True)}" target="_blank" rel="noopener">{image}{duration}</a>'
