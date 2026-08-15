@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Thu, 13 Aug 2026 11:51:42 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 15 Aug 2026 02:11:13 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,21 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>刘强东牛津大学赛德商学院演讲（完整版）</title>
+      <link>https://www.bilibili.com/video/BV1yS7PzjExX/</link>
+      <description>-
+
+作者：上海兔子
+原始来源：https://www.bilibili.com/video/BV1yS7PzjExX/</description>
+      <guid isPermaLink="false">personal-podcast:bilibili-bv1ys7pzjexx</guid>
+      <pubDate>Sat, 15 Aug 2026 02:11:13 +0000</pubDate>
+      <enclosure url="https://github.com/readguide/personal-podcast/releases/download/episode-bilibili-bv1ys7pzjexx/bilibili-bv1ys7pzjexx.m4a?v=8f367ed8379d7207" length="32874206" type="audio/mp4" />
+      <itunes:author>上海兔子</itunes:author>
+      <itunes:duration>1:11:45</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/bilibili-bv1ys7pzjexx.jpg" />
+    </item>
     <item>
       <title>AI 已黑入人类文明的代码 | 赫拉利牛津 Tanner 演讲</title>
       <link>https://youtu.be/zPNC0pMHVB4</link>
