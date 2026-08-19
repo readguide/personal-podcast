@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Sat, 15 Aug 2026 13:22:41 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 19 Aug 2026 11:45:17 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,21 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>刘开心：越想活就越怕死 今年初我认识了一个女孩，病痛困住了她的躯体，却没有困住她的灵魂。 关于生病，她说：我…</title>
+      <link>https://v.douyin.com/gZ1PvU428Ds/</link>
+      <description>刘开心：越想活就越怕死 今年初我认识了一个女孩，病痛困住了她的躯体，却没有困住她的灵魂。 关于生病，她说：我…
+
+作者：en
+原始来源：https://v.douyin.com/gZ1PvU428Ds/</description>
+      <guid isPermaLink="false">personal-podcast:v-douyin-com-a93209284c85ed6f</guid>
+      <pubDate>Wed, 19 Aug 2026 11:45:17 +0000</pubDate>
+      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-a93209284c85ed6f.m4a?v=27d84cf11917a4fd" length="9994745" type="audio/mp4" />
+      <itunes:author>en</itunes:author>
+      <itunes:duration>0:26:23</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+    </item>
     <item>
       <title>对话乔晓春教授，敢说真话的人口学家  #抖音精选 #乔晓春 #视频博客扶持计划 #方园之间 #抖音知识-</title>
       <link>https://v.douyin.com/GHSzYsS3Fv0/</link>
