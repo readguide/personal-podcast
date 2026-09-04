@@ -28,7 +28,7 @@ def example_episode() -> Episode:
 class TranscriptTests(unittest.TestCase):
     def test_filename_contains_episode_id_and_safe_video_title(self) -> None:
         filename = transcript_filename(example_episode())
-        self.assertEqual(filename, "youtube-example-123 - 视频-名称：测试？.txt")
+        self.assertEqual(filename, "2026-08-01-视频-名称：测试？.txt")
         self.assertNotIn("/", filename)
 
     def test_formatted_transcript_has_metadata_before_audio_text(self) -> None:

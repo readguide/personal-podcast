@@ -5,19 +5,43 @@ from typing import List, Optional, Tuple
 
 from personal_podcast.artwork import download_artwork
 from personal_podcast.config import AppConfig
-from personal_podcast.downloader import DownloadManager, MetadataReader
+from personal_podcast.downloader import DownloadManager, DownloadResult, MetadataReader
 from personal_podcast.errors import PersonalPodcastError, PublishError
 from personal_podcast.identifiers import canonicalize_url, episode_id_for
 from personal_podcast.inbox import VideoLinkClassifier, latest_link
 from personal_podcast.media import MediaProcessor
-from personal_podcast.models import Episode
+from personal_podcast.models import Episode, EpisodeMetadata
 from personal_podcast.publisher import GitHubReleasePublisher, GitSitePublisher
 from personal_podcast.site import SiteGenerator
 from personal_podcast.store import EpisodeStore
-from personal_podcast.transcript import format_transcript, transcript_filename
+from personal_podcast.transcript import (
+    CHINA_STANDARD_TIME,
+    format_transcript,
+    transcript_filename,
+)
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def _readable_source_stem(
+    imported_at: datetime,
+    metadata: Optional[EpisodeMetadata],
+    episode_id: str,
+) -> str:
+    """源文件名主干: 日期-标题(可读, 不再用 episode_id 裸 ID, 也不再建子目录)。
+
+    2026-08-12 用户要求: Source Media 下直接平铺文件, 不要文件夹。
+    格式: YYYY-MM-DD-标题(去特殊字符, 截断 60 字); 标题缺失时回退 episode_id。
+    """
+    import re as _re
+    date_part = imported_at.strftime("%Y-%m-%d")
+    raw_title = (metadata.title if metadata and metadata.title else "").strip()
+    if not raw_title:
+        raw_title = episode_id
+    safe = _re.sub(r"[\\/:*?\"<>|#\s]+", "-", raw_title).strip("-")
+    safe = safe[:60].rstrip("-") or episode_id
+    return f"{date_part}-{safe}"
 
 
 def build_episode_description(
@@ -29,10 +53,7 @@ def build_episode_description(
 ) -> str:
     body = original.strip()
     if not body or body == f"原始来源：{source_url}":
-        body = (
-            f"本期为《{title}》的音频收听版，保留原视频内容与原作者声音，"
-            "便于在播客客户端中收听。"
-        )
+        body = f"{title}"
     details = []
     if author and f"作者：{author}" not in body:
         details.append(f"作者：{author}")
@@ -80,16 +101,33 @@ class PersonalPodcastService:
         imported_at = datetime.now(timezone.utc)
         metadata = self.metadata.read(url)
         episode_id = episode_id_for(url, metadata)
-        source_directory = (
-            self.config.storage.source_media_dir
-            / str(imported_at.year)
-            / episode_id
-        )
-        download = self.downloads.download(url, source_directory, episode_id)
+        source_stem = _readable_source_stem(imported_at, metadata, episode_id)
+        # 下载到临时目录, 完成后平铺到 Source Media(文件名=日期-标题, 不建子目录)
+        temp_directory = self.config.storage.temp_dir / "Sources" / episode_id
+        download = self.downloads.download(url, temp_directory, episode_id)
+        original_stem = download.path.stem
         source_info = self.media.probe(download.path)
 
-        fallback_title = download.path.stem or source_info.tags.get("title") or episode_id
+        fallback_title = original_stem or source_info.tags.get("title") or episode_id
         title = (metadata.title if metadata else "") or fallback_title
+        # 标题下载后才完整(如抖音), 用最终标题重新生成文件名
+        source_stem = _readable_source_stem(imported_at, None, episode_id)
+        if title and title != episode_id:
+            import re as _re2
+            safe_title = _re2.sub(r"[\\/:*?\"<>|#\s]+", "-", title).strip("-")[:60].rstrip("-")
+            if safe_title:
+                source_stem = f"{imported_at.strftime('%Y-%m-%d')}-{safe_title}"
+        final_source = self.config.storage.source_media_dir / f"{source_stem}{download.path.suffix}"
+        if download.path != final_source:
+            final_source.parent.mkdir(parents=True, exist_ok=True)
+            if final_source.exists():
+                final_source = final_source.with_name(
+                    f"{source_stem}-{episode_id[:8]}{download.path.suffix}"
+                )
+            import shutil as _shutil
+            _shutil.move(str(download.path), str(final_source))
+            download = DownloadResult(path=final_source, downloader=download.downloader)
+
         author = (metadata.author if metadata else "") or self.config.podcast.author
         description = build_episode_description(
             metadata.description if metadata else "",
@@ -102,7 +140,7 @@ class PersonalPodcastService:
             self.config.storage.artwork_dir / "Episodes" / episode_id,
         )
         embedded_artwork = artwork or self.site.ensure_local_cover()
-        final_directory = self.config.storage.final_audio_dir / str(imported_at.year)
+        final_directory = self.config.storage.final_audio_dir
         audio = self.media.process(
             source_path=download.path,
             output_directory=final_directory,
@@ -122,7 +160,7 @@ class PersonalPodcastService:
         ):
             download.path.unlink(missing_ok=True)
             retained_source = None
-            self._remove_empty_parent(source_directory)
+            self._remove_empty_parent(temp_directory)
 
         episode = Episode(
             episode_id=episode_id,
@@ -225,7 +263,7 @@ class PersonalPodcastService:
         episode = self.store.get(episode_id)
         if not episode.release_tag:
             raise PersonalPodcastError("节目尚未发布，无法从 GitHub 下载转写稿")
-        destination = self.config.storage.transcripts_dir / str(episode.imported_at.year)
+        destination = self.config.storage.transcripts_dir
         download_directory = (
             self.config.storage.temp_dir / "Transcripts" / episode.episode_id
         )
@@ -248,8 +286,62 @@ class PersonalPodcastService:
             and previous_path.parent == destination
         ):
             previous_path.unlink(missing_ok=True)
+        self._sync_transcript_to_kb(episode, transcript_path)
         self.generate_site()
         return updated
+
+    def _sync_transcript_to_kb(self, episode: Episode, transcript_path: Path) -> None:
+        """转写完成后,自动同步一份简体 markdown 到 Obsidian 知识库播客文件夹
+        (简介不再包含转写全文,转写文本独立存放于知识库)"""
+        try:
+            import shutil
+            import re as _re
+            from datetime import datetime as _dt
+            try:
+                import opencc
+            except ImportError:
+                LOGGER.warning("opencc 不可用,转录稿同步跳过(繁体未转换)")
+                return
+            cc = opencc.OpenCC("t2s")
+            kb_dir = (
+                Path.home()
+                / "Library/Mobile Documents/com~apple~CloudDocs/00en/en/Obsidian/知识库/3-Resources/播客"
+            )
+            kb_dir.mkdir(parents=True, exist_ok=True)
+            raw = transcript_path.read_text(encoding="utf-8")
+            title = cc.convert(episode.title.strip())
+            author = cc.convert(episode.author.strip() or "")
+            body = raw.split("音频文本：", 1)[-1].split("音频文本:", 1)[-1].strip()
+            body = cc.convert(body)
+            if not body:
+                return
+            now = _dt.now().strftime("%Y-%m-%dT%H:%M:%S")
+            date_part = episode.imported_at.astimezone(CHINA_STANDARD_TIME).strftime("%Y-%m-%d")
+            fname = _re.sub(r"[\\/:*?\"<>|#]", " ", title).strip()[:80] or "未命名"
+            md = [
+                "---",
+                f"created: {now}",
+                f"updated: {now}",
+                f"source: {episode.source_url}",
+            ]
+            if author:
+                md.append(f"author: {author}")
+            md += ["tags:", "  - 播客", "  - 转录稿", "---", "", f"# {title}", ""]
+            if author:
+                md.append(f"> **作者**: {author} | [原始来源]({episode.source_url})")
+                md.append("")
+            md += ["## 全文转录", "", body, ""]
+            out = kb_dir / f"{date_part}-{fname}.md"
+            for attempt in range(5):
+                try:
+                    out.write_text("\n".join(md), encoding="utf-8")
+                    break
+                except OSError:
+                    import time
+                    time.sleep(3)
+            LOGGER.info("转录稿已同步知识库: %s", out.name)
+        except Exception as error:  # noqa: BLE001
+            LOGGER.warning("转录稿同步知识库失败: %s", error)
 
     def import_ready_transcripts(self) -> List[Episode]:
         imported: List[Episode] = []

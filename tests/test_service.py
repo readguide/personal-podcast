@@ -82,9 +82,10 @@ class ServiceTests(unittest.TestCase):
             author="原作者",
             source_url="https://example.com/video",
         )
-        self.assertIn("《测试单集》的音频收听版", description)
+        self.assertIn("测试单集", description)
         self.assertIn("作者：原作者", description)
         self.assertIn("原始来源：https://example.com/video", description)
+        self.assertNotIn("保留原视频内容", description)
 
     def test_download_filename_wins_over_generic_container_title(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

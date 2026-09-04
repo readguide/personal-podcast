@@ -80,7 +80,7 @@ class StorageConfig:
 
 @dataclass(frozen=True)
 class DownloadConfig:
-    order: List[str] = field(default_factory=lambda: ["downie", "yt-dlp"])
+    order: List[str] = field(default_factory=lambda: ["downie"])
     downie_app: str = "Downie 4"
     downie_timeout_seconds: int = 3600
     downie_poll_seconds: float = 2.0
@@ -204,7 +204,7 @@ def config_from_mapping(data: Mapping[str, Mapping[str, Any]]) -> AppConfig:
         ),
         storage=storage_config,
         download=DownloadConfig(
-            order=[str(item) for item in download.get("order", ["downie", "yt-dlp"])],
+            order=[str(item) for item in download.get("order", ["downie"])],
             downie_app=str(download.get("downie_app", "Downie 4")),
             downie_timeout_seconds=int(download.get("downie_timeout_seconds", 3600)),
             downie_poll_seconds=float(download.get("downie_poll_seconds", 2.0)),
@@ -245,7 +245,7 @@ def validate_config(config: AppConfig) -> None:
         raise ConfigError("aac_bitrate_kbps 不能低于 32")
     if not config.download.order:
         raise ConfigError("download.order 至少需要一个下载器")
-    unsupported = set(config.download.order) - {"downie", "yt-dlp"}
+    unsupported = set(config.download.order) - {"downie", "yt-dlp", "douyin-api"}
     if unsupported:
         raise ConfigError(f"未知下载器: {', '.join(sorted(unsupported))}")
     if "/" not in config.github.repository:

@@ -67,7 +67,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update
-          sudo apt-get install -y cmake ffmpeg
+          sudo apt-get install -y cmake ffmpeg opencc
           git clone --depth 1 --branch v1.8.6 \
             https://github.com/ggml-org/whisper.cpp.git \
             "$RUNNER_TEMP/whisper.cpp"
@@ -106,6 +106,17 @@ jobs:
             -otxt -osrt -ovtt -np \
             -of "$RUNNER_TEMP/transcripts/$stem"
           test -s "$RUNNER_TEMP/transcripts/$stem.txt"
+
+      - name: Convert transcripts to Simplified Chinese
+        run: |
+          set -euo pipefail
+          for f in "$RUNNER_TEMP"/transcripts/*.txt \
+                    "$RUNNER_TEMP"/transcripts/*.srt \
+                    "$RUNNER_TEMP"/transcripts/*.vtt; do
+            [ -f "$f" ] || continue
+            opencc -i "$f" -o "$f.tmp" -c t2s
+            mv "$f.tmp" "$f"
+          done
 
       - name: Upload transcripts to release
         run: |

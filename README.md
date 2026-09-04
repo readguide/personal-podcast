@@ -7,7 +7,7 @@
 ## 已实现
 
 - 单链接导入，按导入时间倒序排列。
-- Downie 4 自动化下载，指定“仅音频”和本地目标目录。
+- Downie 4 自动化下载原始媒体并存入本地目标目录，不请求下载后转音频。
 - `yt-dlp` 备用下载及元数据读取。
 - AAC 和 MP3 不重编码；Opus、Vorbis 等转为 AAC-LC M4A。
 - 默认 AAC 上限 128 kbps，源码率更低时不主动提高。
@@ -20,6 +20,7 @@
 - 可监听一个剪藏目录 TXT，只处理存量基线之后新增的视频链接。
 - 微信文章直接跳过，其他文章在没有可下载媒体时跳过。
 - RSS 2.0 + Apple Podcasts 标签、稳定 GUID、封面和文件长度。
+- 视频收藏首页：把播客节目与 Telegram channel 视频按原链接去重，支持来源筛选、搜索、原视频/收听跳转和视频首帧。
 - SQLite 节目记录、轮转日志、中文错误提示和基础测试。
 
 ## 环境
@@ -47,7 +48,7 @@ security add-generic-password -U \
 unset GITHUB_PODCAST_TOKEN
 ```
 
-本程序不读取 macOS 音乐资料库。Downie 只通过其公开的 `downie://XUOpenURL` 自动化接口接收链接、目标目录和“仅音频”选项。
+本程序不读取 macOS 音乐资料库。Downie 只通过其公开的 `downie://XUOpenURL` 自动化接口接收链接和本地目标目录，下载原始媒体文件；音频转换由 `ffmpeg` 完成，原始文件保留在 Source Media。
 
 程序不会修改 Downie 的默认下载目录。每个链接都会请求写入独立的 `Source Media` 节目目录；如果 Downie 忽略单次目录，程序只会识别本次新增的一个顶层媒体文件，并从 `downie_fallback_directory` 移入对应节目目录，已有下载不会被移动。
 
@@ -194,6 +195,18 @@ personal-podcast transcript EPISODE_ID --sync-site
 ```bash
 personal-podcast sync-site
 ```
+
+## 同步 Telegram 视频收藏
+
+`tools/sync_telegram_library.py` 会读取本人账号可访问的目标 channel，只导出带原视频链接的视频消息。相同原链接保留最新一条，测试消息和没有来源链接的消息不会进入网页。脚本只下载 Telegram 已有缩略图，不下载视频文件；站点生成时还会为本地留存的播客源视频自动提取一张首帧。
+
+```bash
+python3 tools/sync_telegram_library.py
+personal-podcast generate
+personal-podcast sync-site
+```
+
+默认数据写入 `$PODCAST_ROOT/Application Data/channel-videos.json`，缩略图写入 `$PODCAST_ROOT/Artwork/Channel/`。channel、会话、凭据、输出和代理都可以用命令行参数覆盖，运行 `python3 tools/sync_telegram_library.py --help` 查看。
 
 ## 本地目录
 

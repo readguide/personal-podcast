@@ -49,6 +49,10 @@ jobs:
           mkdir -p site/audio
           while IFS=$'\t' read -r tag filename expected_size; do
             [ -n "$tag" ] || continue
+            if [ "$expected_size" -gt 104857600 ]; then
+              echo "Skip $filename: exceeds GitHub Pages inline-audio limit (100 MiB)"
+              continue
+            fi
             gh release download "$tag" \
               --repo "$GITHUB_REPOSITORY" \
               --pattern "$filename" \

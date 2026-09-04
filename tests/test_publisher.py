@@ -10,6 +10,7 @@ from unittest.mock import patch
 from personal_podcast.config import GitHubConfig
 from personal_podcast.models import Episode
 from personal_podcast.publisher import (
+    MAX_PAGES_AUDIO_BYTES,
     GitHubReleasePublisher,
     GitSitePublisher,
     github_cli_environment,
@@ -125,6 +126,28 @@ class ReleasePublisherTests(unittest.TestCase):
                 publisher.public_url(episode, "episode-example-123"),
                 "https://readguide.github.io/personal-podcast/audio/"
                 f"example-123.m4a?v={hashlib.sha256(b'audio').hexdigest()[:16]}",
+            )
+
+    def test_github_pages_uses_release_for_audio_larger_than_100_mib(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            audio = Path(temporary) / "example-123.m4a"
+            audio.write_bytes(b"audio")
+            episode = Episode(
+                episode_id="example-123",
+                source_url="https://example.com/123",
+                title="Episode",
+                description="Description",
+                author="Author",
+                imported_at=datetime.now(timezone.utc),
+                duration_seconds=10,
+                audio_path=audio,
+                audio_bytes=MAX_PAGES_AUDIO_BYTES + 1,
+                audio_mime="audio/mp4",
+            )
+            publisher = GitHubReleasePublisher(GitHubConfig(audio_host="github-pages"))
+            self.assertIn(
+                "/releases/download/episode-example-123/example-123.m4a",
+                publisher.public_url(episode, "episode-example-123"),
             )
 
     def test_download_transcript_uses_stable_episode_filename(self) -> None:

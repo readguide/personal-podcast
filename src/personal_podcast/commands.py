@@ -35,6 +35,8 @@ def run_checked(
             check=False,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",  # ffmpeg 等可能输出非 UTF-8 字节(如 GBK 标题), 替换而非崩溃
             timeout=timeout,
             env=dict(env) if env is not None else None,
         )
