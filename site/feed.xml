@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Sun, 02 Aug 2026 00:17:17 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 04 Sep 2026 11:13:48 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,21 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>【完整版】增收了2个亿的森马AI化全流程 #光羽 #森马AI #电商AI化 #RPA #公司AI化</title>
+      <link>https://v.douyin.com/6uf_Xnxs2Vw/</link>
+      <description>本期为《【完整版】增收了2个亿的森马AI化全流程 #光羽 #森马AI #电商AI化 #RPA #公司AI化》的音频收听版，保留原视频内容与原作者声音，便于在播客客户端中收听。
+
+作者：en
+原始来源：https://v.douyin.com/6uf_Xnxs2Vw/</description>
+      <guid isPermaLink="false">personal-podcast:v-douyin-com-b661a178dea6e91a</guid>
+      <pubDate>Fri, 04 Sep 2026 11:13:48 +0000</pubDate>
+      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-b661a178dea6e91a.mp3?v=24880bdec898cdb8" length="24406184" type="audio/mpeg" />
+      <itunes:author>en</itunes:author>
+      <itunes:duration>0:10:09</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+    </item>
     <item>
       <title>陆奇最新演讲完整视频｜大模型带来的新范式 新时代 新机会</title>
       <link>https://www.bilibili.com/video/BV1mM4y147qw/</link>
