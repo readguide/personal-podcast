@@ -5,8 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Fri, 04 Sep 2026 11:13:48 +0000</lastBuildDate>
-
+    <lastBuildDate>Sat, 12 Sep 2026 12:28:24 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -18,286 +17,62 @@
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
     <item>
-      <title>【完整版】增收了2个亿的森马AI化全流程 #光羽 #森马AI #电商AI化 #RPA #公司AI化</title>
-      <link>https://v.douyin.com/6uf_Xnxs2Vw/</link>
-      <description>【完整版】增收了2个亿的森马AI化全流程 #光羽 #森马AI #电商AI化 #RPA #公司AI化
+      <title>年轻人如何用博弈论视角跳出内卷，重新拥有议价权？ #郝奕会客厅 #博弈论 #商业认知 #视频播客扶持计划</title>
+      <link>https://v.douyin.com/mEt6m_aw8_Y/</link>
+      <description>年轻人如何用博弈论视角跳出内卷，重新拥有议价权？ #郝奕会客厅 #博弈论 #商业认知 #视频播客扶持计划
 
 作者：en
-原始来源：https://v.douyin.com/6uf_Xnxs2Vw/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-b661a178dea6e91a</guid>
-      <pubDate>Fri, 04 Sep 2026 11:13:48 +0000</pubDate>
-      <enclosure url="https://github.com/readguide/personal-podcast/releases/download/episode-v-douyin-com-b661a178dea6e91a/v-douyin-com-b661a178dea6e91a.mp3" length="24406184" type="audio/mpeg" />
+原始来源：https://v.douyin.com/mEt6m_aw8_Y/</description>
+      <guid isPermaLink="false">personal-podcast:v-douyin-com-002ed4d4d13e74d3</guid>
+      <pubDate>Sat, 12 Sep 2026 12:28:24 +0000</pubDate>
+      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-002ed4d4d13e74d3.m4a?v=5efe7050c3cf5715" length="5611732" type="audio/mp4" />
       <itunes:author>en</itunes:author>
-      <itunes:duration>0:10:09</itunes:duration>
+      <itunes:duration>0:15:26</itunes:duration>
       <itunes:explicit>false</itunes:explicit>
       <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
     </item>
     <item>
-      <title>刘开心：越想活就越怕死 今年初我认识了一个女孩，病痛困住了她的躯体，却没有困住她的灵魂。 关于生病，她说：我…</title>
-      <link>https://v.douyin.com/gZ1PvU428Ds/</link>
-      <description>刘开心：越想活就越怕死 今年初我认识了一个女孩，病痛困住了她的躯体，却没有困住她的灵魂。 关于生病，她说：我…
-
-作者：en
-原始来源：https://v.douyin.com/gZ1PvU428Ds/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-a93209284c85ed6f</guid>
-      <pubDate>Wed, 19 Aug 2026 11:45:17 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-a93209284c85ed6f.m4a?v=27d84cf11917a4fd" length="9994745" type="audio/mp4" />
-      <itunes:author>en</itunes:author>
-      <itunes:duration>0:26:23</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
-    </item>
-    <item>
-      <title>对话乔晓春教授，敢说真话的人口学家  #抖音精选 #乔晓春 #视频博客扶持计划 #方园之间 #抖音知识-</title>
-      <link>https://v.douyin.com/GHSzYsS3Fv0/</link>
-      <description>对话乔晓春教授，敢说真话的人口学家  #抖音精选 #乔晓春 #视频博客扶持计划 #方园之间 #抖音知识-
-
-作者：en
-原始来源：https://v.douyin.com/GHSzYsS3Fv0/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-152d077774aee46b</guid>
-      <pubDate>Sat, 15 Aug 2026 13:22:41 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-152d077774aee46b.m4a?v=03aac25f3b10dd19" length="35053759" type="audio/mp4" />
-      <itunes:author>en</itunes:author>
-      <itunes:duration>1:31:50</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
-    </item>
-    <item>
-      <title>刘强东牛津大学赛德商学院演讲（完整版）</title>
-      <link>https://www.bilibili.com/video/BV1yS7PzjExX/</link>
-      <description>-
-
-作者：上海兔子
-原始来源：https://www.bilibili.com/video/BV1yS7PzjExX/</description>
-      <guid isPermaLink="false">personal-podcast:bilibili-bv1ys7pzjexx</guid>
-      <pubDate>Sat, 15 Aug 2026 02:11:13 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/bilibili-bv1ys7pzjexx.m4a?v=8f367ed8379d7207" length="32874206" type="audio/mp4" />
-      <itunes:author>上海兔子</itunes:author>
-      <itunes:duration>1:11:45</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/bilibili-bv1ys7pzjexx.jpg" />
-    </item>
-    <item>
-      <title>AI 已黑入人类文明的代码 | 赫拉利牛津 Tanner 演讲</title>
-      <link>https://youtu.be/zPNC0pMHVB4</link>
-      <description>youtube-zpnc0pmhvb4-
-
-作者：en
-原始来源：https://youtu.be/zPNC0pMHVB4</description>
-      <guid isPermaLink="false">personal-podcast:youtube-zpnc0pmhvb4</guid>
-      <pubDate>Thu, 13 Aug 2026 11:51:42 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/youtube-zpnc0pmhvb4.m4a?v=f38bb9ede4552e5a" length="74460147" type="audio/mp4" />
-      <itunes:author>en</itunes:author>
-      <itunes:duration>1:16:44</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/youtube-zpnc0pmhvb4.jpg" />
-    </item>
-    <item>
-      <title>芯片存储，能否长期持有？ 本期视频，科技投资人Bill对话久谦咨询合伙人 Henry，聊聊他在服务全球投资者研究中国科技…</title>
-      <link>https://v.douyin.com/fTTcrAuW2Z8/</link>
-      <description>芯片存储，能否长期持有？ 本期视频，科技投资人Bill对话久谦咨询合伙人 Henry，聊聊他在服务全球投资者研究中国科技…
-
-作者：en
-原始来源：https://v.douyin.com/fTTcrAuW2Z8/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-7225990149861d6a</guid>
-      <pubDate>Wed, 12 Aug 2026 23:33:15 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-7225990149861d6a.m4a?v=6b4946a1a3dd1ab6" length="7384245" type="audio/mp4" />
-      <itunes:author>en</itunes:author>
-      <itunes:duration>0:19:17</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
-    </item>
-    <item>
-      <title>三个方法获取高质量AI信息源（干货分享） 每天花十小时学AI，踩了无数坑，最后发现真正管用的信息源就3个👇  🎧 播客…</title>
-      <link>https://v.douyin.com/YQR589P8W_A/</link>
-      <description>三个方法获取高质量AI信息源（干货分享） 每天花十小时学AI，踩了无数坑，最后发现真正管用的信息源就3个👇  🎧 播客…
-
-作者：en
-原始来源：https://v.douyin.com/YQR589P8W_A/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-7fc3dc4e183c178a</guid>
-      <pubDate>Wed, 12 Aug 2026 15:26:26 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-7fc3dc4e183c178a.m4a?v=d1d8f6ee034bf371" length="2295368" type="audio/mp4" />
-      <itunes:author>en</itunes:author>
-      <itunes:duration>0:05:59</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
-    </item>
-    <item>
-      <title>段永平早期采访：大道至简 重温阿段早年拍下巴菲特午餐后的专访，诸多理念，多年来始终知行合一。#段永平 #投资 #成…</title>
-      <link>https://v.douyin.com/UMEO4Utn_co/</link>
-      <description>段永平早期采访：大道至简 重温阿段早年拍下巴菲特午餐后的专访，诸多理念，多年来始终知行合一。#段永平 #投资 #成…
-
-作者：en
-原始来源：https://v.douyin.com/UMEO4Utn_co/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-136dc700a0a77cf6</guid>
-      <pubDate>Wed, 12 Aug 2026 13:50:40 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-136dc700a0a77cf6.m4a?v=a5e99489930b9b88" length="6702688" type="audio/mp4" />
-      <itunes:author>en</itunes:author>
-      <itunes:duration>0:17:33</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
-    </item>
-    <item>
-      <title>北大教授程乐松：我凭什么说教年轻人？我自己手上都没有人生地图 他说自己活得既不精致，也没品味；他说高中时抄作业、大学天…</title>
-      <link>https://v.douyin.com/9eMX5BnI-lc/</link>
-      <description>北大教授程乐松：我凭什么说教年轻人？我自己手上都没有人生地图 他说自己活得既不精致，也没品味；他说高中时抄作业、大学天…
-
-作者：en
-原始来源：https://v.douyin.com/9eMX5BnI-lc/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-631891cd27ede139</guid>
-      <pubDate>Wed, 12 Aug 2026 13:04:17 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-631891cd27ede139.m4a?v=7ff449adecd82683" length="18517988" type="audio/mp4" />
-      <itunes:author>en</itunes:author>
-      <itunes:duration>0:49:38</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
-    </item>
-    <item>
-      <title>第一集｜老，到底可不可以慢一点？ #阿雅  #和时间做朋友  #诊室之外  #视频播客扶持计划#走进生命医线-</title>
-      <link>https://v.douyin.com/C_erGKAvFcY/</link>
-      <description>第一集｜老，到底可不可以慢一点？ #阿雅  #和时间做朋友  #诊室之外  #视频播客扶持计划#走进生命医线-
-
-作者：en
-原始来源：https://v.douyin.com/C_erGKAvFcY/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-230bb89f408a2c78</guid>
-      <pubDate>Wed, 12 Aug 2026 12:44:32 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-230bb89f408a2c78.m4a?v=b15d007cc2dfe672" length="4513368" type="audio/mp4" />
-      <itunes:author>en</itunes:author>
-      <itunes:duration>0:11:39</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
-    </item>
-    <item>
-      <title>周受资：AI时代，未知里藏着真创新 周受资在南洋理工大学的毕业演讲： AI时代，别总待在自己最擅长的地方。 从父亲…</title>
-      <link>https://v.douyin.com/zOe3xYKtSQ0/</link>
-      <description>周受资：AI时代，未知里藏着真创新 周受资在南洋理工大学的毕业演讲： AI时代，别总待在自己最擅长的地方。 从父亲…
-
-作者：en
-原始来源：https://v.douyin.com/zOe3xYKtSQ0/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-2314415063025e09</guid>
-      <pubDate>Wed, 12 Aug 2026 11:38:41 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-2314415063025e09.m4a?v=67dd91678821ebf1" length="3368981" type="audio/mp4" />
-      <itunes:author>en</itunes:author>
-      <itunes:duration>0:09:39</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
-    </item>
-    <item>
-      <title>未来寿命能到150岁？周轶君硬核拆解：当肉体不再衰老，我们的大脑准备好了吗？</title>
-      <link>https://www.youtube.com/watch?v=eiSMw8rE90w</link>
-      <description>未来寿命能到150岁？周轶君硬核拆解：当肉体不再衰老，我们的大脑准备好了吗？
-
-作者：优酷纪实人文 YOUKU DOCUMENTARY
-原始来源：https://www.youtube.com/watch?v=eiSMw8rE90w</description>
-      <guid isPermaLink="false">personal-podcast:youtube-eismw8re90w</guid>
-      <pubDate>Wed, 12 Aug 2026 10:59:32 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/youtube-eismw8re90w.m4a?v=7bf7b166106c73d2" length="14860992" type="audio/mp4" />
-      <itunes:author>优酷纪实人文 YOUKU DOCUMENTARY</itunes:author>
-      <itunes:duration>0:15:19</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/youtube-eismw8re90w.jpg" />
-    </item>
-    <item>
-      <title>周轶君在节目中分享人生感悟：“我们现在要开始储存肌肉、储存钱、储存精神爱好。” #圆桌派  #圆桌晚晴派-</title>
-      <link>https://v.douyin.com/D8SugvSFwWw/</link>
-      <description>本期为《周轶君在节目中分享人生感悟：“我们现在要开始储存肌肉、储存钱、储存精神爱好。” #圆桌派  #圆桌晚晴派-》的音频收听版，保留原视频内容与原作者声音，便于在播客客户端中收听。
-
-作者：en
-原始来源：https://v.douyin.com/D8SugvSFwWw/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-07512fbbf82c8753</guid>
-      <pubDate>Wed, 12 Aug 2026 00:29:17 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-07512fbbf82c8753.m4a?v=1b3d0af49742fd81" length="424843" type="audio/mp4" />
-      <itunes:author>en</itunes:author>
-      <itunes:duration>0:01:06</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
-    </item>
-    <item>
-      <title>私募大佬韩广斌早期珍贵采访</title>
-      <link>https://v.douyin.com/npvXswAzFFY/</link>
-      <description>本期为《私募大佬韩广斌早期珍贵采访》的音频收听版，保留原视频内容与原作者声音，便于在播客客户端中收听。
-
-作者：en
-原始来源：https://v.douyin.com/npvXswAzFFY/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-46c127db06b2e269</guid>
-      <pubDate>Tue, 11 Aug 2026 23:53:41 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-46c127db06b2e269.m4a?v=b66b784e9e72405b" length="10141844" type="audio/mp4" />
-      <itunes:author>en</itunes:author>
-      <itunes:duration>0:26:45</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
-    </item>
-    <item>
-      <title>大厂agent面试没那么恶心，来来回回就四类 #大厂 #互联网 #AI #面试 #找工作-</title>
+      <title>大厂agent面试没那么恶心，来来回回就四类 #大厂 #互联网 #AI #面试 #找工作</title>
       <link>https://v.douyin.com/VH8hg7_UOpo/</link>
-      <description>本期为《大厂agent面试没那么恶心，来来回回就四类 #大厂 #互联网 #AI #面试 #找工作-》的音频收听版，保留原视频内容与原作者声音，便于在播客客户端中收听。
+      <description>大厂agent面试没那么恶心，来来回回就四类 #大厂 #互联网 #AI #面试 #找工作
 
 作者：en
 原始来源：https://v.douyin.com/VH8hg7_UOpo/</description>
       <guid isPermaLink="false">personal-podcast:v-douyin-com-5b85c57a15ae24a2</guid>
-      <pubDate>Tue, 11 Aug 2026 13:00:11 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-5b85c57a15ae24a2.m4a?v=9e101671564c8be4" length="3062332" type="audio/mp4" />
+      <pubDate>Sat, 12 Sep 2026 12:16:27 +0000</pubDate>
+      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-5b85c57a15ae24a2.m4a?v=2d11b84b57133e0c" length="3062216" type="audio/mp4" />
       <itunes:author>en</itunes:author>
       <itunes:duration>0:08:00</itunes:duration>
       <itunes:explicit>false</itunes:explicit>
       <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
     </item>
     <item>
-      <title>王强：AI时代，提问能力比答案更珍贵 AI时代，答案会越来越多，真正稀缺的是能把问题问对的人。  #章泽天  #王强  …</title>
+      <title>王强：AI时代，提问能力比答案更珍贵 AI时代，答案会越来越多，真正稀缺的是能把问题问对的人。  #章泽天  #王强  #人工…</title>
       <link>https://v.douyin.com/WzMc-0fy0u0/</link>
-      <description>本期为《王强：AI时代，提问能力比答案更珍贵 AI时代，答案会越来越多，真正稀缺的是能把问题问对的人。  #章泽天  #王强  …》的音频收听版，保留原视频内容与原作者声音，便于在播客客户端中收听。
+      <description>王强：AI时代，提问能力比答案更珍贵 AI时代，答案会越来越多，真正稀缺的是能把问题问对的人。  #章泽天  #王强  #人工…
 
 作者：en
 原始来源：https://v.douyin.com/WzMc-0fy0u0/</description>
       <guid isPermaLink="false">personal-podcast:v-douyin-com-5a85ab597072d6d0</guid>
-      <pubDate>Tue, 11 Aug 2026 11:42:35 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-5a85ab597072d6d0.m4a?v=4645472cfb2b27b7" length="3333297" type="audio/mp4" />
+      <pubDate>Sat, 12 Sep 2026 12:15:31 +0000</pubDate>
+      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-5a85ab597072d6d0.m4a?v=e48be050d68f70ab" length="3333197" type="audio/mp4" />
       <itunes:author>en</itunes:author>
       <itunes:duration>0:08:55</itunes:duration>
       <itunes:explicit>false</itunes:explicit>
       <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
     </item>
     <item>
-      <title>成年人必修：如何练就「快速翻篇」的能力？ 如何成为一个社会化程度高的人？ 这期我邀请到了红圈所律师合伙人，也是《令人心动的Offer 5》上的带教老师@刘思远…</title>
-      <link>https://v.douyin.com/3-5o3kCSgSk/</link>
-      <description>本期为《成年人必修：如何练就「快速翻篇」的能力？ 如何成为一个社会化程度高的人？ 这期我邀请到了红圈所律师合伙人，也是《令人心动的Offer 5》上的带教老师@刘思远…》的音频收听版，保留原视频内容与原作者声音，便于在播客客户端中收听。
+      <title>【完整版】增收了2个亿的森马AI化全流程 #光羽 #森马AI #电商AI化 #RPA #公司AI化</title>
+      <link>https://v.douyin.com/6uf_Xnxs2Vw/</link>
+      <description>本期为《【完整版】增收了2个亿的森马AI化全流程 #光羽 #森马AI #电商AI化 #RPA #公司AI化》的音频收听版，保留原视频内容与原作者声音，便于在播客客户端中收听。
 
 作者：en
-原始来源：https://v.douyin.com/3-5o3kCSgSk/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-9fe2ad1add1dbeb9</guid>
-      <pubDate>Mon, 10 Aug 2026 12:11:17 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-9fe2ad1add1dbeb9.m4a?v=d3f5541f7943e863" length="3206651" type="audio/mp4" />
+原始来源：https://v.douyin.com/6uf_Xnxs2Vw/</description>
+      <guid isPermaLink="false">personal-podcast:v-douyin-com-b661a178dea6e91a</guid>
+      <pubDate>Fri, 04 Sep 2026 11:13:48 +0000</pubDate>
+      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-b661a178dea6e91a.mp3?v=24880bdec898cdb8" length="24406184" type="audio/mpeg" />
       <itunes:author>en</itunes:author>
-      <itunes:duration>0:08:15</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
-    </item>
-    <item>
-      <title>从零搭建AI知识库（姜胡说）</title>
-      <link>https://v.douyin.com/gv8dcztpcPc/</link>
-      <description>原始来源：https://v.douyin.com/gv8dcztpcPc/
-
-姜胡说：AI知识库分7层——L1对话查询、L2 Agent干活、L3从做到造、L4结构化目录(P.A.R.A)、L5索引定位、L6语义搜索、L7自动赚钱。</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-e9b8b7bdd9ad887c</guid>
-      <pubDate>Sun, 09 Aug 2026 15:26:18 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-e9b8b7bdd9ad887c.m4a?v=35076dee8b21c6df" length="6429772" type="audio/mp4" />
-      <itunes:author>姜胡说</itunes:author>
-      <itunes:duration>0:16:56</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
-    </item>
-    <item>
-      <title>西湖大学2026本科开学典礼，校长施一公教授致辞！ #西湖大学 #施一公 #开学典礼 #有典有故 #焦坪女婿-</title>
-      <link>https://v.douyin.com/GtiupqPZ07A/</link>
-      <description>本期为《西湖大学2026本科开学典礼，校长施一公教授致辞！ #西湖大学 #施一公 #开学典礼 #有典有故 #焦坪女婿-》的音频收听版，保留原视频内容与原作者声音，便于在播客客户端中收听。
-
-作者：en
-原始来源：https://v.douyin.com/GtiupqPZ07A/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-0eae8b45afa4894c</guid>
-      <pubDate>Sun, 09 Aug 2026 07:08:21 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-0eae8b45afa4894c.mp3?v=13d88c6f68d72b99" length="46963465" type="audio/mpeg" />
-      <itunes:author>en</itunes:author>
-      <itunes:duration>0:19:33</itunes:duration>
+      <itunes:duration>0:10:09</itunes:duration>
       <itunes:explicit>false</itunes:explicit>
       <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
     </item>
@@ -309,12 +84,12 @@
 作者：奇绩创坛
 原始来源：https://www.bilibili.com/video/BV1mM4y147qw/</description>
       <guid isPermaLink="false">personal-podcast:bilibili-bv1mm4y147qw</guid>
-      <pubDate>Sun, 02 Aug 2026 00:18:20 +0000</pubDate>
-      <enclosure url="https://github.com/readguide/personal-podcast/releases/download/episode-bilibili-bv1mm4y147qw/bilibili-bv1mm4y147qw.m4a?v=1aa210f169daef61" length="131382688" type="audio/mp4" />
+      <pubDate>Sun, 02 Aug 2026 00:17:17 +0000</pubDate>
+      <enclosure url="https://readguide.github.io/personal-podcast/audio/bilibili-bv1mm4y147qw.m4a?v=1aa210f169daef61" length="131382688" type="audio/mp4" />
       <itunes:author>奇绩创坛</itunes:author>
       <itunes:duration>2:14:53</itunes:duration>
       <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/bilibili-bv1mm4y147qw.jpg" />
     </item>
     <item>
       <title>【演讲】罗永浩15堂演讲私教课（老罗） p01 01如何克服“演讲恐惧症”？</title>
@@ -325,12 +100,12 @@
 作者：彪哥终身学习
 原始来源：https://www.bilibili.com/video/BV1PP411T7fv/</description>
       <guid isPermaLink="false">personal-podcast:bilibili-bv1pp411t7fv-p1</guid>
-      <pubDate>Sun, 02 Aug 2026 00:17:03 +0000</pubDate>
+      <pubDate>Sun, 02 Aug 2026 00:16:26 +0000</pubDate>
       <enclosure url="https://readguide.github.io/personal-podcast/audio/bilibili-bv1pp411t7fv-p1.m4a?v=a29471fc10b2f39f" length="6807493" type="audio/mp4" />
       <itunes:author>彪哥终身学习</itunes:author>
       <itunes:duration>0:10:18</itunes:duration>
       <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/bilibili-bv1pp411t7fv-p1.png" />
     </item>
     <item>
       <title>AI怎么就成了能源之战？大厂们准备怎么战？</title>
@@ -340,12 +115,12 @@
 作者：小Lin说
 原始来源：https://www.bilibili.com/video/BV1TqJg64EhU/</description>
       <guid isPermaLink="false">personal-podcast:bilibili-bv1tqjg64ehu</guid>
-      <pubDate>Sun, 02 Aug 2026 00:16:12 +0000</pubDate>
+      <pubDate>Sun, 02 Aug 2026 00:15:53 +0000</pubDate>
       <enclosure url="https://readguide.github.io/personal-podcast/audio/bilibili-bv1tqjg64ehu.m4a?v=91f9c2cf1dd888ca" length="20155739" type="audio/mp4" />
       <itunes:author>小Lin说</itunes:author>
       <itunes:duration>0:19:18</itunes:duration>
       <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/bilibili-bv1tqjg64ehu.jpg" />
     </item>
     <item>
       <title>【油管5000w播放】乔布斯在斯坦福大学毕业典礼上的演讲！</title>
@@ -356,12 +131,12 @@
 作者：TED口语官方
 原始来源：https://www.bilibili.com/video/BV1T2YLeYE3g/</description>
       <guid isPermaLink="false">personal-podcast:bilibili-bv1t2yleye3g</guid>
-      <pubDate>Sat, 01 Aug 2026 23:59:31 +0000</pubDate>
+      <pubDate>Sat, 01 Aug 2026 23:59:15 +0000</pubDate>
       <enclosure url="https://readguide.github.io/personal-podcast/audio/bilibili-bv1t2yleye3g.m4a?v=23fc78bea3707274" length="14891490" type="audio/mp4" />
       <itunes:author>TED口语官方</itunes:author>
       <itunes:duration>0:14:25</itunes:duration>
       <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/bilibili-bv1t2yleye3g.jpg" />
     </item>
     <item>
       <title>「现代高能物理学之认识」杨振宁教授1964年香港中文大学演讲</title>
@@ -372,12 +147,12 @@
 作者：MintChocoChips
 原始来源：https://www.bilibili.com/video/BV11fyiB9EwB/</description>
       <guid isPermaLink="false">personal-podcast:bilibili-bv11fyib9ewb</guid>
-      <pubDate>Sat, 01 Aug 2026 23:51:42 +0000</pubDate>
+      <pubDate>Sat, 01 Aug 2026 23:51:13 +0000</pubDate>
       <enclosure url="https://readguide.github.io/personal-podcast/audio/bilibili-bv11fyib9ewb.m4a?v=f2eba1a9f21fe3a9" length="59473282" type="audio/mp4" />
       <itunes:author>MintChocoChips</itunes:author>
       <itunes:duration>0:59:38</itunes:duration>
       <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/bilibili-bv11fyib9ewb.jpg" />
     </item>
     <item>
       <title>理想高管全面复盘：从谷底的 MEGA，到翻盘的 MEGA Home</title>
@@ -387,12 +162,12 @@
 作者：flypig的小号
 原始来源：https://www.bilibili.com/video/BV1DMMuz7EDs/</description>
       <guid isPermaLink="false">personal-podcast:bilibili-bv1dmmuz7eds</guid>
-      <pubDate>Sat, 01 Aug 2026 16:35:05 +0000</pubDate>
+      <pubDate>Sat, 01 Aug 2026 16:32:31 +0000</pubDate>
       <enclosure url="https://readguide.github.io/personal-podcast/audio/bilibili-bv1dmmuz7eds.m4a?v=f71230c10d60a8ca" length="72833830" type="audio/mp4" />
       <itunes:author>flypig的小号</itunes:author>
       <itunes:duration>0:59:10</itunes:duration>
       <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/bilibili-bv1dmmuz7eds.jpg" />
     </item>
     <item>
       <title>AI巨头们之间的资本混战，到底是个什么情况？</title>
@@ -409,12 +184,12 @@
 作者：小Lin说
 原始来源：https://www.youtube.com/watch?v=OcKl98ZQbMQ</description>
       <guid isPermaLink="false">personal-podcast:youtube-com-f6ba40decc41a0c2</guid>
-      <pubDate>Sat, 01 Aug 2026 14:29:11 +0000</pubDate>
+      <pubDate>Sat, 01 Aug 2026 14:14:29 +0000</pubDate>
       <enclosure url="https://readguide.github.io/personal-podcast/audio/youtube-com-f6ba40decc41a0c2.m4a?v=07fb59556d18ab81" length="18890986" type="audio/mp4" />
       <itunes:author>小Lin说</itunes:author>
       <itunes:duration>0:19:28</itunes:duration>
       <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/youtube-com-f6ba40decc41a0c2.jpg" />
     </item>
   </channel>
 </rss>
