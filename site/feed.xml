@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Mon, 28 Sep 2026 00:24:22 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 28 Sep 2026 00:26:43 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,21 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>Dhruv kumar - INSTEAD OF WATCHING NETFLIX TONIGHT. Spend 2 hours with this. Claude ...</title>
+      <link>https://x.com/dhruvkumar16797/status/2104121831771054162?s=46&amp;t=UrvNA5EtoR0PHMJQFc5RCg</link>
+      <description>INSTEAD OF WATCHING NETFLIX TONIGHT. Spend 2 hours with this. Claude AI FULL COURSE that teaches you how to BUILD and AUTOMATE anything. The people who watch this tonight will wake up tomorrow with a new skill. Watch it and bookmark it now. https://t.co/J4wgXHyI6s
+
+作者：Dhruv kumar
+原始来源：https://x.com/dhruvkumar16797/status/2104121831771054162?s=46&amp;t=UrvNA5EtoR0PHMJQFc5RCg</description>
+      <guid isPermaLink="false">personal-podcast:twitter-2104121115539021825</guid>
+      <pubDate>Mon, 28 Sep 2026 00:26:43 +0000</pubDate>
+      <enclosure url="https://readguide.github.io/personal-podcast/audio/twitter-2104121115539021825.m4a?v=a970c76ae01d558e" length="50421208" type="audio/mp4" />
+      <itunes:author>Dhruv kumar</itunes:author>
+      <itunes:duration>1:42:38</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/episodes/twitter-2104121115539021825.jpg" />
+    </item>
     <item>
       <title>Mo Elgaraihy - 🚨 أسطورة الذكاء الاصطناعي أندريه كارباتي يحسمها: "عصر الـ Prompting ا...</title>
       <link>https://x.com/engmoelgaraihy/status/2104121048882872486?s=46&amp;t=UrvNA5EtoR0PHMJQFc5RCg</link>
