@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Thu, 08 Oct 2026 12:45:20 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 08 Oct 2026 12:46:02 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,21 +16,6 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
-    <item>
-      <title>油管大神Dan Koe：用AI做一个自己的人生模型 #人生规划 #AI #提示词 #个人成长 #干货分享</title>
-      <link>https://v.douyin.com/I7EJEG6rEZY/</link>
-      <description>油管大神Dan Koe：用AI做一个自己的人生模型 #人生规划 #AI #提示词 #个人成长 #干货分享
-
-作者：人工雨林
-原始来源：https://v.douyin.com/I7EJEG6rEZY/</description>
-      <guid isPermaLink="false">personal-podcast:v-douyin-com-0862e75aa5a50ec5</guid>
-      <pubDate>Thu, 08 Oct 2026 12:45:20 +0000</pubDate>
-      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-0862e75aa5a50ec5.m4a?v=6aa22d0350d360ec" length="344313" type="audio/mp4" />
-      <itunes:author>人工雨林</itunes:author>
-      <itunes:duration>0:00:52</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
-    </item>
     <item>
       <title>孔乙观察 - 贫穷的本质到底是什么？  普通人要如何逃离贫困陷阱？  这是一条影响千万人的TED演讲，也是我让学生和孩子反复收看的视频  今天，孔乙建议...</title>
       <link>https://x.com/KongYiGC/status/2104794045235204238</link>
