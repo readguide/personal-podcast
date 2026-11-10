@@ -5,7 +5,7 @@
     <link>https://readguide.github.io/personal-podcast</link>
     <description>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Thu, 08 Oct 2026 12:46:02 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 10 Nov 2026 12:17:07 +0000</lastBuildDate>
     <atom:link href="https://readguide.github.io/personal-podcast/feed.xml" rel="self" type="application/rss+xml" />
     <itunes:author>en</itunes:author>
     <itunes:summary>将公开视频转换为原始音频进行收听的个人播客库。保留原作者声音、标题、封面、简介和原始来源，不进行 AI 总结、改写或配音。</itunes:summary>
@@ -16,6 +16,22 @@
       <title>收听库</title>
       <link>https://readguide.github.io/personal-podcast</link>
     </image>
+    <item>
+      <title>当红利退潮后，什么才算真品牌？ 当现代营销学之父菲利普·科特勒的中国门徒，开始用最经典的营销框架，审视当下这个最卷的市场，又会有怎…</title>
+      <link>https://v.douyin.com/WByH8A3nUv4/</link>
+      <description>当红利退潮后，什么才算真品牌？ 当现代营销学之父菲利普·科特勒的中国门徒，开始用最经典的营销框架，审视当下这个最卷的市场，又会有怎…
+原始来源：https://v.douyin.com/WByH8A3nUv4/
+作品：https://www.douyin.com/video/7704214623016258852
+
+作者：黑牛聊增长</description>
+      <guid isPermaLink="false">personal-podcast:v-douyin-com-9194ac9d60e53a83</guid>
+      <pubDate>Tue, 10 Nov 2026 12:17:07 +0000</pubDate>
+      <enclosure url="https://readguide.github.io/personal-podcast/audio/v-douyin-com-9194ac9d60e53a83.m4a?v=1556d99478359500" length="7894300" type="audio/mp4" />
+      <itunes:author>黑牛聊增长</itunes:author>
+      <itunes:duration>0:22:23</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:image href="https://readguide.github.io/personal-podcast/artwork/podcast-cover.png" />
+    </item>
     <item>
       <title>孔乙观察 - 贫穷的本质到底是什么？  普通人要如何逃离贫困陷阱？  这是一条影响千万人的TED演讲，也是我让学生和孩子反复收看的视频  今天，孔乙建议...</title>
       <link>https://x.com/KongYiGC/status/2104794045235204238</link>
